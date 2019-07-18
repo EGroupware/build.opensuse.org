@@ -1,0 +1,26 @@
+# run with: docker-compose -f /etc/egroupware-collabora-key/docker-compose up -d
+version: '2'
+services:
+  collabora-key:
+    image: "quay.io/egroupware/collabora-key:stable"
+    volumes:
+    - /var/lib/egroupware/default/loolwsd:/etc/loolwsd
+    # dont try to regenerate the (not used certificate) as volumn is readonly
+    environment:
+    - DONT_GEN_SSL_CERT=1
+    ports:
+    - "127.0.0.1:9980:9980"
+    restart: always
+    container_name: collabora-key
+    # set the ip-address of your docker host AND your official DNS name so Collabora
+    # can access EGroupware without the need to go over your firewall
+    #extra_hosts:
+    #- "my.host.name:ip-address"
+  # see https://containrrr.github.io/watchtower for more information
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    command: --schedule "0 0 4 * * *" --cleanup collabora-key collabora-watchtower
+    container_name: collabora-watchtower
+    restart: always

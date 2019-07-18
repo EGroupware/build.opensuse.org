@@ -1,0 +1,5 @@
+<project name="server:eGroupWare:trunk">
+  <package name="docker-compose" state=" " />
+  <package name="egroupware-docker" state=" " />
+  <package name="egroupware-rocketchat" state=" " />
+</project>

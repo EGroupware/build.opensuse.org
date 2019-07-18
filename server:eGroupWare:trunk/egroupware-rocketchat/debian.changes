@@ -1,0 +1,11 @@
+egroupware-rocketchat (1.2.20190718) hardy; urgency=low
+
+  * using watchtower single from egroupware-docker package
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 18 Jul 2019 12:30:00 +0100
+
+egroupware-rocketchat (1.2.20190709) hardy; urgency=low
+
+  * initial release with Rocket.Chat 1.2
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 09 Jul 2019 14:30:00 +0100

@@ -1,0 +1,62 @@
+diff --git egroupware/admin/inc/class.admin_asyncservice.inc.php egroupware/admin/inc/class.admin_asyncservice.inc.php
+index df66f9c39e..38f9c35818 100644
+--- egroupware/admin/inc/class.admin_asyncservice.inc.php
++++ egroupware/admin/inc/class.admin_asyncservice.inc.php
+@@ -98,16 +98,20 @@ class admin_asyncservice
+ 		{
+ 			Api\Config::save_value('asyncservice', $GLOBALS['egw_info']['server']['asyncservice']=$_POST['asyncservice'], 'phpgwapi');
+ 		}
++/*
+ 		if (!$async->only_fallback)
+ 		{
+ 			$installed = $async->installed();
+ 			if (is_array($installed) && isset($installed['cronline']))
+ 			{
++*/
+ 				$async_use['cron'] = lang('crontab only (recomended)');
++/*
+ 			}
+ 		}
+ 		$async_use['']    = lang('fallback (after each pageview)');
+ 		$async_use['off'] = lang('disabled (not recomended)');
++*/
+ 		echo '<p><b>'.htmlspecialchars(lang('Run Asynchronous services')).'</b>'.
+ 			' <select name="asyncservice" onChange="this.form.submit();">';
+ 		foreach ($async_use as $key => $label)
+@@ -116,7 +120,7 @@ class admin_asyncservice
+ 			echo "<option value=\"$key\"$selected>".htmlspecialchars($label)."</option>\n";
+ 		}
+ 		echo "</select>\n";
+-
++/*
+ 		if (is_array($installed) && isset($installed['cronline']))
+ 		{
+ 			echo ' &nbsp; <input type="submit" name="deinstall" value="'.htmlspecialchars(lang('Deinstall crontab'))."\">\n";
+@@ -146,6 +150,8 @@ class admin_asyncservice
+ 			echo '<p><input type="submit" name="install" value="'.htmlspecialchars(lang('Install crontab'))."\">\n".
+ 				htmlspecialchars(lang("for the times below (empty values count as '*', all empty = every minute)"))."</p>\n";
+ 		}
++*/
++		echo '<p>'.htmlspecialchars(lang('Installed crontab')).": /etc/cron.d/egroupware.cron\n";
+
+ 		echo "<hr><table border=0><tr>\n";
+ 		foreach ($units as $u => $ulabel)
+diff --git egroupware/api/src/Egw.php egroupware/api/src/Egw.php
+index 5c52f126f2..5360039799 100644
+--- egroupware/api/src/Egw.php
++++ egroupware/api/src/Egw.php
+@@ -617,12 +617,14 @@ class Egw extends Egw\Base
+ 					_egw_log_exception($ex);
+ 				}
+ 			}
++/* not needed as rpm uses /etc/cron.d/egroupware
+ 			// call the asyncservice check_run function if it is not explicitly set to cron-only
+ 			if (!$GLOBALS['egw_info']['server']['asyncservice'])	// is default
+ 			{
+ 				$async = new Asyncservice();
+ 				$async->check_run('fallback');
+ 			}
++*/
+ 			$this->db->disconnect();
+ 		}
+ 	}

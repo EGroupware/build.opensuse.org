@@ -1,0 +1,43 @@
+#! /bin/sh
+
+set -e
+
+webserver_soft_reload() {
+	if command -v invoke-rc.d >/dev/null 2>&1; then
+		invoke-rc.d "$1" force-reload || :
+	else
+		[ -x /etc/init.d/"$1" ] && /etc/init.d/"$1" force-reload || :
+	fi
+}
+
+
+if [ "$1" = remove ]; then
+	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+	then
+		cd /etc/apache2/sites-available
+		for conf in $(grep -li 'include /etc/egroupware-rocketchat/apache.conf' *.conf)
+		do
+			sed -i 's|\t# Rocket.Chat proxy needs to be included inside vhost\n\tinclude /etc/egroupware-rocketchat/apache.conf||g' $conf && \
+				echo "Include /etc/egroupware-rocketchat/apache.conf removed from site $conf"
+		done
+		webserver_soft_reload apache2
+	fi
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		rm -f /etc/nginx/app.d/egroupware-rocketchat.conf
+		nginx -s reload
+	fi
+
+	cd /etc/egroupware-rocketchat
+	docker-compose stop
+	docker-compose rm -f
+fi
+
+
+if [ "$1" = purge ]; then
+	rm -rf /var/lib/egroupware/default/rocketchat
+	rm -rf /etc/egroupware-rocketchat
+fi
+
+
+#DEBHELPER#

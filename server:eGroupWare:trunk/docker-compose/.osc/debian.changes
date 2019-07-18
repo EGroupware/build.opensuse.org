@@ -1,0 +1,5 @@
+docker-compose (1.24.0) hardy; urgency=low
+
+  * build for Ubuntu 16.04, to support file version 3
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 15 Jul 2019 09:30:00 +0200

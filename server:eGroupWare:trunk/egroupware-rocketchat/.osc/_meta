@@ -1,0 +1,22 @@
+<package name="egroupware-rocketchat" project="server:eGroupWare:trunk">
+  <title>Collabora Online Office with support-key</title>
+  <description>This package installs Docker and docker-compose and use it to run the container quay.io/egroupware/collabora-key:stable.
+It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic use new versions of its containers everyday at 4am, if a new version is available. 
+Support-key can be entered from EGroupware Collabora app into /var/lib/egroupware/default/loolwsd/loolwsd.xml, which is used as volum for collabora-key container.</description>
+  <build>
+    <disable/>
+    <enable arch="x86_64" repository="xUbuntu_16.04"/>
+    <enable arch="x86_64" repository="Debian_9.0"/>
+    <enable arch="x86_64" repository="RHEL_7"/>
+    <enable arch="x86_64" repository="CentOS_7"/>
+    <enable arch="x86_64" repository="xUbuntu_18.04"/>
+    <enable arch="x86_64" repository="SLE_15"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.1"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.0"/>
+    <enable arch="x86_64" repository="SLE_12"/>
+  </build>
+  <publish>
+    <disable arch="i586"/>
+  </publish>
+</package>
+

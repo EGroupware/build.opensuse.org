@@ -1,0 +1,15 @@
+<project name="server:eGroupWare">
+  <package name="egroupware-collabora-key" state=" " />
+  <package name="egroupware-epl-17.1" state=" " />
+  <package name="docker-compose" state=" " />
+  <package name="eGroupware-1.6" state=" " />
+  <package name="eGroupware-1.6-egw-pear" state=" " />
+  <package name="eGroupware-1.6-gallery" state=" " />
+  <package name="eGroupware-1.6-icalsrv" state=" " />
+  <package name="eGroupware-1.6-mydms" state=" " />
+  <package name="eGroupware-1.8" state=" " />
+  <package name="eGroupware-14.1" state=" " />
+  <package name="eGroupware-egw-pear-1.8" state=" " />
+  <package name="eGroupware-egw-pear-14.1" state=" " />
+  <package name="eGroupware-gallery-1.8" state=" " />
+</project>

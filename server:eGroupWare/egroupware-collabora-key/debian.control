@@ -1,0 +1,19 @@
+Source: egroupware-collabora-key
+Section: web
+Priority: optional
+Maintainer: Ralf Becker <rb@egroupware.org>
+Build-Depends: debhelper (>= 9)
+
+Package: egroupware-collabora-key
+Architecture: any
+Depends: docker-compose, docker.io | docker-ce, apache2 (>= 2.4) | nginx
+Description: Collabora Online Office with support-key
+ This package installs Docker and docker-compose and use it to run the container
+ quay.io/egroupware/collabora-key:stable.
+ .
+ It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic
+ use new versions of its containers everyday at 4am, if a new version is available.
+ .
+ Support-key can be entered from EGroupware Collabora app into
+ /var/lib/egroupware/default/loolwsd/loolwsd.xml, which is used as volume for
+ collabora-key container.

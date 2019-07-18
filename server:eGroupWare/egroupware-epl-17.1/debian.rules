@@ -1,0 +1,145 @@
+#!/usr/bin/make -f
+
+SHELL = /bin/sh -e
+
+
+PACKAGES := $(shell dh_listpackages)
+MODULES = $(filter-out core,$(patsubst egroupware-epl-%,%,$(filter egroupware-epl-%,$(PACKAGES))))
+COREDIR = debian/egroupware-epl-core/usr/share/egroupware
+COREDOC = debian/egroupware-epl-core/usr/share/doc/egroupware-epl-core
+PACKAGEDIR = debian/egroupware-epl-$${APP}/usr/share/egroupware/$${APPDIR}
+PACKAGEDOC = debian/egroupware-epl-$${APP}/usr/share/doc/egroupware-epl-$${APPDIR}
+
+COPYRIGHT = -iname 'copyright*' -or -iname 'copying*' -or -iname '*license*'
+CHANGELOG = -iname 'changelog*'
+EXTRADOC = -iname readme -or -iname todo
+
+FINDOPT = -type f
+APPFILES = -not \( -path '*/doc/*' -or -path '.' -or -name '*.pl' -or $(COPYRIGHT) -or $(CHANGELOG) -or -iname install -or $(EXTRADOC) \)
+SPECIALDOC = -size 0 -or -iname install -or $(CHANGELOG) -or $(COPYRIGHT) -or \
+	-name '*.sgml' -or -name '*.lyx' -or -name '*.ps' -or -name '*.dvi' -or -name '*.rtf'
+DOCFILES = -not \( $(SPECIALDOC) \)
+
+INSTALL = install -D -m 644
+
+
+clean:
+	dh_testdir
+	dh_testroot
+	debconf-updatepo
+	dh_clean
+
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# apply the patch
+	cat ./doc/rpm-build/asyncservice.patch | patch -p1
+
+	# customize webserver config
+	mkdir -p $(CURDIR)/debian/egroupware-epl-core/etc/egroupware
+	cp $(CURDIR)/doc/rpm-build/apache.conf $(CURDIR)/debian/egroupware-epl-core/etc/egroupware/apache.conf
+	# Debian/Ubuntu uses /usr/lib/ssl/certs with files symlinked from /usr/share/ca-certificates instead for trusted OpenSSL CA
+	sed -i 's|/etc/pki/tls/certs:/etc/pki/ca-trust|/usr/lib/ssl/certs:/usr/share/ca-certificates|g' $(CURDIR)/debian/egroupware-epl-core/etc/egroupware/apache.conf
+	# Univention needs access to /usr/sbin/univention-directory-manager symlinked to /usr/share/univention-directory-manager-tools/directory-manager-cli
+	sed 's|\(open_basedir .*\)|\1:/usr/sbin/univention-directory-manager:/usr/share/univention-directory-manager-tools/directory-manager-cli|' \
+	  $(CURDIR)/doc/rpm-build/apache.conf > $(CURDIR)/debian/egroupware-epl-core/etc/egroupware/apache-univention.conf
+	cp $(CURDIR)/doc/rpm-build/nginx.conf $(CURDIR)/debian/egroupware-epl-core/etc/egroupware/nginx.conf
+
+	# install core modules
+
+	for DIR in api admin home emailadmin preferences addressbook setup doc pixelegg ViewerJS; do \
+	  cd $(CURDIR)/$${DIR}; \
+	  find $(FINDOPT) $(APPFILES) \
+	    -exec $(INSTALL) {} $(CURDIR)/$(COREDIR)/$${DIR}/{} \; ; \
+	  if [ -d $(CURDIR)/$${DIR}/doc ] ; then \
+	    cd $(CURDIR)/$${DIR}/doc; \
+	    find $(FINDOPT) $(DOCFILES) \
+	      -exec $(INSTALL) {} $(CURDIR)/$(COREDOC)/{} \; ;\
+	  fi ; \
+	done
+
+	# install applications
+
+    # lv: activesync (tm) microsoft and has to be renamed
+
+	for APP in $(MODULES) ; do \
+      case $${APP} in \
+		"esync") \
+		  APPDIR="activesync"; \
+		  ;; \
+		"compat") \
+		  APPDIR="phpgwapi"; \
+	      cd $(CURDIR)/$${APPDIR}; \
+	      find $(FINDOPT) $(APPFILES) \
+	        -exec $(INSTALL) {} $(CURDIR)/$(PACKAGEDIR)/{} \; ; \
+	      if [ -d $(CURDIR)/$${APPDIR}/doc ] ; then \
+	        cd $(CURDIR)/$${APPDIR}/doc; \
+	        find $(FINDOPT) $(DOCFILES) \
+	          -exec $(INSTALL) {} $(CURDIR)/$(PACKAGEDOC)/{} \; ;\
+	      fi ; \
+		  APPDIR="etemplate"; \
+		  ;; \
+		*) \
+		  APPDIR=$$(echo $${APP} | sed 's/-/_/g') ; \
+		  ;; \
+	  esac; \
+	  if [ -d $(CURDIR)/$${APPDIR} ] ; then \
+	    cd $(CURDIR)/$${APPDIR}; \
+	    find $(FINDOPT) $(APPFILES) \
+	      -exec $(INSTALL) {} $(CURDIR)/$(PACKAGEDIR)/{} \; ; \
+	    if [ -d $(CURDIR)/$${APPDIR}/doc ] ; then \
+	      cd $(CURDIR)/$${APPDIR}/doc; \
+	      find $(FINDOPT) $(DOCFILES) \
+	        -exec $(INSTALL) {} $(CURDIR)/$(PACKAGEDOC)/{} \; ;\
+	    fi ; \
+	  else \
+	    echo "PACKAGING ERROR: directory $${APPDIR} not found" 1>&2; exit 1 ; \
+	  fi ; \
+	done
+
+	# install cron-file
+	mkdir -p debian/egroupware-epl-core/etc/cron.d
+	sed 's/apache/www-data/' doc/rpm-build/egroupware.cron > debian/egroupware-epl-core/etc/cron.d/egroupware
+
+	dh_install
+
+	# delete some stuff
+	for APKG in $(PACKAGES) ; do \
+	  if [ -f debian/$${APKG}.remove ] ; then \
+	    perl -l0 -p -e '' debian/$${APKG}.remove | xargs -0ri /bin/sh -c "rm -rf debian/$${APKG}/{}" ; \
+	  fi ; \
+	done
+
+	# make postinstall executable
+	#chmod a+x debian/egroupware-epl-core/usr/share/egroupware/doc/rpm-build/post_install.php
+	ls -al debian/egroupware-epl-*/usr/share/egroupware/*/*cli.php debian/egroupware-epl-*/usr/share/egroupware/phpgwapi/cron/*.php debian/egroupware-epl-*/usr/share/egroupware/doc/rpm-build/*.php
+	chmod a+x debian/egroupware-epl-*/usr/share/egroupware/*/*cli.php debian/egroupware-epl-*/usr/share/egroupware/phpgwapi/cron/*.php debian/egroupware-epl-*/usr/share/egroupware/doc/rpm-build/*.php
+
+
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+	dh_installdebconf -i
+	dh_installdocs -i
+	dh_installexamples -i
+	dh_installchangelogs  -i
+	dh_link -i
+	dh_compress -i -X .php
+	dh_fixperms -i
+	dh_installdeb -i
+	(echo -n "egw:Modules="; for x in $(MODULES); do echo -n "egroupware-epl-$$x,"; done; echo) >>debian/egroupware-epl.substvars
+	perl -l0 -p -e 's/^/-V/' debian/substvars | xargs -0 dh_gencontrol -i --
+	dh_md5sums -i
+	dh_builddeb -i
+
+
+binary: binary-indep binary-arch
+
+
+.PHONY: build binary binary-arch binary-indep clean install
+
+# vim: ts=4 noet

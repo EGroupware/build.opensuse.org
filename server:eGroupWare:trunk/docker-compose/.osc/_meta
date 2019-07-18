@@ -1,0 +1,12 @@
+<package name="docker-compose" project="server:eGroupWare:trunk">
+  <title>Define and run multi-container applications with Docker</title>
+  <description>Installs docker-compose command from GitHub as some distros lack it.</description>
+  <build>
+    <disable/>
+    <enable arch="x86_64" repository="RHEL_7"/>
+    <enable arch="x86_64" repository="CentOS_7"/>
+    <enable arch="x86_64" repository="SLE_15"/>
+    <enable arch="x86_64" repository="SLE_12"/>
+  </build>
+</package>
+

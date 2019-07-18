@@ -1,0 +1,3 @@
+/etc/egroupware-rocketchat/apache.conf
+/etc/egroupware-rocketchat/nginx.conf
+/etc/egroupware-rocketchat/docker-compose.yml

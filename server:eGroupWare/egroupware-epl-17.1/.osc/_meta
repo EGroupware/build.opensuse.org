@@ -1,0 +1,51 @@
+<package name="egroupware-epl-17.1" project="server:eGroupWare">
+  <title>EGroupware EPL Trunk</title>
+  <description/>
+  <build>
+    <disable repository="openSUSE_11.2"/>
+    <disable repository="Debian_6.0"/>
+    <disable repository="xUbuntu_12.04"/>
+    <disable arch="i586"/>
+    <disable arch="i586" repository="RHEL_7"/>
+    <disable arch="i586" repository="SLE_12"/>
+    <enable/>
+    <disable repository="CentOS_5"/>
+    <disable repository="Debian_7.0"/>
+    <disable repository="RHEL_5"/>
+    <disable repository="SLE_10"/>
+    <disable repository="SLE_11"/>
+    <disable repository="SLE_11_SP1"/>
+    <disable repository="SLE_11_SP2"/>
+    <disable repository="SLE_11_SP3"/>
+    <disable repository="Univention_3.1"/>
+    <disable repository="Univention_3.2"/>
+    <disable repository="Univention_4.1"/>
+    <disable repository="Univention_4.0"/>
+    <disable repository="openSUSE_11.4"/>
+    <disable repository="openSUSE_13.1"/>
+    <disable repository="openSUSE_13.2"/>
+    <disable repository="openSUSE_Leap_42.1"/>
+    <disable repository="xUbuntu_10.04"/>
+    <disable repository="xUbuntu_14.04"/>
+    <disable repository="openSUSE_Tumbleweed"/>
+    <enable repository="SLE_15"/>
+    <disable arch="i586" repository="SLE_15"/>
+    <enable repository="openSUSE_Leap_15.0"/>
+    <disable arch="i586" repository="openSUSE_Leap_15.0"/>
+  </build>
+  <publish>
+    <disable repository="openSUSE_11.2"/>
+    <disable arch="i586" repository="RHEL_7"/>
+    <disable arch="i586" repository="SLE_12"/>
+    <disable repository="Debian_6.0"/>
+    <disable repository="xUbuntu_12.04"/>
+    <disable arch="i586"/>
+    <disable repository="openSUSE_Tumbleweed"/>
+    <disable repository="xUbuntu_10.04"/>
+    <disable arch="x86_64" repository="CentOS_5"/>
+    <disable arch="x86_64" repository="Debian_7.0"/>
+    <disable repository="xUbuntu_14.04"/>
+    <disable arch="x86_64" repository="xUbuntu_14.04"/>
+  </publish>
+</package>
+
