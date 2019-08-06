@@ -98,6 +98,7 @@ Obsoletes: %{old_name}
 Obsoletes: %{old_name}-core
 Obsoletes: %{old_name}-functions
 Obsoletes: %{old_name}-esync
+Obsoletes: %{old_name}-esyncpro
 Obsoletes: %{old_name}-bookmarks
 Obsoletes: %{old_name}-calendar
 Obsoletes: %{old_name}-collabora
