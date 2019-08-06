@@ -8,7 +8,20 @@ echo -n "EPL Password:  "
 read -s PASSWORD
 echo " "
 
-echo "$PASSWORD" | docker login -u "$USER" --password-stdin download.egroupware.org || {
+# test authentication first (if we have curl available)
+[ -x "$(which curl)" -a $(curl -i --user "$USER:$PASSWORD" https://download.egroupware.org/repos/stylite-epl/ 2>/dev/null|head -1|cut -d" " -f2) -eq 401 ] && {
+	echo " "
+	echo "Username or password wrong"
+	exit
+}
+
+PASSWORD_PARAM="--password-stdin"
+# docker on RHEL/CentOS 7 does NOT support --password-stdin
+docker help login|grep -- $PASSWORD_PARAM >/dev/null || {
+	$PASSWORD_PARAM="--password '$PASSWORD'"
+}
+
+echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.org || {
 	[ -x /usr/bin/docker-credential-secretservice ] || {
 		echo "No /usr/bin/docker-credential-secretservice installed, don't know why docker login failed, maybe the user or password is wrong ..."
 		exit 1
@@ -26,7 +39,7 @@ echo "$PASSWORD" | docker login -u "$USER" --password-stdin download.egroupware.
 		exit 1
 	}
 	echo "/usr/bin/docker-credential-secretservice renamed to /usr/bin/docker-credential-secretservice.disabled, retrying docker login ..."
-	echo "$PASSWORD" | docker login -u "$USER" --password-stdin download.egroupware.org || {
+	echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.org || {
 		echo "Docker login still failing, maybe the user or password is wrong ..."
 		exit 1
 	}
