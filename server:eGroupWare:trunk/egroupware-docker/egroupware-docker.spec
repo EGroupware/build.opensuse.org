@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 19.1.20190726
+Version: 19.1.20190806
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
