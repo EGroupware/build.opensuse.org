@@ -39,6 +39,8 @@ services:
     #    - openSUSE/SLE  /var/run/mysql/mysql.sock
     #    - Debian/Ubuntu /var/run/mysqld/mysqld.sock
     - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
+    # private CA so egroupware can validate your certificate to talk to Collabora or Rocket.Chat
+    #- /etc/egroupware-docker/private-ca.crt:/usr/local/share/ca-certificates/private-ca.crt:ro
     environment:
     # MariaDB/MySQL host to use: for internal service use "db", for host database (socket bind-mounted into container) use "localhost"
     - EGW_DB_HOST=localhost
