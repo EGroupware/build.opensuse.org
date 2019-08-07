@@ -27,6 +27,7 @@ then
 
 	# (re-)start our containers
 	cd /etc/egroupware-docker
+	docker-compose pull
 	docker-compose up -d
 
 	# Set up web server and reload it.

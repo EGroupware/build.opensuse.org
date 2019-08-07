@@ -27,11 +27,12 @@ then
 
 		# patch docker-compose.yml with our primary IP (of interface with default route)
 		sed -i /etc/egroupware-rocketchat/docker-compose.yml \
-			-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet ([0-9.]+).*/\1/p')/rocketchat#g"
+			-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet [^0-9]*([0-9.]+).*/\1/p')/rocketchat#g"
 	fi
 
 	# (re-)start our containers
 	cd /etc/egroupware-rocketchat
+	docker-compose pull
 	docker-compose up -d
 
 	# Set up web server and reload it.
