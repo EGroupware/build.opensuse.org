@@ -1,0 +1,81 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=5
+
+# this is where we install into
+DEST_DIR = /usr/src/packages/BUILD/debian/egroupware-docker
+ETC_DIR = /etc/egroupware-docker
+DATA_DIR = /var/lib/egroupware
+OLD_SRC_DIR = /usr/share/egroupware
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# installing files from tar-ball in there locations
+	mkdir -p $(DEST_DIR)$(ETC_DIR)
+	install -m 644 docker-compose.yml $(DEST_DIR)$(ETC_DIR)
+	install -m 644 apache.conf $(DEST_DIR)$(ETC_DIR)
+	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
+	install -m 644 egroupware-nginx.conf $(DEST_DIR)$(ETC_DIR)
+	install -m 755 use-epl.sh $(DEST_DIR)$(ETC_DIR)
+
+	mkdir -p $(DEST_DIR)$(OLD_SRC_DIR)/doc/rpm-build
+	install -m 755 post_install.php $(DEST_DIR)$(OLD_SRC_DIR)/doc/rpm-build
+
+	# create data-directory and place dummy-header in there
+	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/files/sqlfs
+	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/backup
+	install -m 644 --owner=www-data --group=www-data header.inc.php $(DEST_DIR)/$(DATA_DIR)
+	chown -R www-data:www-data $(DEST_DIR)$(DATA_DIR)
+
+# Build architecture-independent files here.
+binary-indep: build install
+	# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installdebconf
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_installinit
+	dh_installcron
+	dh_installman
+	dh_installinfo
+#	dh_undocumented
+	dh_installchangelogs
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_makeshlibs
+	dh_installdeb
+#	dh_perl
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

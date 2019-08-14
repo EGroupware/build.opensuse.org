@@ -83,6 +83,7 @@ case "$1" in
   2)# This is an upgrade.
 	# re-start our containers
 	cd %{etc_dir}
+	docker-compose pull
 	docker-compose up -d
 	;;
 esac

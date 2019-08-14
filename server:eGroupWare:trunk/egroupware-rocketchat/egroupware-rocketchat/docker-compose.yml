@@ -31,6 +31,10 @@ services:
     ports:
       - 127.0.0.1:3000:3000
     container_name: rocketchat
+    # set the ip-address of your docker host AND your official DNS name so Rocket.Chat
+    # can access EGroupware without the need to go over your firewall
+    #extra_hosts:
+    #- "my.host.name:ip-address"
 
   mongo:
     image: mongo:4.0

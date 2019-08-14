@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 19.1.20190806
+Version: 19.1.20190813
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -30,6 +30,8 @@ Source: %{name}-%{version}.tar.gz
     %define apache_package apache2
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
+# recommend MariaDB, Rocket.Chat and Collabora for (open)SUSE
+Recommends: mariadb-server, egroupware-rocketchat, egroupware-collabora-key
 %else
 	%define apache_conf_d /etc/httpd/conf.d
 	%define apache_vhosts_d /etc/httpd/conf.d

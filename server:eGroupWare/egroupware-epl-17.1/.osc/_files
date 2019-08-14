@@ -1,8 +1,8 @@
-<directory name="egroupware-epl-17.1" rev="54" srcmd5="ebca99d91c16201e941d6100695b090d" vrev="3">
+<directory name="egroupware-epl-17.1" rev="55" srcmd5="40fd54d846f312b71591445756f1925c" vrev="1">
   <entry md5="775f93a43087093e78ca0bf694e0951a" mtime="1539953797" name="0001-fix-distro-detection-to-use-etc-os-release-to-detect.patch" size="3192" />
   <entry md5="98d9015e86dd88f9552460db1afecf5f" mtime="1517318957" name="apache.conf" size="2574" />
   <entry md5="43697cb882a43089f5d6bde9057b8980" mtime="1539885262" name="asyncservice.patch" size="2377" />
-  <entry md5="652ba11eac9e77db9a1c40e9745f3a66" mtime="1559145135" name="debian.changes" size="296480" />
+  <entry md5="ddaef6762ff8f98b719ad8e1e519c98b" mtime="1565284352" name="debian.changes" size="297028" />
   <entry md5="6a83e725f458d3dbb9f981548f070497" mtime="1510740043" name="debian.config" size="781" />
   <entry md5="36e6966186df2e45bb39ed2fa158642c" mtime="1562852085" name="debian.control" size="12595" />
   <entry md5="a4603e54555480af9cbb931ceb67d186" mtime="1547220074" name="debian.control.r41" size="12572" />
@@ -10,8 +10,8 @@
   <entry md5="5834f0d49e4a32c772ebdcfe44fd9207" mtime="1528534271" name="debian.postinst" size="3952" />
   <entry md5="83f9a18e7c604fef75673f5fc9bca302" mtime="1518185796" name="debian.rules" size="5273" />
   <entry md5="867a126ff90f3d23456ca61f666dede9" mtime="1510740044" name="debian.tar.gz" size="21964" />
-  <entry md5="f7f19cb6792617180923e926e61711a1" mtime="1559577358" name="egroupware-epl-all-17.1.20190529.tar.bz2" size="31694545" />
+  <entry md5="05577e1ef754e753b8f01308fece056e" mtime="1565284354" name="egroupware-epl-all-17.1.20190808.tar.bz2" size="32162377" />
   <entry md5="6ab53d48ed3ce4aa434500d1b032e91b" mtime="1510740053" name="egroupware-epl-rpmlintrc" size="142" />
-  <entry md5="89f8056f6118bb389348ddc65af878cd" mtime="1559145137" name="egroupware-epl.dsc" size="945" />
-  <entry md5="b7aeb0f7291b21b49aa5147e4f466061" mtime="1562852086" name="egroupware-epl.spec" size="23483" />
+  <entry md5="dad3fc707698c9d391541b0c11593389" mtime="1565284354" name="egroupware-epl.dsc" size="945" />
+  <entry md5="7f24b48a478130f5e7b3466d618e2fcc" mtime="1565284354" name="egroupware-epl.spec" size="23483" />
 </directory>

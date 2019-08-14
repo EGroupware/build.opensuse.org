@@ -1,0 +1,72 @@
+#! /bin/sh
+
+#export DEBCONF_DEBUG=developer
+set -e
+# das hier muss ganz oben stehen (man debconf-devel)
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+
+webserver_soft_reload() {
+	if command -v invoke-rc.d >/dev/null 2>&1; then
+		invoke-rc.d "$1" force-reload || :
+	else
+		[ -x /etc/init.d/"$1" ] && /etc/init.d/"$1" force-reload || :
+	fi
+}
+
+
+if [ "$1" = configure -o "$1" = upgrade ]
+then
+	# If upgrading, $2 contains the release currently installed, otherwise it's empty
+	if [ -z "$2" ]
+	then
+		# new install
+		# change owner of Rocket.Chat data-directory to 99999 used by container
+		chown -R 99999 /var/lib/egroupware/default/rocketchat
+
+		# patch docker-compose.yml with our primary IP (of interface with default route)
+		sed -i /etc/egroupware-rocketchat/docker-compose.yml \
+			-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet [^0-9]*([0-9.]+).*/\1/p')/rocketchat#g"
+	fi
+
+	# (re-)start our containers
+	cd /etc/egroupware-rocketchat
+	docker-compose pull
+	docker-compose up -d
+
+	# Set up web server and reload it.
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		# initial install: enable egroupware and disable default site
+		if [ -z "$2" ]
+		then
+			[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+			ln -fs ../../egroupware-rocketchat/nginx.conf /etc/nginx/app.d/egroupware-rocketchat.conf
+		fi
+		nginx -s reload
+	fi
+	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+	then
+		# initial install: add Include /etc/egroupware-rocketchat/apache.conf to all vhosts
+		if [ -z "$2" ]
+		then
+			cd /etc/apache2/sites-available
+			for conf in $(grep -il '<VirtualHost ' *.conf)
+			do
+				[ -z "$(grep '/etc/egroupware-rocketchat/apache.conf' $conf)" ] && \
+					sed -i 's|</VirtualHost>|\t# Rocket.Chat proxy needs to be included inside vhost\n\tinclude /etc/egroupware-rocketchat/apache.conf\n\n</VirtualHost>|g' $conf && \
+					echo "Include /etc/egroupware-rocketchat/apache.conf added to site $conf"
+			done
+		fi
+		a2enmod proxy
+		a2enmod proxy_http
+		a2enmod proxy_wstunnel
+		a2enmod rewrite
+		webserver_soft_reload apache2
+	fi
+fi
+
+#DEBHELPER#
+
+db_stop

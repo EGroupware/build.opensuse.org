@@ -28,6 +28,7 @@ then
 
 	# (re-)start our containers
 	cd /etc/egroupware-collabora-key
+	docker-compose pull
 	docker-compose up -d
 
 	# Set up web server and reload it.

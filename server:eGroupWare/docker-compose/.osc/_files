@@ -1,4 +1,11 @@
-<directory name="docker-compose" rev="1" srcmd5="ea429c39784dde7d8946b07e39a58f94" vrev="1">
+<directory name="docker-compose" rev="2" srcmd5="fb63cf4b7d3f4639304817a743f3b8a3" vrev="1">
+  <entry md5="a652a04281b687881f282fe285649d9a" mtime="1563176150" name="debian.changes" size="168" />
+  <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1563176150" name="debian.compat" size="3" />
+  <entry md5="60272ce103a4f12265d297999b778195" mtime="1563195826" name="debian.control" size="386" />
+  <entry md5="1cb238f69f9c87b6d4badc92f0686f01" mtime="1563200295" name="debian.rules" size="1242" />
+  <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1563176151" name="debian.tar.gz" size="120" />
   <entry md5="c49594086f6f7371eeac85dc4d8fb128" mtime="1553521590" name="docker-compose" size="1480" />
-  <entry md5="f251046ae82474ddea2291b3c0644a9b" mtime="1553521590" name="docker-compose.spec" size="771" />
+  <entry md5="707b775cd630893d5740e24b886effd1" mtime="1563176151" name="docker-compose-1.24.0.tar.gz" size="904" />
+  <entry md5="a456a1386b103e1d321a3b56cb76c61f" mtime="1563176151" name="docker-compose.dsc" size="348" />
+  <entry md5="8b3f75f00b8fc03adf72c46109773b29" mtime="1563176151" name="docker-compose.spec" size="724" />
 </directory>

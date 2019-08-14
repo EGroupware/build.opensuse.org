@@ -7,6 +7,7 @@
     <enable arch="x86_64" repository="CentOS_7"/>
     <enable arch="x86_64" repository="SLE_15"/>
     <enable arch="x86_64" repository="SLE_12"/>
+    <enable arch="x86_64" repository="xUbuntu_16.04"/>
   </build>
 </package>
 

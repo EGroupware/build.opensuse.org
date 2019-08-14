@@ -12,4 +12,6 @@
   <package name="eGroupware-egw-pear-1.8" state=" " />
   <package name="eGroupware-egw-pear-14.1" state=" " />
   <package name="eGroupware-gallery-1.8" state=" " />
+  <package name="egroupware-docker-19.1" state=" " />
+  <package name="egroupware-rocketchat" state=" " />
 </project>

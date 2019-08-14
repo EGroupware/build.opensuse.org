@@ -1,0 +1,5 @@
+/etc/egroupware-docker/apache.conf
+/etc/egroupware-docker/nginx.conf
+/etc/egroupware-docker/docker-compose.yml
+/etc/egroupware-docker/egroupware-nginx.conf
+/var/lib/egroupware/header.inc.php
