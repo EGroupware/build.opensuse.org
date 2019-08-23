@@ -1,0 +1,53 @@
+version: '2'
+volumes:
+  # store MongoDB on an (internal) Volume
+  mongo:
+
+services:
+  rocketchat:
+    image: rocketchat/rocket.chat:latest
+    command: bash -c 'for i in `seq 1 30`; do node main.js && s=$$? && break || s=$$?; echo "Tried $$i times. Waiting 5 secs..."; sleep 5; done; (exit $$s)'
+    restart: unless-stopped
+    volumes:
+      - /var/lib/egroupware/default/rocketchat/uploads:/app/uploads
+    # if EGroupware uses a certificate from a private CA, OAuth authentication will fail, you need to:
+    # - comment out the above line: command: bash -c ....
+    # - have the CA certificate stored at /etc/egroupware-docker/private-ca.crt
+    # - to update Rocket.Chat you have to run: docker-compose build --nocache rocketchat && docker-compose up -d
+    # - uncomment the next 3 lines:
+    #- /etc/egroupware-docker/private-ca.crt:/usr/local/share/ca-certificates/private-ca.crt:ro
+    #build: .
+    #command: bash -c 'test -f /usr/local/share/ca-certificates/private-ca.crt && sudo update-ca-certificates; for i in `seq 1 30`; do node main.js && s=$$? && break || s=$$?; echo "Tried $$i times. Waiting 5 secs..."; sleep 5; done; (exit $$s)'
+    environment:
+      - PORT=3000
+      - ROOT_URL=http://localhost/rocketchat
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+      - MONGO_OPLOG_URL=mongodb://mongo:27017/local
+#     - HTTP_PROXY=http://proxy.domain.com
+#     - HTTPS_PROXY=http://proxy.domain.com
+    depends_on:
+      - mongo
+    ports:
+      - 127.0.0.1:3000:3000
+    container_name: rocketchat
+    # set the ip-address of your docker host AND your official DNS name so Rocket.Chat
+    # can access EGroupware without the need to go over your firewall
+    #extra_hosts:
+    #- "my.host.name:ip-address"
+
+  mongo:
+    image: mongo:4.0
+    restart: unless-stopped
+    volumes:
+     - mongo:/data/db
+     - /var/lib/egroupware/default/rocketchat/dump:/dump
+    command: mongod --smallfiles --oplogSize 128 --replSet rs0 --storageEngine=mmapv1
+    container_name: rocketchat-mongo
+
+  # this container's job is just run the command to initialize the replica set.
+  # it will run the command and remove himself (it will not stay running)
+  mongo-init-replica:
+    image: mongo:4.0
+    command: 'bash -c "for i in `seq 1 30`; do mongo mongo/rocketchat --eval \"rs.initiate({ _id: ''rs0'', members: [ { _id: 0, host: ''localhost:27017'' } ]})\" && s=$$? && break || s=$$?; echo \"Tried $$i times. Waiting 5 secs...\"; sleep 5; done; (exit $$s)"'
+    depends_on:
+      - mongo
