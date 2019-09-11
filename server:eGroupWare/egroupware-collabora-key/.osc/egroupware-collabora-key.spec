@@ -1,5 +1,5 @@
 Name: egroupware-collabora-key
-Version: 1.2.20190529
+Version: 1.3.20190911
 Release:
 Summary: Collabora Online Office with support-key
 Group: Web/Database
@@ -83,6 +83,7 @@ case "$1" in
   2)# This is an upgrade.
 	# re-start our containers
 	cd %{etc_dir}
+	docker-compose pull
 	docker-compose up -d
 	;;
 esac

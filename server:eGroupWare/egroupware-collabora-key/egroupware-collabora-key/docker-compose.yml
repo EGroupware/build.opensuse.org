@@ -16,11 +16,12 @@ services:
     # can access EGroupware without the need to go over your firewall
     #extra_hosts:
     #- "my.host.name:ip-address"
+  # watchtower is disabled now in favor of the one included in egroupware-docer updating all container
   # see https://containrrr.github.io/watchtower for more information
-  watchtower:
-    image: containrrr/watchtower
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    command: --schedule "0 0 4 * * *" --cleanup collabora-key collabora-watchtower
-    container_name: collabora-watchtower
-    restart: always
+  #watchtower:
+  #  image: containrrr/watchtower
+  #  volumes:
+  #  - /var/run/docker.sock:/var/run/docker.sock
+  #  command: --schedule "0 0 4 * * *" --cleanup collabora-key collabora-watchtower
+  #  container_name: collabora-watchtower
+  #  restart: always

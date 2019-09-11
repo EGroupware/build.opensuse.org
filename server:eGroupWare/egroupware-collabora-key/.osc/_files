@@ -1,13 +1,13 @@
-<directory name="egroupware-collabora-key" rev="24" srcmd5="d3f74cf62acf32123b31a607fe058415" vrev="7">
-  <entry md5="181d319e14e48821ec92620858622f64" mtime="1553521611" name="debian.changes" size="516" />
+<directory name="egroupware-collabora-key" rev="25" srcmd5="47dfd81b6ebc7a0f4e3d25ff4f687dae" vrev="1">
+  <entry md5="810f72a6547fea7f596bed44b7ca440e" mtime="1568186973" name="debian.changes" size="719" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
   <entry md5="4a35b8e6fa98dc67b2d0e9b50fa90b37" mtime="1553521612" name="debian.control" size="783" />
   <entry md5="6b0a897291b51c4c6f2c7c4aa1235a9a" mtime="1553521612" name="debian.egroupware-collabora-key.conffiles" size="180" />
-  <entry md5="61c17f8fcd92ce3e56db520a02e646aa" mtime="1553521612" name="debian.postinst" size="2252" />
+  <entry md5="a92948a6ffb188e16f405b5d4bcd3c59" mtime="1568186974" name="debian.postinst" size="2273" />
   <entry md5="a47e6b078743cd4120cceb08ff51caf7" mtime="1562841191" name="debian.prerm" size="1013" />
   <entry md5="ebeaa6b98b99bd6b54ea76cec8020360" mtime="1553521613" name="debian.rules" size="1715" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
-  <entry md5="090053f3ca995659a5a6868985d725b7" mtime="1562917874" name="egroupware-collabora-key-1.2.20190529.tar.gz" size="9360" />
-  <entry md5="418ff6ba384892729779bb59027fc106" mtime="1559123401" name="egroupware-collabora-key.dsc" size="390" />
-  <entry md5="803cf06b4bdd3abf008bbc94d76f23c8" mtime="1562841191" name="egroupware-collabora-key.spec" size="4695" />
+  <entry md5="f02eac15b13a53948c05222ac117c409" mtime="1568186974" name="egroupware-collabora-key-1.3.20190911.tar.gz" size="9410" />
+  <entry md5="de65281759b2332903ed7dd9874cdedd" mtime="1568186975" name="egroupware-collabora-key.dsc" size="390" />
+  <entry md5="382ea9a519b739c0f04ba5252207fc5e" mtime="1568186975" name="egroupware-collabora-key.spec" size="4716" />
 </directory>
