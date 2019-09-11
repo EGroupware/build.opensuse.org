@@ -45,11 +45,11 @@ echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.o
 	}
 }
 sed -e 's|image: egroupware/egroupware:latest|image: download.egroupware.org/egroupware/epl:latest|g' \
-	-e "s|#\?- REPO_USER=.*|- REPO_USER='$USER'|g" \
-	-e "s|#\?- REPO_PASS.*=.*|- REPO_PASS='$PASSWORD'|g" \
+	-e "/#\?- REPO_USER=.*/d" \
+	-e "/#\?- REPO_PASS.*=.*/d" \
 	-i docker-compose.yml
 
 echo "Updated $(dirname $0)/docker-compose.yml with following changes:"
-egrep '    image:.*egroupware|- REPO_' docker-compose.yml
+grep '    image:.*egroupware' docker-compose.yml
 
 docker-compose up -d
