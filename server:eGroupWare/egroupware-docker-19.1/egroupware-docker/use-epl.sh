@@ -21,6 +21,9 @@ docker help login|grep -- $PASSWORD_PARAM >/dev/null || {
 	$PASSWORD_PARAM="--password '$PASSWORD'"
 }
 
+# if Docker config did not exist when watchtower container was started, it is created as empty directory --> remove it
+[ -d ~/.docker/config.json ] && rm -rf ~/.docker/config.json
+
 echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.org || {
 	[ -x /usr/bin/docker-credential-secretservice ] || {
 		echo "No /usr/bin/docker-credential-secretservice installed, don't know why docker login failed, maybe the user or password is wrong ..."
