@@ -1,5 +1,5 @@
 Name: docker-compose
-Version: 1.24.0
+Version: 1.24.1
 Release:
 Summary: Define and run multi-container applications with Docker
 #Group: Web/Database
@@ -8,12 +8,22 @@ URL: http://www.egroupware.org/EPL
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
+# create with: tar czvf docker-compose-1.24.1.tar.gz docker-compose
 Source: %{name}-%{version}.tar.gz
 #Source0: docker-compose
 
 AutoReqProv: no
 
+# docker-compose release-notes (https://docs.docker.com/release-notes/docker-compose/)
+# state very little about required docker version, thought it says for 1.22.0:
+# Introduced version 3.7 of the docker-compose.yml specification.
+# This version requires Docker Engine 18.06.0 or above
+%if 0%{?suse_version}
 Requires: docker >= 18.06.1
+%else # RHEL/CentOS 7
+# as current RHEL/CentOS 7 only containers 1.13.1 AND docker-compose 1.24 works with our files
+Requires: docker >= 1.13.1
+%endif
 
 BuildRequires: curl
 

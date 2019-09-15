@@ -1,3 +1,10 @@
+docker-compose (1.24.1) hardy; urgency=low
+
+  * update to 1.24.1
+  * require for RHEL/CentOS 7 only docker >= 1.13.1
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 15 Sep 2019 13:20:00 +0200
+
 docker-compose (1.24.0) hardy; urgency=low
 
   * build for Ubuntu 16.04, to support file version 3
