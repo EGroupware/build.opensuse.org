@@ -46,7 +46,7 @@ Buildarch: noarch
 AutoReqProv: no
 
 Requires: docker >= 1.12
-Requires: docker-compose
+Requires: docker-compose >= 1.10.0
 Requires: %{apache_package} >= 2.4
 %if "%{?apache_extra}" != ""
 # require mod_ssl so we can patch include of our proxy into it
