@@ -25,6 +25,11 @@ then
 	#
 	#fi
 
+	# fix or create empty /root/.docker/config.json
+	mkdir -p /root/.docker
+	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
+	test -f /root/.docker/config.json && echo "{}" > /root/.docker/config.json
+
 	# (re-)start our containers
 	cd /etc/egroupware-docker
 	docker-compose pull

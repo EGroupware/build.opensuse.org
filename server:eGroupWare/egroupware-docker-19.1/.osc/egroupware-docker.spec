@@ -181,6 +181,11 @@ case "$1" in
 	sed -i 's|- /var/run/mysqld/mysqld.sock:|- /var/lib/mysql/mysql.sock:|g' %{etc_dir}/docker-compose.yml
 %endif
 
+	# fix or create empty /root/.docker/config.json
+	mkdir -p /root/.docker
+	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
+	test -f /root/.docker/config.json && echo "{}" > /root/.docker/config.json
+
 	# start our containers
 	cd %{etc_dir}
 	docker-compose up -d
