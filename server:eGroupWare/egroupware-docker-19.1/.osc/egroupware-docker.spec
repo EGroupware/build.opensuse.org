@@ -45,7 +45,12 @@ Recommends: mariadb-server, egroupware-rocketchat, egroupware-collabora-key
 Buildarch: noarch
 AutoReqProv: no
 
+# RHEL/CentOS 8 no longer provides docker
+%if 0%{?centos_version} >= 8 || 0%{?rhel_version} >= 8
+Requires: docker-ce >= 1.12
+%else
 Requires: docker >= 1.12
+%endif
 Requires: docker-compose >= 1.10.0
 Requires: %{apache_package} >= 2.4
 %if "%{?apache_extra}" != ""
@@ -164,6 +169,8 @@ case "$1" in
 	systemctl restart %{apache_service}
 
 	# fix permissions in data directory: Ubuntu www-data is uid/gid 33/33
+    mkdir -p %{egwdatadir}/default/files/sqlfs
+    mkdir -p %{egwdatadir}/default/backup
 	chown -R 33:33 %{egwdatadir}
 
 	# if an old /root/egroupware-epl-install.log exists, move it datadir and symlink it
@@ -184,7 +191,7 @@ case "$1" in
 	# fix or create empty /root/.docker/config.json
 	mkdir -p /root/.docker
 	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
-	test -f /root/.docker/config.json && echo "{}" > /root/.docker/config.json
+	test -f /root/.docker/config.json || echo "{}" > /root/.docker/config.json
 
 	# start our containers
 	cd %{etc_dir}
@@ -259,7 +266,6 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 # Ubuntu www-data is uid/gid 33/33
 %dir %attr(0755,33,33) %{egwdatadir}
 
-%files
 %defattr(-,root,root)
 %{etc_dir}
 %config(noreplace) %{etc_dir}/apache.conf

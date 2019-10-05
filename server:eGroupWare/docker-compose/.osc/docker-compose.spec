@@ -14,15 +14,23 @@ Source: %{name}-%{version}.tar.gz
 
 AutoReqProv: no
 
+# CentOS 8 requires that to not error: Empty %files file /home/abuild/rpmbuild/BUILD/docker-compose/debugsourcefiles.list
+%global debug_package %{nil}
+
 # docker-compose release-notes (https://docs.docker.com/release-notes/docker-compose/)
 # state very little about required docker version, thought it says for 1.22.0:
 # Introduced version 3.7 of the docker-compose.yml specification.
 # This version requires Docker Engine 18.06.0 or above
 %if 0%{?suse_version}
 Requires: docker >= 18.06.1
+%else # RHEL/CentOS
+%if 0%{?centos_version} >= 8 || 0%{?rhel_version} >= 8
+# RHEL/CentOS 8 no longer provides docker
+Requires: docker-ce >= 18.06.1
 %else # RHEL/CentOS 7
 # as current RHEL/CentOS 7 only containers 1.13.1 AND docker-compose 1.24 works with our files
 Requires: docker >= 1.13.1
+%endif
 %endif
 
 BuildRequires: curl

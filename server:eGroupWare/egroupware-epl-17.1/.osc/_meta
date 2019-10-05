@@ -32,6 +32,7 @@
     <disable arch="i586" repository="SLE_15"/>
     <enable repository="openSUSE_Leap_15.0"/>
     <disable arch="i586" repository="openSUSE_Leap_15.0"/>
+    <disable repository="CentOS_8"/>
   </build>
   <publish>
     <disable repository="openSUSE_11.2"/>
