@@ -24,7 +24,7 @@ AutoReqProv: no
 %if 0%{?suse_version}
 Requires: docker >= 18.06.1
 %else # RHEL/CentOS
-%if 0%{?centos_version} >= 8 || 0%{?rhel_version} >= 8
+%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
 # RHEL/CentOS 8 no longer provides docker
 Requires: docker-ce >= 18.06.1
 %else # RHEL/CentOS 7

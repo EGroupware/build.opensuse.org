@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 19.1.20190917
+Version: 19.1.20191031
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -46,7 +46,7 @@ Buildarch: noarch
 AutoReqProv: no
 
 # RHEL/CentOS 8 no longer provides docker
-%if 0%{?centos_version} >= 8 || 0%{?rhel_version} >= 8
+%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
 Requires: docker-ce >= 1.12
 %else
 Requires: docker >= 1.12
