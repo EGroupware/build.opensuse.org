@@ -1,13 +1,14 @@
-<directory name="egroupware-docker-19.1" rev="14" srcmd5="62a2b061a66a4e3f19333c8456a4f42d" vrev="1">
-  <entry md5="5f5ba395338b2008ed30668ac3ff3bcb" mtime="1572528785" name="debian.changes" size="305137" />
+<directory name="egroupware-docker-19.1" rev="16" srcmd5="5d92750067d3171f5589b390da955694" vrev="2">
+  <entry md5="9e0d21fc857c9d6d062f9addde76b75b" mtime="1574429278" name="debian.changes" size="305665" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
   <entry md5="315838c3300033fd4b6bb4308a52197a" mtime="1568727913" name="debian.control" size="3148" />
   <entry md5="860e252fae24180bc1c0fb135d0056ab" mtime="1562767761" name="debian.egroupware-docker.conffiles" size="191" />
-  <entry md5="507a2175b68f392267c3335b55130ea7" mtime="1570258333" name="debian.postinst" size="2150" />
+  <entry md5="2919a422c18ecef2bcd7b65e3d40c44a" mtime="1574429279" name="debian.postinst" size="2386" />
   <entry md5="e2d025427c94acd353e4bd64a5052a5a" mtime="1562762955" name="debian.prerm" size="956" />
-  <entry md5="6e7571f6a796c7ec408ce7c6477267ce" mtime="1563446262" name="debian.rules" size="2016" />
+  <entry md5="87ba0942f47dca284b26e7f6e5bb840f" mtime="1574429279" name="debian.rules" size="2223" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
   <entry md5="f488c6bcdd2183c0ce731d3c88b9e3ee" mtime="1572528786" name="egroupware-docker-19.1.20191031.tar.gz" size="5681" />
-  <entry md5="18937e81ef7ded5607afced9ef2a5573" mtime="1572528786" name="egroupware-docker.dsc" size="372" />
-  <entry md5="4645917444f08b324053efb6f5ee32a8" mtime="1572528786" name="egroupware-docker.spec" size="9504" />
+  <entry md5="1e76cc7d4426e0b6d02603ee2cb07f61" mtime="1574429280" name="egroupware-docker-19.1.20191119.tar.gz" size="5763" />
+  <entry md5="f1e5574c8ab273bd2dabc1c43695fd44" mtime="1574429281" name="egroupware-docker.dsc" size="372" />
+  <entry md5="4dd26f720399d1760a0ea654574b891b" mtime="1574430054" name="egroupware-docker.spec" size="9971" />
 </directory>

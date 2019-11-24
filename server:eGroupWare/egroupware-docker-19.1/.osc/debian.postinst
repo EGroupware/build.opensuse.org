@@ -25,15 +25,19 @@ then
 	#
 	#fi
 
+	# enable and start docker, in case docker package did not
+	systemctl enable docker
+	systemctl status docker || systemctl start docker
+
 	# fix or create empty /root/.docker/config.json
 	mkdir -p /root/.docker
 	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
 	test -f /root/.docker/config.json || echo "{}" > /root/.docker/config.json
 
-	# (re-)start our containers
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-docker
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	docker-compose up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]

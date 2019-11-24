@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 19.1.20191031
+Version: 19.1.20191119
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -193,16 +193,16 @@ case "$1" in
 	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
 	test -f /root/.docker/config.json || echo "{}" > /root/.docker/config.json
 
-	# start our containers
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose up -d
+	docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
-	# re-start our containers
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	docker-compose up -d || true
 	;;
 esac
 
@@ -248,6 +248,9 @@ install -m 644 egroupware-nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 use-epl.sh $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build
 install -m 755 post_install.php $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build/
+# tell systemd to start docker after MariaDB
+mkdir -p $RPM_BUILD_ROOT/etc/systemd/system/docker.service.d
+install -m 755 docker-egroupware.conf $RPM_BUILD_ROOT/etc/systemd/system/docker.service.d/egroupware.conf
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-docker.conf
@@ -279,3 +282,4 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 %{apache_vhosts_d}
 %endif
 /usr/share/egroupware/doc/rpm-build/post_install.php
+/etc/systemd/system/docker.service.d/egroupware.conf

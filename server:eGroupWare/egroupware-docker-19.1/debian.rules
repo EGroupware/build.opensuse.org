@@ -33,6 +33,9 @@ install: build
 	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 egroupware-nginx.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 755 use-epl.sh $(DEST_DIR)$(ETC_DIR)
+	# tell systemd to start docker after MariaDB
+	mkdir -p $(DEST_DIR)/etc/systemd/system/docker.service.d
+	install -m 755 docker-egroupware.conf $(DEST_DIR)/etc/systemd/system/docker.service.d/egroupware.conf
 
 	mkdir -p $(DEST_DIR)$(OLD_SRC_DIR)/doc/rpm-build
 	install -m 755 post_install.php $(DEST_DIR)$(OLD_SRC_DIR)/doc/rpm-build
