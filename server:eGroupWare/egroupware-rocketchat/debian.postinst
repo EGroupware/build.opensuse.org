@@ -30,10 +30,10 @@ then
 			-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet [^0-9]*([0-9.]+).*/\1/p')/rocketchat#g"
 	fi
 
-	# (re-)start our containers
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-rocketchat
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	docker-compose up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]

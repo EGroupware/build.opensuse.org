@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 1.3.20190822
+Version: 2.3.20191128
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -74,16 +74,16 @@ case "$1" in
 	sed -i %{etc_dir}/docker-compose.yml \
 		-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet ([0-9.]+).*/\1/p')/rocketchat#g"
 
-	# start our containers
+	# start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose up -d
+	docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
-	# re-start our containers
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	docker-compose up -d || true
 	;;
 esac
 
