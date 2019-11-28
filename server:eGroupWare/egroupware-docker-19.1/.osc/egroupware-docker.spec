@@ -140,7 +140,7 @@ case "$1" in
   1)# This is an initial install.
 	# enable and start docker
 	systemctl enable docker
-	systemctl status docker || systemctl start docker
+	systemctl is-active --quiet docker || systemctl start docker
 
 	# some distro specific commands
 %if 0%{?suse_version}
@@ -205,6 +205,8 @@ case "$1" in
 	docker-compose up -d || true
 	;;
 esac
+# get our addition to docker unit working in case MariaDB/MySQL runs an update
+systemctl daemon-reload
 
 %preun
 case "$1" in

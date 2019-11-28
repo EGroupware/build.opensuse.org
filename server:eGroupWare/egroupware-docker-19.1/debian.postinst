@@ -27,7 +27,7 @@ then
 
 	# enable and start docker, in case docker package did not
 	systemctl enable docker
-	systemctl status docker || systemctl start docker
+	systemctl is-active --quiet  docker || systemctl start docker
 
 	# fix or create empty /root/.docker/config.json
 	mkdir -p /root/.docker
@@ -74,6 +74,9 @@ then
 
 	# rm old crontab entry, which does not get removed when 17.1 egroupware-epl package get deinstalled
 	rm -f /etc/cron.d/egroupware
+
+	# get our addition to docker unit working in case MariaDB/MySQL runs an update
+	systemctl daemon-reload
 fi
 
 #DEBHELPER#
