@@ -56,7 +56,7 @@ case "$1" in
   1)# This is an initial install.
 	# enable and start docker
 	systemctl enable docker
-	systemctl status docker || systemctl start docker
+	systemctl is-active --quiet docker || systemctl start docker
 
 	# patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
 	cd %{apache_vhosts_d}
@@ -75,16 +75,16 @@ case "$1" in
 	}
 	systemctl restart %{apache_service}
 
-	# start our containers
+	# start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
-	docker-compose up -d
+	docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
-	# re-start our containers
+	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	docker-compose up -d || true
 	;;
 esac
 

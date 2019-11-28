@@ -26,10 +26,10 @@ then
 		chown -R www-data:www-data /var/lib/egroupware/default/loolwsd/loolwsd.xml
 	fi
 
-	# (re-)start our containers
+	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd /etc/egroupware-collabora-key
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	docker-compose up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
