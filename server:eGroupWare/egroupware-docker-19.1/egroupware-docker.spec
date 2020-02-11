@@ -182,10 +182,10 @@ case "$1" in
 		ln -s %{egwdatadir}/egroupware-docker-install.log /root/egroupware-epl-install.log
 	}
 
-	# set correct mysql.sock (directory) in docker-compose
+	# set correct mysql.sock in docker-compose
 %if 0%{?suse_version}
-	sed -i 's|- /var/run/mysqld.*|- /var/run/mysql:/var/run/mysqld|g' %{etc_dir}/docker-compose.yml
-%else # RHEL/CentOS (can't set directory, as it's identical to mysql data directory!)
+	sed -i 's|- /var/run/mysqld.*|- /var/run/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
+%else # RHEL/CentOS
 	sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
 %endif
 
