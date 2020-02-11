@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 19.1.20191220
+Version: 19.1.20200211
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -49,7 +49,8 @@ AutoReqProv: no
 %if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
 Requires: docker-ce >= 1.12
 %else
-Requires: docker >= 1.12
+#disabled to allow docker-ce too, we still require docker-compose
+#Requires: docker >= 1.12
 %endif
 Requires: docker-compose >= 1.10.0
 Requires: %{apache_package} >= 2.4
@@ -181,11 +182,11 @@ case "$1" in
 		ln -s %{egwdatadir}/egroupware-docker-install.log /root/egroupware-epl-install.log
 	}
 
-	# set correct mysql.sock in docker-compose
+	# set correct mysql.sock (directory) in docker-compose
 %if 0%{?suse_version}
-	sed -i 's|- /var/run/mysqld/mysqld.sock:|- /var/run/mysql/mysql.sock:|g' %{etc_dir}/docker-compose.yml
-%else # RHEL/CentOS
-	sed -i 's|- /var/run/mysqld/mysqld.sock:|- /var/lib/mysql/mysql.sock:|g' %{etc_dir}/docker-compose.yml
+	sed -i 's|- /var/run/mysqld.*|- /var/run/mysql:/var/run/mysqld|g' %{etc_dir}/docker-compose.yml
+%else # RHEL/CentOS (can't set directory, as it's identical to mysql data directory!)
+	sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
 %endif
 
 	# fix or create empty /root/.docker/config.json
