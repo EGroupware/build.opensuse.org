@@ -1,3 +1,47 @@
+egroupware-docker (19.1.20200409) hardy; urgency=low
+
+  #CoronaVirus #StayAtHome #HomeOffice release featuring
+  * Free Video Calls through an IONOS and EGroupware GmbH sponsored Jitsi server in Frankfurt/Germany
+  * Status: integrated Jitsi video conferencing into Status app by simple double-click on avatar
+  * Addressbook: direct video calls to loged in uses and schedule conferences to contacts
+  * Calendar: allow to schedule a videoconference via Jitsi
+  * Filemanager: allow schools to make home-work available via sharing and collect it again (new HiddenUpload sharing type)
+  * Guacamole: make windows PCs in office available through EGroupware from the outside
+  * OpenIDConnect: added id_token to implicit flow and /jwks endpoint to support eg. Guacamole
+  * OpenIDConnect/OAuth: manage access and display OAuth apps inside EGroupware
+  * EPL: allow specify IP-range as second factor in Admin >> EPL-Function >> Site configuration
+  * Api: If addressbook event column is disabled, disable next / last dates in edit dialog as well.
+  * Calendar: Fix conflict popup opened with an error
+  * Api: Fix missing translations in ACL dialog and when deleting an account
+  * Addressbook: Case insensitive check for vCard BEGIN & END flags fixes lowercase vcards would not import
+  * Bookmarks: Tree view no longer shows bookmarks from sub-categories at every higher tree level
+  * OpenIDConnect: Fix missing translation in delete token confirm
+  * OpenIDConnect: fix error if scopes are specified in a client
+  * Rocketchat: Fix missing translation in Rocket Chat side menu
+  * Rocketchat: Fix server_url is not getting stored/replaced once a wrong url has been stored.
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 09 Apr 2020 11:30:08 +0200
+
+egroupware-docker (19.1.20200318) hardy; urgency=low
+
+  * Calendar: initial load speed improvement
+  * CalDAV/OutlookSynchronizer: reject invitations when client deletes them without appropriate rights in his calendar
+  * CalDAV/Calendar: always set organizer and participants outside own calendar
+  * Filemanager/Sharing: fix lost session on first load in sharing links with Firefox
+  * Collabora: fix issue of inserting an image into document pops a rename dialog
+  * Collabora: fix limit of one samba connection per person
+  * Admin: add copy account action
+  * Html Editor: add fullscreen feature into html editor
+  * Html Editor: add 9pt, 9px, 11pt and 11px into Html editor's font options
+  * Timesheet: fix project link was missing when changing project after clicking "Save & New"
+  * Mail: fix mail acl can't save or retrieve after changing mailbox via folder selectbox
+  * Projectmanager: add preference to force filemanager subdirectories
+  * All apps: fix error closing / updating window in Chrome 80+
+  * RocketChat: fix diverse connection and status update errors
+  * Updated translations for EL, SK, BG and DE
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 18 Mar 2020 11:46:02 +0100
+
 egroupware-docker (19.1.20200211) hardy; urgency=low
 
   * fix MariaDB/MySQL restart required EGroupware container restart by bind-mounting /var/run/mysqld directory, not socket

@@ -18,7 +18,7 @@ echo " "
 PASSWORD_PARAM="--password-stdin"
 # docker on RHEL/CentOS 7 does NOT support --password-stdin
 docker help login|grep -- $PASSWORD_PARAM >/dev/null || {
-	$PASSWORD_PARAM="--password '$PASSWORD'"
+	PASSWORD_PARAM="--password $PASSWORD"
 }
 
 # if Docker config did not exist when watchtower container was started, it is created as empty directory --> remove it
