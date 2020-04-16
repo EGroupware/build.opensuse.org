@@ -1,0 +1,5 @@
+egroupware-guacamole (1.0.1.20200415) hardy; urgency=low
+
+  * initial EGroupware release with Guacamole 1.0.1
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 15 Apr 2020 21:30:00 +0100

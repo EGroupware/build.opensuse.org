@@ -1,0 +1,82 @@
+#! /bin/sh
+
+#export DEBCONF_DEBUG=developer
+set -e
+# das hier muss ganz oben stehen (man debconf-devel)
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+
+webserver_soft_reload() {
+	if command -v invoke-rc.d >/dev/null 2>&1; then
+		invoke-rc.d "$1" force-reload || :
+	else
+		[ -x /etc/init.d/"$1" ] && /etc/init.d/"$1" force-reload || :
+	fi
+}
+
+
+if [ "$1" = configure -o "$1" = upgrade ]
+then
+	# If upgrading, $2 contains the release currently installed, otherwise it's empty
+	if [ -z "$2" ]
+	then
+	  # new install:
+	  # patch db-password into docker-compose
+	  password=$(grep db_pass /var/lib/egroupware/header.inc.php|cut -d\' -f4)
+	  sed -i "s/MYSQL_PASSWORD:.*/MYSQL_PASSWORD: '$password'/" /etc/egroupware-guacamole/docker-compose.yaml
+	  # change MariaDB to bind on docker0 address, as Guacamole/Tomcat seems unable to use socket
+	  [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
+	    sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
+	    systemctl restart mysqld
+	    mysql --execute "GRANT ALL on egroupware.* TO egroupware@\`*\` IDENTIFIED BY '$password'"
+	  } || echo "Cant change MariaDB to bind on docker0 addresss (172.17.0.1)!"
+	  # symlink openid auth extension to be used (first)
+	  mkdir -p /etc/egroupware-guacamole/guacamole-home/extensions
+	  cd /etc/egroupware-guacamole/guacamole-home/extensions
+	  ln -s /opt/guacamole/openid/guacamole-auth-openid-1.1.0.jar 00-guacamole-auth-openid-1.1.0.jar
+	fi
+
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
+	cd /etc/egroupware-guacamole
+	docker-compose pull && \
+	docker-compose up -d || true
+
+	# Set up web server and reload it.
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		# initial install: enable egroupware and disable default site
+		if [ -z "$2" ]
+		then
+			[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+			ln -fs ../../egroupware-guacamole/nginx.conf /etc/nginx/app.d/egroupware-guacamole.conf
+		fi
+		nginx -s reload
+	fi
+	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+	then
+		# initial install: add Include /etc/egroupware-guacamole/apache.conf to all vhosts
+		if [ -z "$2" ]
+		then
+			cd /etc/apache2/sites-available
+			for conf in $(grep -il '<VirtualHost ' *.conf)
+			do
+				[ -z "$(grep '/etc/egroupware-guacamole/apache.conf' $conf)" ] && \
+					sed -i 's|</VirtualHost>|\t# Gucamole proxy needs to be included inside vhost\n\tinclude /etc/egroupware-guacamole/apache.conf\n\n</VirtualHost>|g' $conf && \
+					echo "Include /etc/egroupware-guacamole/apache.conf added to site $conf"
+			done
+		fi
+		a2enmod proxy
+		a2enmod proxy_http
+		a2enmod proxy_wstunnel
+		a2enmod rewrite
+		webserver_soft_reload apache2
+	fi
+
+	# install/update EGroupware guacamole
+	/usr/share/egroupware/doc/rpm-build/post_install.php --install-update-app guacamole
+fi
+
+#DEBHELPER#
+
+db_stop
