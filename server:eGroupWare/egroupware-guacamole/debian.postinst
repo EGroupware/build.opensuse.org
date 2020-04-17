@@ -22,19 +22,25 @@ then
 	if [ -z "$2" ]
 	then
 	  # new install:
-	  # patch db-password into docker-compose
-	  password=$(grep db_pass /var/lib/egroupware/header.inc.php|cut -d\' -f4)
-	  sed -i "s/MYSQL_PASSWORD:.*/MYSQL_PASSWORD: '$password'/" /etc/egroupware-guacamole/docker-compose.yaml
+	  # patch newly generated db-password and -user into docker-compose file (new user/password as docker-compose has problems with special chars!)
+	  password=$(openssl rand --hex 16)
+	  sed -i "s/MYSQL_USER:.*/MYSQL_USER: guacamole/" /etc/egroupware-guacamole/docker-compose.yaml
+	  sed -i "s/MYSQL_PASSWORD:.*/MYSQL_PASSWORD: $password/" /etc/egroupware-guacamole/docker-compose.yaml
+	  mysql --execute "GRANT ALL on egroupware.* TO guacamole@\`*\` IDENTIFIED BY '$password'"
 	  # change MariaDB to bind on docker0 address, as Guacamole/Tomcat seems unable to use socket
 	  [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
 	    sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
 	    systemctl restart mysqld
-	    mysql --execute "GRANT ALL on egroupware.* TO egroupware@\`*\` IDENTIFIED BY '$password'"
 	  } || echo "Cant change MariaDB to bind on docker0 addresss (172.17.0.1)!"
 	  # symlink openid auth extension to be used (first)
 	  mkdir -p /etc/egroupware-guacamole/guacamole-home/extensions
 	  cd /etc/egroupware-guacamole/guacamole-home/extensions
 	  ln -s /opt/guacamole/openid/guacamole-auth-openid-1.1.0.jar 00-guacamole-auth-openid-1.1.0.jar
+	  # if domain name specified via HTTP_HOST environment variable, patch it into relevant files
+	  [ -n "$HTTP_HOST" ] && {
+	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.yaml
+	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/guacamole-home/guacamole.properties
+	  }
 	fi
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
@@ -73,8 +79,12 @@ then
 		webserver_soft_reload apache2
 	fi
 
-	# install/update EGroupware guacamole
-	/usr/share/egroupware/doc/rpm-build/post_install.php --install-update-app guacamole
+	# copy new code into the container
+	docker cp /usr/share/egroupware/guacamole egroupware:/usr/share/egroupware-sources/
+	docker cp /usr/share/egroupware/guacamole egroupware:/usr/share/egroupware/
+
+	# install/update EGroupware guacamole (passing HTTP_HOST environment variable along, so guacamole app installation can use it)
+	docker exec egroupware bash -c "HTTP_HOST=$HTTP_HOST php /usr/share/egroupware/doc/rpm-build/post_install.php --install-update-app guacamole"
 fi
 
 #DEBHELPER#
