@@ -26,7 +26,7 @@ then
 	  password=$(openssl rand --hex 16)
 	  sed -i "s/MYSQL_USER:.*/MYSQL_USER: guacamole/" /etc/egroupware-guacamole/docker-compose.yaml
 	  sed -i "s/MYSQL_PASSWORD:.*/MYSQL_PASSWORD: $password/" /etc/egroupware-guacamole/docker-compose.yaml
-	  mysql --execute "GRANT ALL on egroupware.* TO guacamole@\`*\` IDENTIFIED BY '$password'"
+	  mysql --execute "GRANT ALL on egroupware.* TO guacamole@\`%\` IDENTIFIED BY '$password'"
 	  # change MariaDB to bind on docker0 address, as Guacamole/Tomcat seems unable to use socket
 	  [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
 	    sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
