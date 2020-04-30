@@ -1,3 +1,17 @@
+egroupware-guacamole (1.1.0.20200430) hardy; urgency=low
+
+  * fix not saved group permissions on AD or LDAP installs
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 30 Apr 2020 20:00:00 +0200
+
+egroupware-guacamole (1.1.0.20200427) hardy; urgency=low
+
+  * using own eT2 iframe to fix loading of sidebox menu
+  * adding manuals, active sessions and history to sidebox and administration
+  * refocus Guacamole iframe, as described in their FAQ
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 27 Apr 2020 15:00:00 +0200
+
 egroupware-guacamole (1.1.0.20200421) hardy; urgency=low
 
   * German translation

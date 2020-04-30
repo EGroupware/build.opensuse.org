@@ -79,12 +79,8 @@ then
 		webserver_soft_reload apache2
 	fi
 
-	# copy new code into the container
-	docker cp /usr/share/egroupware/guacamole egroupware:/usr/share/egroupware-sources/
-	docker cp /usr/share/egroupware/guacamole egroupware:/usr/share/egroupware/
-
 	# install/update EGroupware guacamole (passing HTTP_HOST environment variable along, so guacamole app installation can use it)
-	docker exec egroupware bash -c "HTTP_HOST=$HTTP_HOST php /usr/share/egroupware/doc/rpm-build/post_install.php --install-update-app guacamole"
+	HTTP_HOST=$HTTP_HOST php /usr/share/egroupware/doc/rpm-build/post_install.php --install-update-app guacamole
 fi
 
 #DEBHELPER#

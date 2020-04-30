@@ -1,5 +1,5 @@
 Name: egroupware-guacamole
-Version: 1.0.1.20200415
+Version: 1.0.1.20200430
 Release:
 Summary: Apache Guacamole container for EGroupware
 Group: Web/Database
