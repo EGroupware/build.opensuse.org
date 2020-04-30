@@ -33,7 +33,13 @@ if (!$ret)
 	{
 			return escapeshellarg($arg);
 	});
-	system('docker exec egroupware /usr/bin/php /usr/share/egroupware/doc/rpm-build/post_install.php '.
-		implode(' ', $args), $ret);
+	$cmd = '/usr/bin/php /usr/share/egroupware/doc/rpm-build/post_install.php '.implode(' ', $args);
+
+	// if HTTP_HOST environment variable is set, pass it on
+	if (!empty($_SERVER['HTTP_HOST']))
+	{
+		$cmd = '/bin/bash -c "HTTP_HOST='.$_SERVER['HTTP_HOST'].' '.$cmd.'"';
+	}
+	system('docker exec egroupware '.$cmd, $ret);
 }
 exit($ret);
