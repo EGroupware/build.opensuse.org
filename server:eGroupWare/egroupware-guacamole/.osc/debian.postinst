@@ -35,7 +35,7 @@ then
 	  # symlink openid auth extension to be used (first)
 	  mkdir -p /etc/egroupware-guacamole/guacamole-home/extensions
 	  cd /etc/egroupware-guacamole/guacamole-home/extensions
-	  ln -s /opt/guacamole/openid/guacamole-auth-openid-1.1.0.jar 00-guacamole-auth-openid-1.1.0.jar
+	  ln -sf /opt/guacamole/openid/guacamole-auth-openid-1.1.0.jar 00-guacamole-auth-openid-1.1.0.jar
 	  # if domain name specified via HTTP_HOST environment variable, patch it into relevant files
 	  [ -n "$HTTP_HOST" ] && {
 	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.yaml
@@ -46,7 +46,7 @@ then
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-guacamole
 	docker-compose pull && \
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]

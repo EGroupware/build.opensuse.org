@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9)
 Package: egroupware-guacamole
 Architecture: any
 Depends: docker-compose, docker.io | docker-ce, apache2 (>= 2.4) | nginx, net-tools,
- egroupware-docker (>= 19.1.20200409)
+ php-cli, egroupware-docker (>= 19.1.20200409)
 Description: Apache Guacamole managed by EGroupware
  This package installs Docker and docker-compose and use it to run Guacamole
  in two containers.
