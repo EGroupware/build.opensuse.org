@@ -43,7 +43,7 @@ then
     sed -i 's|egroupware/egroupware:latest|download.egroupware.org/egroupware/epl:latest|' docker-compose.yml
 	fi
 	docker-compose pull && \
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]

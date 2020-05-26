@@ -1,13 +1,13 @@
-<directory name="egroupware-docker-19.1" rev="26" srcmd5="21c3027b2f85749d92697c0c8cf1555b" vrev="1">
+<directory name="egroupware-docker-19.1" rev="27" srcmd5="bd30395ad915e236f1890d9aacd73b6f" vrev="2">
   <entry md5="1513ca8be618d721971e453b958fe55a" mtime="1588269669" name="debian.changes" size="313263" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
   <entry md5="315838c3300033fd4b6bb4308a52197a" mtime="1568727913" name="debian.control" size="3148" />
   <entry md5="860e252fae24180bc1c0fb135d0056ab" mtime="1562767761" name="debian.egroupware-docker.conffiles" size="191" />
-  <entry md5="0f839ac8681c9676ae56e0011bcf59fc" mtime="1584528648" name="debian.postinst" size="2894" />
+  <entry md5="9d8dfd554ff597512cbc694aca4456d5" mtime="1590484735" name="debian.postinst" size="2905" />
   <entry md5="e2d025427c94acd353e4bd64a5052a5a" mtime="1562762955" name="debian.prerm" size="956" />
   <entry md5="87ba0942f47dca284b26e7f6e5bb840f" mtime="1574429279" name="debian.rules" size="2223" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
-  <entry md5="c6db1b89ae28a33684bd0fd2bf321749" mtime="1588269670" name="egroupware-docker-19.1.20200430.tar.gz" size="6148" />
+  <entry md5="d72d035c79abc8d5e081b12b15a9314b" mtime="1590484736" name="egroupware-docker-19.1.20200430.tar.gz" size="6211" />
   <entry md5="bd3f060ec194367a7bd4480067ae8cd2" mtime="1588269670" name="egroupware-docker.dsc" size="372" />
   <entry md5="b6250fc1e3fb4a95d39d195abc4e7d2e" mtime="1588269671" name="egroupware-docker.spec" size="10184" />
 </directory>

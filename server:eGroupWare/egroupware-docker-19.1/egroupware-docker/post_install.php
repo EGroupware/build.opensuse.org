@@ -18,14 +18,19 @@ if (php_sapi_name() !== 'cli')	// security precaution: forbit calling post_insta
 }
 
 $ret = 0;
-system('docker restart egroupware', $ret);
+if (!array_intersect(['-h', '--help'], $_SERVER['argv']))   // no need to restart container
+{
+    system('docker restart egroupware', $ret);
 
+    if (!$ret)
+	{
+		echo "Waiting for egroupware container to restart .";
+		system("docker exec egroupware bash -c 'until ps | grep php-fpm >/dev/null; do echo -n \".\"; sleep 1; done'");
+		echo "\n";
+	}
+}
 if (!$ret)
 {
-	echo "Waiting for egroupware container to restart .";
-	system("docker exec egroupware bash -c 'until ps | grep php-fpm >/dev/null; do echo -n \".\"; sleep 1; done'");
-	echo "\n";
-
 	$args = $_SERVER['argv'];
 	array_shift($args);
 	array_unshift($args, '--start_webserver', '""');
@@ -38,8 +43,10 @@ if (!$ret)
 	// if HTTP_HOST environment variable is set, pass it on
 	if (!empty($_SERVER['HTTP_HOST']))
 	{
-		$cmd = '/bin/bash -c "HTTP_HOST='.$_SERVER['HTTP_HOST'].' '.$cmd.'"';
+		$cmd = "/bin/bash -c 'HTTP_HOST=$_SERVER[HTTP_HOST] $cmd'";
 	}
-	system('docker exec egroupware '.$cmd, $ret);
+	$cmd = 'docker exec egroupware '.$cmd;
+	if (in_array('-v', $_SERVER['argv'])) echo $cmd."\n";
+	system($cmd, $ret);
 }
 exit($ret);
