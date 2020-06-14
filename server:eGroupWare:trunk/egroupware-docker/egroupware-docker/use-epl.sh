@@ -18,8 +18,11 @@ echo " "
 PASSWORD_PARAM="--password-stdin"
 # docker on RHEL/CentOS 7 does NOT support --password-stdin
 docker help login|grep -- $PASSWORD_PARAM >/dev/null || {
-	$PASSWORD_PARAM="--password '$PASSWORD'"
+	PASSWORD_PARAM="--password $PASSWORD"
 }
+
+# if Docker config did not exist when watchtower container was started, it is created as empty directory --> remove it
+[ -d ~/.docker/config.json ] && rm -rf ~/.docker/config.json
 
 echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.org || {
 	[ -x /usr/bin/docker-credential-secretservice ] || {
@@ -45,11 +48,11 @@ echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.o
 	}
 }
 sed -e 's|image: egroupware/egroupware:latest|image: download.egroupware.org/egroupware/epl:latest|g' \
-	-e "s|#\?- REPO_USER=.*|- REPO_USER='$USER'|g" \
-	-e "s|#\?- REPO_PASS.*=.*|- REPO_PASS='$PASSWORD'|g" \
+	-e "/#\?- REPO_USER=.*/d" \
+	-e "/#\?- REPO_PASS.*=.*/d" \
 	-i docker-compose.yml
 
 echo "Updated $(dirname $0)/docker-compose.yml with following changes:"
-egrep '    image:.*egroupware|- REPO_' docker-compose.yml
+grep '    image:.*egroupware' docker-compose.yml
 
 docker-compose up -d
