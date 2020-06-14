@@ -25,10 +25,27 @@ then
 	#
 	#fi
 
-	# (re-)start our containers
+	# enable and start docker, in case docker package did not
+	systemctl enable docker
+	systemctl is-active --quiet  docker || systemctl start docker
+
+	# fix or create empty /root/.docker/config.json
+	mkdir -p /root/.docker
+	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
+	test -f /root/.docker/config.json || echo "{}" > /root/.docker/config.json
+
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-docker
-	docker-compose pull
-	docker-compose up -d
+	# for an upgrade check that the EPL image was not accidentally removed by agreeing on taking the packages version
+	if [ -n "$2" -a -f docker-compose.yml.dpkg-old ] && \
+	  grep -q "^\s*image:\s*download.egroupware.org/egroupware/epl:latest" docker-compose.yml.dpkg-old
+	then
+    sed -i 's|egroupware/egroupware:latest|download.egroupware.org/egroupware/epl:latest|' docker-compose.yml
+	fi
+	docker-compose pull && \
+	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
+	echo "y" | docker-compose up -d egroupware && sleep 2 && \
+	echo "y" | docker-compose up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
@@ -62,6 +79,12 @@ then
 		a2enmod headers
 		webserver_soft_reload apache2
 	fi
+
+	# rm old crontab entry, which does not get removed when 17.1 egroupware-epl package get deinstalled
+	rm -f /etc/cron.d/egroupware
+
+	# get our addition to docker unit working in case MariaDB/MySQL runs an update
+	systemctl daemon-reload
 fi
 
 #DEBHELPER#

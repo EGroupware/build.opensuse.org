@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 19.1.20190813
+Version: 20.1.20200613
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: tar -czvf egroupware-docker-19.1.20190708.tar.gz egroupware-docker
+# create with: tar -czvf egroupware-docker-20.1.20200613.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -45,8 +45,14 @@ Recommends: mariadb-server, egroupware-rocketchat, egroupware-collabora-key
 Buildarch: noarch
 AutoReqProv: no
 
-Requires: docker >= 1.12
-Requires: docker-compose
+# RHEL/CentOS 8 no longer provides docker
+%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
+Requires: docker-ce >= 1.12
+%else
+#disabled to allow docker-ce too, we still require docker-compose
+#Requires: docker >= 1.12
+%endif
+Requires: docker-compose >= 1.10.0
 Requires: %{apache_package} >= 2.4
 %if "%{?apache_extra}" != ""
 # require mod_ssl so we can patch include of our proxy into it
@@ -135,7 +141,7 @@ case "$1" in
   1)# This is an initial install.
 	# enable and start docker
 	systemctl enable docker
-	systemctl status docker || systemctl start docker
+	systemctl is-active --quiet docker || systemctl start docker
 
 	# some distro specific commands
 %if 0%{?suse_version}
@@ -164,6 +170,8 @@ case "$1" in
 	systemctl restart %{apache_service}
 
 	# fix permissions in data directory: Ubuntu www-data is uid/gid 33/33
+    mkdir -p %{egwdatadir}/default/files/sqlfs
+    mkdir -p %{egwdatadir}/default/backup
 	chown -R 33:33 %{egwdatadir}
 
 	# if an old /root/egroupware-epl-install.log exists, move it datadir and symlink it
@@ -176,23 +184,34 @@ case "$1" in
 
 	# set correct mysql.sock in docker-compose
 %if 0%{?suse_version}
-	sed -i 's|- /var/run/mysqld/mysqld.sock:|- /var/run/mysql/mysql.sock:|g' %{etc_dir}/docker-compose.yml
+	sed -i 's|- /var/run/mysqld.*|- /var/run/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
 %else # RHEL/CentOS
-	sed -i 's|- /var/run/mysqld/mysqld.sock:|- /var/lib/mysql/mysql.sock:|g' %{etc_dir}/docker-compose.yml
+	sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
 %endif
 
-	# start our containers
+	# fix or create empty /root/.docker/config.json
+	mkdir -p /root/.docker
+	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
+	test -f /root/.docker/config.json || echo "{}" > /root/.docker/config.json
+
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose up -d
+	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
+	echo "y" | docker-compose up -d egroupware && sleep 2 && \
+	echo "y" | docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
-	# re-start our containers
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose pull
-	docker-compose up -d
+	docker-compose pull && \
+	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
+	echo "y" | docker-compose up -d egroupware && sleep 2 && \
+	echo "y" | docker-compose up -d || true
 	;;
 esac
+# get our addition to docker unit working in case MariaDB/MySQL runs an update
+systemctl daemon-reload
 
 %preun
 case "$1" in
@@ -236,6 +255,9 @@ install -m 644 egroupware-nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 use-epl.sh $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build
 install -m 755 post_install.php $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build/
+# tell systemd to start docker after MariaDB
+mkdir -p $RPM_BUILD_ROOT/etc/systemd/system/docker.service.d
+install -m 755 docker-egroupware.conf $RPM_BUILD_ROOT/etc/systemd/system/docker.service.d/egroupware.conf
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-docker.conf
@@ -254,7 +276,6 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 # Ubuntu www-data is uid/gid 33/33
 %dir %attr(0755,33,33) %{egwdatadir}
 
-%files
 %defattr(-,root,root)
 %{etc_dir}
 %config(noreplace) %{etc_dir}/apache.conf
@@ -268,3 +289,4 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 %{apache_vhosts_d}
 %endif
 /usr/share/egroupware/doc/rpm-build/post_install.php
+/etc/systemd/system/docker.service.d/egroupware.conf

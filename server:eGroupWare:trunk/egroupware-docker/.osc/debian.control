@@ -7,7 +7,7 @@ Homepage: https://www.egroupware.org/
 
 Package: egroupware-docker
 Architecture: any
-Depends: docker-compose, docker.io | docker-ce, apache2 (>= 2.4) | nginx
+Depends: docker-compose (>= 1.10.0), docker.io | docker-ce, nginx | apache2 (>= 2.4)
 Recommends: mariadb-server | mysql-server,
  egroupware-rocketchat, egroupware-collabora-key
 Description: web-based groupware suite

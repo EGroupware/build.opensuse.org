@@ -47,7 +47,7 @@ echo "$PASSWORD" | docker login -u "$USER" $PASSWORD_PARAM download.egroupware.o
 		exit 1
 	}
 }
-sed -e 's|image: egroupware/egroupware:latest|image: download.egroupware.org/egroupware/epl:latest|g' \
+sed -e 's|image: egroupware/egroupware:|image: download.egroupware.org/egroupware/epl:|g' \
 	-e "/#\?- REPO_USER=.*/d" \
 	-e "/#\?- REPO_PASS.*=.*/d" \
 	-i docker-compose.yml
