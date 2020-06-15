@@ -29,10 +29,15 @@ install: build
 	# installing files from tar-ball in there locations
 	mkdir -p $(DEST_DIR)$(ETC_DIR)
 	install -m 644 docker-compose.yml $(DEST_DIR)$(ETC_DIR)
+	install -m 644 docker-compose.yml $(DEST_DIR)$(ETC_DIR)/latest-docker-compose.yml
+	install -m 644 docker-compose.override.yml $(DEST_DIR)$(ETC_DIR)/latest-docker-compose.override.yml
 	install -m 644 apache.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 egroupware-nginx.conf $(DEST_DIR)$(ETC_DIR)
+	install -m 644 mariadb.cnf $(DEST_DIR)$(ETC_DIR)
 	install -m 755 use-epl.sh $(DEST_DIR)$(ETC_DIR)
+	install -m 755 create-override.sh $(DEST_DIR)$(ETC_DIR)
+	install -m 755 egroupware-logs.sh $(DEST_DIR)$(ETC_DIR)
 	# tell systemd to start docker after MariaDB
 	mkdir -p $(DEST_DIR)/etc/systemd/system/docker.service.d
 	install -m 755 docker-egroupware.conf $(DEST_DIR)/etc/systemd/system/docker.service.d/egroupware.conf

@@ -36,12 +36,7 @@ then
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-docker
-	# for an upgrade check that the EPL image was not accidentally removed by agreeing on taking the packages version
-	if [ -n "$2" -a -f docker-compose.yml.dpkg-old ] && \
-	  grep -q "^\s*image:\s*download.egroupware.org/egroupware/epl:latest" docker-compose.yml.dpkg-old
-	then
-    sed -i 's|egroupware/egroupware:latest|download.egroupware.org/egroupware/epl:latest|' docker-compose.yml
-	fi
+  test -f docker-compose.override.yml || /bin/bash create-override.sh
 	docker-compose pull && \
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
 	echo "y" | docker-compose up -d egroupware && sleep 2 && \

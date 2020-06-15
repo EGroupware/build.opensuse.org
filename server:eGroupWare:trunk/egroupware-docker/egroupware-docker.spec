@@ -30,8 +30,8 @@ Source: %{name}-%{version}.tar.gz
     %define apache_package apache2
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
-# recommend MariaDB, Rocket.Chat and Collabora for (open)SUSE
-Recommends: mariadb-server, egroupware-rocketchat, egroupware-collabora-key
+# recommend Collabora for (open)SUSE
+Recommends: egroupware-collabora-key
 %else
 	%define apache_conf_d /etc/httpd/conf.d
 	%define apache_vhosts_d /etc/httpd/conf.d
@@ -137,19 +137,12 @@ Provides: egw-core %{version}
 Provides: egw-addressbook %{version}
 
 %post
+%{etc_dir}/create-override.sh
 case "$1" in
   1)# This is an initial install.
 	# enable and start docker
 	systemctl enable docker
 	systemctl is-active --quiet docker || systemctl start docker
-
-	# some distro specific commands
-%if 0%{?suse_version}
-
-%else	# RHEL / CentOS
-	# enable and start MariaDB, if that's not already done
-	systemctl enable mariadb && systemctl status mariadb || systemctl start mariadb
-%endif
 
 	# patch include /etc/egroupware-docker/apache.conf into all vhosts
 	cd %{apache_vhosts_d}
@@ -181,13 +174,6 @@ case "$1" in
 		chown root %{egwdatadir}/egroupware-docker-install.log
 		ln -s %{egwdatadir}/egroupware-docker-install.log /root/egroupware-epl-install.log
 	}
-
-	# set correct mysql.sock in docker-compose
-%if 0%{?suse_version}
-	sed -i 's|- /var/run/mysqld.*|- /var/run/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
-%else # RHEL/CentOS
-	sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.yml
-%endif
 
 	# fix or create empty /root/.docker/config.json
 	mkdir -p /root/.docker
@@ -249,10 +235,15 @@ use new versions of its containers everyday at 4am, if a new version is availabl
 %install
 mkdir -p $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 docker-compose.yml $RPM_BUILD_ROOT%{etc_dir}
+install -m 644 docker-compose.yml $RPM_BUILD_ROOT%{etc_dir}/latest-docker-compose.yml
+install -m 644 docker-compose.override.yml $RPM_BUILD_ROOT%{etc_dir}/latest-docker-compose.override.yml
+install -m 644 mariadb.cnf $RPM_BUILD_ROOT%{etc_dir}/mariadb.cnf
 install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 egroupware-nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 use-epl.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 755 create-override.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 755 egroupware-logs.sh $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build
 install -m 755 post_install.php $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build/
 # tell systemd to start docker after MariaDB
@@ -282,7 +273,12 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 %config(noreplace) %{etc_dir}/nginx.conf
 %config(noreplace) %{etc_dir}/egroupware-nginx.conf
 %config(noreplace) %{etc_dir}/docker-compose.yml
+%{etc_dir}/latest-docker-compose.yml
+%{etc_dir}/latest-docker-compose.override.yml
+%config(noreplace) %{etc_dir}/mariadb.cnf
 %{etc_dir}/use-epl.sh
+%{etc_dir}/create-override.sh
+%{etc_dir}/egroupware-logs.sh
 %config(noreplace) %{egwdatadir}/header.inc.php
 %{apache_conf_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"

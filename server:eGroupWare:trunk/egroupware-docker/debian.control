@@ -8,13 +8,12 @@ Homepage: https://www.egroupware.org/
 Package: egroupware-docker
 Architecture: any
 Depends: docker-compose (>= 1.10.0), docker.io | docker-ce, nginx | apache2 (>= 2.4)
-Recommends: mariadb-server | mysql-server,
- egroupware-rocketchat, egroupware-collabora-key
+Recommends: egroupware-collabora-key
 Description: web-based groupware suite
  This package installs Docker and docker-compose and use it to run EGroupware
- via the container quay.io/egroupware/egroupware:latest.
+ via the container egroupware/egroupware:latest.
  .
- It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic
+ It also uses containrrr/watchtower (https://github.com/containrrr/watchtower) to automatic
  use new versions of its containers everyday at 4am, if a new version is available.
 # egroupware-docker replaces and conflicts all non-deprecated egroupware-epl* packages
 Replaces: egroupware-epl,
