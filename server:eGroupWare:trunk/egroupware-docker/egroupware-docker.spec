@@ -185,7 +185,7 @@ case "$1" in
 	cd %{etc_dir}
 	test -f docker-compose.override.yml || /bin/bash create-override.sh
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
-	echo "y" | docker-compose up -d egroupware && sleep 2 && \
+	echo "y" | docker-compose up -d egroupware && sleep 5 && \
 	echo "y" | docker-compose up -d || true
 	;;
 
@@ -195,7 +195,7 @@ case "$1" in
 	test -f docker-compose.override.yml || /bin/bash create-override.sh
 	docker-compose pull && \
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
-	echo "y" | docker-compose up -d egroupware && sleep 2 && \
+	echo "y" | docker-compose up -d egroupware && sleep 5 && \
 	echo "y" | docker-compose up -d || true
 	;;
 esac
