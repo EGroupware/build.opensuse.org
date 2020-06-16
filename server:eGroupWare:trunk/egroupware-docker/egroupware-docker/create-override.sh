@@ -31,15 +31,7 @@ test -f docker-compose.override.yml || diff -q docker-compose.yml latest-docker-
   sed -e 's|egroupware/egroupware:latest|egroupware/egroupware:20.1|g' \
       -e 's|download.egroupware.org/egroupware/epl:latest|download.egroupware.org/egroupware/epl:20.1|g' \
       -i docker-compose.override.yml
-  # add override to disable internal db for update
-  cat <<EOF >> docker-compose.override.yml
-
-  #disable internal db service
-  db:
-    image: busybox
-    entrypoint: /bin/true
-    restart: "no"
-EOF
+  # ^^^ until 20.1 is latest, replace latest with 20.1 ^^^
   cp latest-docker-compose.yml docker-compose.yml
   # we also need to add websocket proxy to apache on the host
   grep -q "required for push" apache.conf || cat<<EOF >> apache.conf
@@ -50,6 +42,19 @@ EOF
 
 # if we have no docker-compose.override.yml create it from latest-docker-compose.override.yml
 test -f docker-compose.override.yml || cp latest-docker-compose.override.yml docker-compose.override.yml
+
+# if we don't need the internal db (eg. update from 19.1), disable it (new installs have a minimal header.inc.php!)
+test -f /var/lib/egroupware/header.inc.php && grep -q "'db_host'" /var/lib/egroupware/header.inc.php && {
+  grep -q "'db_host' => 'db'," /var/lib/egroupware/header.inc.php || \
+    cat <<EOF >> docker-compose.override.yml
+
+  #disable internal db service
+  db:
+    image: busybox
+    entrypoint: /bin/true
+    restart: "no"
+EOF
+}
 
 # new install: create .env file with MariaDB root password
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
