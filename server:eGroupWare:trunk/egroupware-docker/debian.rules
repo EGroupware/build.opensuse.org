@@ -13,6 +13,7 @@ DEST_DIR = /usr/src/packages/BUILD/debian/egroupware-docker
 ETC_DIR = /etc/egroupware-docker
 DATA_DIR = /var/lib/egroupware
 OLD_SRC_DIR = /usr/share/egroupware
+NGINX_APP_DIR = /etc/nginx/app.d
 
 clean:
 	dh_testdir
@@ -38,6 +39,8 @@ install: build
 	install -m 755 use-epl.sh $(DEST_DIR)$(ETC_DIR)
 	install -m 755 create-override.sh $(DEST_DIR)$(ETC_DIR)
 	install -m 755 egroupware-logs.sh $(DEST_DIR)$(ETC_DIR)
+	mkdir -p $(DEST_DIR)$(NGINX_APP_DIR)
+	install -m 644 nginx-egroupware-push.conf $(DEST_DIR)$(NGINX_APP_DIR)/egroupware-push.conf
 	# tell systemd to start docker after MariaDB
 	mkdir -p $(DEST_DIR)/etc/systemd/system/docker.service.d
 	install -m 755 docker-egroupware.conf $(DEST_DIR)/etc/systemd/system/docker.service.d/egroupware.conf

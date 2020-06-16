@@ -73,7 +73,7 @@ services:
   #db:
   #  image: busybox
   #  entrypoint: /bin/true
-  #  restart: never
+  #  restart: "no"
 
   # push server using phpswoole
   #push:

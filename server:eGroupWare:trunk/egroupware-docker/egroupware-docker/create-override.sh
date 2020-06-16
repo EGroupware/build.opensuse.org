@@ -32,28 +32,24 @@ test -f docker-compose.override.yml || diff -q docker-compose.yml latest-docker-
       -e 's|download.egroupware.org/egroupware/epl:latest|download.egroupware.org/egroupware/epl:20.1|g' \
       -i docker-compose.override.yml
   # add override to disable internal db for update
-  echo -e "\n\n#disable internal db service\n  db:\n    image: busybox\n    entrypoint: /bin/true\n    restart: never\n" >> docker-compose.override.yml
+  cat <<EOF >> docker-compose.override.yml
+
+  #disable internal db service
+  db:
+    image: busybox
+    entrypoint: /bin/true
+    restart: "no"
+EOF
   cp latest-docker-compose.yml docker-compose.yml
-  # we also need to add websocket proxy to webserver on the host
+  # we also need to add websocket proxy to apache on the host
   grep -q "required for push" apache.conf || cat<<EOF >> apache.conf
 # required for push / websocket
 ProxyPass /egroupware/push ws://127.0.0.1:8080/egroupware/push nocanon
 EOF
-  grep -q "required for push" nginx.conf || {
-    (sed '/location \/egroupware {/q' nginx.conf
-    cat <<EOF
-		# required for push / websocket
-		proxy_http_version 1.1;
-		proxy_set_header Upgrade $http_upgrade;
-		proxy_set_header Connection "Upgrade";
-EOF
-    sed -e '1,/location \/egroupware {/ d' nginx.conf) > new-nginx.conf
-    mv new-nginx.conf nginx.conf
-  }
 }
 
 # if we have no docker-compose.override.yml create it from latest-docker-compose.override.yml
 test -f docker-compose.override.yml || cp latest-docker-compose.override.yml docker-compose.override.yml
 
 # new install: create .env file with MariaDB root password
-test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand --hex 16)\n" > .env
+test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env

@@ -68,8 +68,11 @@ Conflicts: egroupware-epl,
  egroupware, egroupware-syncml, egroupware-epl-syncml, egroupware-polls, egroupware-epl-polls, egroupware-phpsysinfo, egroupware-epl-phpsysinfo,
  egroupware-epl-pear, egroupware-pear, egroupware-epl-manual, egroupware-manual, egroupware-epl-developer-tools,
  egroupware-emailadmin, egroupware-epl-emailadmin, egroupware-epl-pixelegg
+# suggest mariadb and rocketchat, so they dont get deinstalled by apt autoremove
+Suggests: mariadb-server | mysql-server,
+ egroupware-rocketchat,
 # suggest no longer by default installed packages (all requiring egroupware-epl-compat)
-Suggests: egroupware-epl-jdots,
+ egroupware-epl-jdots,
  egroupware-epl-phpbrain,
  egroupware-epl-sitemgr,
  egroupware-epl-wiki

@@ -20,6 +20,7 @@ Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
 %define etc_dir /etc/egroupware-docker
+%define nginx_app_dir /etc/nginx/app.d
 
 %if 0%{?suse_version}
 	%define apache_conf_d /etc/apache2/conf.d
@@ -182,6 +183,7 @@ case "$1" in
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
+	test -f docker-compose.override.yml || /bin/bash create-override.sh
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
 	echo "y" | docker-compose up -d egroupware && sleep 2 && \
 	echo "y" | docker-compose up -d || true
@@ -190,6 +192,7 @@ case "$1" in
   2)# This is an upgrade.
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
+	test -f docker-compose.override.yml || /bin/bash create-override.sh
 	docker-compose pull && \
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
 	echo "y" | docker-compose up -d egroupware && sleep 2 && \
@@ -244,6 +247,8 @@ install -m 644 egroupware-nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 use-epl.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 create-override.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 egroupware-logs.sh $RPM_BUILD_ROOT%{etc_dir}
+mkdir -p $RPM_BUILD_ROOT%{nginx_app_dir}
+install -m 644 nginx-egroupware-push.conf $RPM_BUILD_ROOT%{nginx_app_dir}/egroupware-push.conf
 mkdir -p $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build
 install -m 755 post_install.php $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build/
 # tell systemd to start docker after MariaDB
