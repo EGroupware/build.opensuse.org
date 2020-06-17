@@ -63,7 +63,8 @@ services:
     #- EGW_DB_PASS=
     # other php.ini values to set in the container and their current defaults
     #- EGW_SESSION_TIMEOUT=14000
-    #- EGW_APC_SHM_SIZE=128G
+    #- EGW_APC_SHM_SIZE=128M
+    #- EGW_MEMORY_LIMIT=128M
     # set the ip-address of your docker host AND your official DNS name so EGroupware
     # can access Rocket.Chat or Collabora without the need to go over your firewall
     #extra_hosts:

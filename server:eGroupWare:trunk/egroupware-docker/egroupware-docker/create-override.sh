@@ -124,4 +124,5 @@ test "$(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)" != /var/lib/d
     sed -e 's|^#volumes:|volumes:|' -i docker-compose.override.yml
   sed -i docker-compose.override.yml \
       -e "s|^volumes:|volumes:\n  # fix volume directory eg. for Ubuntu 18.04\n  sources-push:\n    driver_opts:\n      type: none\n      o: bind\n      device: $(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)/_data/swoolepush\n|"
+  docker volume rm -f egroupwaredocker_sources-push || true
 }
