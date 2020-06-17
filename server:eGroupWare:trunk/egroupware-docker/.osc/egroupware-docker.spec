@@ -3,7 +3,7 @@ Version: 20.1.20200613
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
-License: GPLv2 with exception of EPL-functions and esyncpro module, which is proprietary
+License: GPLv2 or (at your option) any later version
 URL: http://www.egroupware.org/EPL
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
