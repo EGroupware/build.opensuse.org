@@ -284,6 +284,8 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 %{etc_dir}/use-epl.sh
 %{etc_dir}/create-override.sh
 %{etc_dir}/egroupware-logs.sh
+%{nginx_app_dir}
+%config(noreplace) %{nginx_app_dir}/egroupware-push.conf
 %config(noreplace) %{egwdatadir}/header.inc.php
 %{apache_conf_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"
