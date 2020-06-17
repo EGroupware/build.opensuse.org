@@ -57,7 +57,7 @@ EOF
 test -f docker-compose.override.yml || \
 test -f /var/lib/egroupware/header.inc.php && grep -q "'db_host' => 'localhost'" /var/lib/egroupware/header.inc.php && {
   cp latest-docker-compose.override.yml docker-compose.override.yml
-  cat <<EOF
+  cat <<EOF | patch -p0 docker-compose.override.yml
 --- docker-compose.override.yml	2020-06-16 10:50:49.000000000 +0200
 +++ docker-compose.override-19.1.yml	2020-06-17 09:16:46.000000000 +0200
 @@ -36,7 +36,7 @@
@@ -103,7 +103,7 @@ test -f /var/lib/egroupware/header.inc.php && grep -q "'db_host' => 'localhost'"
 
    # push server using phpswoole
    #push:
-EOF | patch -p0 docker-compose.override.yml
+EOF
 }
 
 # case 3: new installation
