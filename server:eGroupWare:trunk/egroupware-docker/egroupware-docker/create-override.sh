@@ -113,3 +113,15 @@ grep -q "required for push" apache.conf || \
 
 # new install: create .env file with MariaDB root password
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
+
+# check and fix path of sources volume: /var/lib/docker/volumes/egroupware-docker_sources
+# Ubuntu 18.04 skips the dash: /var/lib/docker/volumes/egroupwaredocker_sources
+ls -1d /var/lib/docker/volumes/egroupware*docker_sources || \
+  docker-compose up -d egroupware
+ls -1d /var/lib/docker/volumes/egroupware*docker_sources && \
+test "$(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)" != /var/lib/docker/volumes/egroupware-docker_sources && {
+  grep "^volumes:" docker-compose.override.yml ||
+    sed -e 's|^#volumes:|volumes:|' -i docker-compose.override.yml
+  sed -i docker-compose.override.yml \
+      -e "s|^volumes:|volumes:\n  # fix volume directory eg. for Ubuntu 18.04\n  sources-push:\n    driver_opts:\n      type: none\n      o: bind\n      device: $(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)/_data/swoolepush\n|"
+}
