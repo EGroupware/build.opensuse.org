@@ -44,20 +44,15 @@ test -f docker-compose.override.yml || diff -q docker-compose.yml latest-docker-
     restart: "no"
 EOF
   cp latest-docker-compose.yml docker-compose.yml
-  # we also need to add websocket proxy to apache on the host
-  grep -q "required for push" apache.conf || cat<<EOF >> apache.conf
-# required for push / websocket
-ProxyPass /egroupware/push ws://127.0.0.1:8080/egroupware/push nocanon
-EOF
 }
 
 # case 2: 19.1 update without docker-compose.yml modification
 # we have no .override, but a header.inc.php with 'db_host' => 'localhost', this is a clean 19.1 update
 # (without docker-compose.yml modification) --> create nice minimal override for external db
-test -f docker-compose.override.yml || \
-test -f /var/lib/egroupware/header.inc.php && grep -q "'db_host' => 'localhost'" /var/lib/egroupware/header.inc.php && {
-  cp latest-docker-compose.override.yml docker-compose.override.yml
-  cat <<EOF | patch -p0 docker-compose.override.yml
+test -f docker-compose.override.yml || {
+  test -f /var/lib/egroupware/header.inc.php && grep -q "'db_host' => 'localhost'" /var/lib/egroupware/header.inc.php && {
+    cp latest-docker-compose.override.yml docker-compose.override.yml
+    cat <<EOF | patch -p0 docker-compose.override.yml
 --- docker-compose.override.yml	2020-06-16 10:50:49.000000000 +0200
 +++ docker-compose.override-19.1.yml	2020-06-17 09:16:46.000000000 +0200
 @@ -36,7 +36,7 @@
@@ -104,11 +99,17 @@ test -f /var/lib/egroupware/header.inc.php && grep -q "'db_host' => 'localhost'"
    # push server using phpswoole
    #push:
 EOF
+  }
 }
 
 # case 3: new installation
 # still no docker-compose.override.yml --> create it from latest-docker-compose.override.yml
 test -f docker-compose.override.yml || cp latest-docker-compose.override.yml docker-compose.override.yml
+
+# we also need to add websocket proxy to apache on the host (in front of regular proxy!)
+grep -q "required for push" apache.conf || \
+  sed -i apache.conf \
+      -e 's|^ProxyPass /egroupware/|# required for push / websocket\nProxyPass /egroupware/push ws://127.0.0.1:8080/egroupware/push nocanon\nProxyPass /egroupware/|'
 
 # new install: create .env file with MariaDB root password
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
