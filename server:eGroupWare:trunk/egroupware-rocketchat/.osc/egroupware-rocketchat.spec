@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 2.3.20191128
+Version: 3.3.20200618
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-1.2.20190709.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-3.3.20200618.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -52,6 +52,9 @@ case "$1" in
 	systemctl enable docker
 	systemctl status docker || systemctl start docker
 
+	# change owner of Rocket.Chat data-directory to 99999 used by container
+	chown -R 99999 /var/lib/egroupware/default/rocketchat
+
 	# patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
 	cd %{apache_vhosts_d}
 	for conf in $(grep -ril '<VirtualHost ' .)
@@ -70,20 +73,38 @@ case "$1" in
 	}
 	systemctl restart %{apache_service}
 
-	# patch docker-compose.yml with our primary IP (of interface with default route)
-	sed -i %{etc_dir}/docker-compose.yml \
+	cd %{etc_dir}
+	# create docker-compose.override.yml from latest-docker-compose.override.yml
+    cp latest-docker-compose.override.yml docker-compose.override.yml
+
+	# patch docker-compose.override.yml with HTTP_HOST, if given, or our primary IP (of interface with default route)
+	test -n "$HTTP_HOST" && \
+	sed -i %{etc_dir}/docker-compose.override.yml \
+		-e "s#ROOT_URL=.*#ROOT_URL=https://${HTTP_HOST}/rocketchat#g" || \
+	sed -i %{etc_dir}/docker-compose.override.yml \
 		-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet ([0-9.]+).*/\1/p')/rocketchat#g"
 
 	# start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
-	cd %{etc_dir}
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
-	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
+	# if we dont have it, create docker-compose.override.yml
+    test -f docker-compose.override.yml || {
+      # if we have modifications in docker-compose.yml update created a docker-compose.yml.rpmnew
+      test -f docker-compose.yml.rpmnew && {
+         # use current docker-compose.yml as .override
+         sed "s|version:'2'|version:'3'|" docker-compose.yml > docker-compose.override.yml
+         # and move .rpmnew one in place
+         mv docker-compose.yml.rpmnew docker-compose.yml
+      } || \
+      # otherwise create it from latest-docker-compose.override
+      cp latest-docker-compose.override.yml docker-compose.override.yml
+    }
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	docker-compose pull && \
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 	;;
 esac
 
@@ -112,9 +133,6 @@ esac
 This package installs Docker and docker-compose and use it to run Rocket.Chat
 via the container rocketchat/rocket.chat:latest.
 
-It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic
-use new versions of its containers everyday at 4am, if a new version is available.
-
 %prep
 %setup -n %{name}
 
@@ -123,8 +141,10 @@ use new versions of its containers everyday at 4am, if a new version is availabl
 %install
 mkdir -p $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 docker-compose.yml $RPM_BUILD_ROOT%{etc_dir}
+install -m 644 docker-compose.override.yml $RPM_BUILD_ROOT%{etc_dir}/latest-docker-compose.override.yml
 install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
+mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-rocketchat.conf
@@ -138,7 +158,9 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %config(noreplace) %{etc_dir}/apache.conf
 %config(noreplace) %{etc_dir}/nginx.conf
 %config(noreplace) %{etc_dir}/docker-compose.yml
+%{etc_dir}/latest-docker-compose.override.yml
 %{apache_conf_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"
 %{apache_vhosts_d}
 %endif
+/var/lib/egroupware/default/rocketchat

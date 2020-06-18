@@ -10,6 +10,3 @@ Depends: docker-compose, docker.io | docker-ce, apache2 (>= 2.4) | nginx, net-to
 Description: Rocket.Chat container for EGroupware
  This package installs Docker and docker-compose and use it to run Rocket.Chat
  via the container rocketchat/rocket.chat:latest.
- .
- It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic
- use new versions of its containers everyday at 4am, if a new version is available.

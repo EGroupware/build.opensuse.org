@@ -28,6 +28,7 @@ install: build
 	# installing files from tar-ball in there locations
 	mkdir -p $(DEST_DIR)$(ETC_DIR)
 	install -m 644 docker-compose.yml $(DEST_DIR)$(ETC_DIR)
+	install -m 644 docker-compose.override.yml $(DEST_DIR)$(ETC_DIR)/latest-docker-compose.override.yml
 	install -m 644 apache.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
 

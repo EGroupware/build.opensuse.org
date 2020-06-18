@@ -1,3 +1,9 @@
+egroupware-rocketchat (3.3.20200618) hardy; urgency=low
+
+  * using docker-compose.override.yml for local modifications
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 18 Jun 2020 07:30:00 +0200
+
 egroupware-rocketchat (2.3.20191128) hardy; urgency=low
 
   * fix not working notes to use Rocket.Chat with a private CA (node.js requires env variable)

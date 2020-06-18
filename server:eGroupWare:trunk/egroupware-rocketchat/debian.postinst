@@ -18,6 +18,7 @@ webserver_soft_reload() {
 
 if [ "$1" = configure -o "$1" = upgrade ]
 then
+  cd /etc/egroupware-rocketchat
 	# If upgrading, $2 contains the release currently installed, otherwise it's empty
 	if [ -z "$2" ]
 	then
@@ -25,13 +26,31 @@ then
 		# change owner of Rocket.Chat data-directory to 99999 used by container
 		chown -R 99999 /var/lib/egroupware/default/rocketchat
 
-		# patch docker-compose.yml with our primary IP (of interface with default route)
-		sed -i /etc/egroupware-rocketchat/docker-compose.yml \
-			-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet [^0-9]*([0-9.]+).*/\1/p')/rocketchat#g"
+	  # create docker-compose.override.yml from latest-docker-compose.override.yml
+    cp latest-docker-compose.override.yml docker-compose.override.yml
+
+    # patch docker-compose.override.yml with HTTP_HOST, if given, or our primary IP (of interface with default route)
+    test -n "$HTTP_HOST" && \
+    sed -i docker-compose.override.yml \
+        -e "s#ROOT_URL=.*#ROOT_URL=https://${HTTP_HOST}/rocketchat#g" || \
+    sed -i docker-compose.override.yml \
+        -e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet ([0-9.]+).*/\1/p')/rocketchat#g"
+  else # update
+	  # if we dont have it, create docker-compose.override.yml
+    test -f docker-compose.override.yml || {
+      # if we have modifications in docker-compose.yml update created a docker-compose.yml.rpmnew
+      test -f docker-compose.yml.rpmnew && {
+         # use current docker-compose.yml as .override
+         sed "s|version:'2'|version:'3'|" docker-compose.yml > docker-compose.override.yml
+         # and move .rpmnew one in place
+         mv docker-compose.yml.rpmnew docker-compose.yml
+      } || \
+      # otherwise create it from latest-docker-compose.override
+      cp latest-docker-compose.override.yml docker-compose.override.yml
+    }
 	fi
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
-	cd /etc/egroupware-rocketchat
 	docker-compose pull && \
 	echo "y" | docker-compose up -d || true
 
