@@ -11,16 +11,14 @@ services:
     volumes:
       - /var/lib/egroupware/default/rocketchat/uploads:/app/uploads
     # if EGroupware uses a certificate from a private CA, OAuth authentication will fail, you need to:
-    # - comment out the above line: command: bash -c ....
     # - have the CA certificate stored at /etc/egroupware-docker/private-ca.crt
-    # - to update Rocket.Chat you have to run: docker-compose build --nocache rocketchat && docker-compose up -d
-    # - uncomment the next 3 lines:
-    #- /etc/egroupware-docker/private-ca.crt:/usr/local/share/ca-certificates/private-ca.crt:ro
-    #build: .
-    #command: bash -c 'test -f /usr/local/share/ca-certificates/private-ca.crt && sudo update-ca-certificates; for i in `seq 1 30`; do node main.js && s=$$? && break || s=$$?; echo "Tried $$i times. Waiting 5 secs..."; sleep 5; done; (exit $$s)'
+    # - uncomment the next 2 lines about the private CA:
+    # - /etc/egroupware-docker/private-ca.crt:/usr/local/share/ca-certificates/private-ca.crt:ro
     environment:
-      - PORT=3000
+    # - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/private-ca.crt
+    # IMPORTANT: change ROOT_URL to your actual url eg. https://domain.com/rocketchat
       - ROOT_URL=http://localhost/rocketchat
+      - PORT=3000
       - MONGO_URL=mongodb://mongo:27017/rocketchat
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local
 #     - HTTP_PROXY=http://proxy.domain.com

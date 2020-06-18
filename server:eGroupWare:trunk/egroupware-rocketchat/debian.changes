@@ -1,3 +1,16 @@
+egroupware-rocketchat (2.3.20191128) hardy; urgency=low
+
+  * fix not working notes to use Rocket.Chat with a private CA (node.js requires env variable)
+  * do NOT fail package install, if docker pull fails (eg. needs proxy config)
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 22 Aug 2019 12:30:00 +0100
+
+egroupware-rocketchat (1.3.20190822) hardy; urgency=low
+
+  * remove (wrong) MAIL_URL from docker-compose file as it stalls registration
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 22 Aug 2019 12:30:00 +0100
+
 egroupware-rocketchat (1.3.20190813) hardy; urgency=low
 
   * update to Rocket.Chat 1.3 and more docu in docker-compose.yml
