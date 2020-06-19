@@ -80,7 +80,7 @@ case "$1" in
     # if HTTP_HOST given, patch docker-compose.override.yml with it and install and integrate Rocket.Chat into EGroupware
 	test -n "$HTTP_HOST" && {
 		sed -i %{etc_dir}/docker-compose.override.yml \
-			-e "s#ROOT_URL=.*#ROOT_URL=https://${HTTP_HOST}/rocketchat#g" || \
+			-e "s#ROOT_URL=.*#ROOT_URL=https://${HTTP_HOST}/rocketchat#g"
 		bash -x ./install-rocketchat.sh
 	}
     # otherwise use our primary IP (of interface with default route) and leave installation to Rocket.Chat itself
@@ -148,6 +148,8 @@ install -m 644 docker-compose.yml $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 docker-compose.override.yml $RPM_BUILD_ROOT%{etc_dir}/latest-docker-compose.override.yml
 install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
+install -m 700 install-rocketchat.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 644 mongodump-rocketchat-3.1.gz $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
