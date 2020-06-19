@@ -29,7 +29,7 @@ JWT_SECRET=$(openssl rand -base64 40 | cut -b1-43)
 ENDPOINT="https://$HTTP_HOST/egroupware/openid/endpoint.php"
 CLIENT_ID="Rocket.Chat"
 SECRET=$(openssl rand -base64 15)
-SECRET_HASH=$(docker exec -it egroupware php -r "echo password_hash('$SECRET', PASSWORD_BCRYPT);")
+SECRET_HASH=$(docker exec -i egroupware php -r "echo password_hash('$SECRET', PASSWORD_BCRYPT);")
 NOW=$(date "+%Y-%m-%d %H:%M:%S")
 EGW_DB_NAME=egroupware
 
@@ -121,7 +121,7 @@ REPLACE INTO egw_config (config_app,config_name,config_value) VALUES
 EOF
 
 # restart EGroupware (php-fpm) to clear the cache
-docker exec -it egroupware kill -s USR2 1
+docker exec -i egroupware kill -s USR2 1
 
 # start rocketchat (again)
 docker-compose rm -f rocketchat # to get a new / clean log
