@@ -136,4 +136,4 @@ echo ""
   echo "Please wait until Rocket.Chat reports: SERVER RUNNING"
   echo ""
   docker-compose logs -f rocketchat
-}
+} || true

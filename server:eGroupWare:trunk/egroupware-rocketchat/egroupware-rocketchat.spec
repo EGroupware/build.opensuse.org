@@ -78,10 +78,10 @@ case "$1" in
     cp latest-docker-compose.override.yml docker-compose.override.yml
 
     # if HTTP_HOST given, patch docker-compose.override.yml with it and install and integrate Rocket.Chat into EGroupware
-	test -n "$HTTP_HOST" && {
+	test -z "$HTTP_HOST" || {
 		sed -i %{etc_dir}/docker-compose.override.yml \
 			-e "s#ROOT_URL=.*#ROOT_URL=https://${HTTP_HOST}/rocketchat#g"
-		bash -x ./install-rocketchat.sh
+		./install-rocketchat.sh
 	}
     # otherwise use our primary IP (of interface with default route) and leave installation to Rocket.Chat itself
     test -n "$HTTP_HOST" || \
