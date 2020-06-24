@@ -16,6 +16,8 @@ Support-key can be entered from EGroupware Collabora app into /var/lib/egroupwar
     <enable arch="x86_64" repository="openSUSE_Leap_15.0"/>
     <enable arch="x86_64" repository="openSUSE_Leap_15.1"/>
     <enable arch="x86_64" repository="CentOS_8"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.2"/>
+    <enable arch="x86_64" repository="xUbuntu_20.04"/>
   </build>
   <publish>
     <disable arch="i586"/>
