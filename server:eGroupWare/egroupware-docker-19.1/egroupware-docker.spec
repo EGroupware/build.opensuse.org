@@ -30,8 +30,8 @@ Source: %{name}-%{version}.tar.gz
     %define apache_package apache2
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
-# recommend MariaDB, Rocket.Chat and Collabora for (open)SUSE
-Recommends: mariadb-server, egroupware-rocketchat, egroupware-collabora-key
+# recommend MariaDB and Collabora for (open)SUSE
+Recommends: mariadb-server, egroupware-collabora-key
 %else
 	%define apache_conf_d /etc/httpd/conf.d
 	%define apache_vhosts_d /etc/httpd/conf.d
@@ -196,14 +196,14 @@ case "$1" in
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
 	docker-compose pull && \
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 	;;
 esac
 # get our addition to docker unit working in case MariaDB/MySQL runs an update
@@ -234,7 +234,7 @@ esac
 This package installs docker and docker-compose and use it to run the container
 quay.io/egroupware/egroupware:latest and nginx:stable-alpine.
 
-It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic
+It also uses containrrr/watchtower (https://github.com/containrrr/watchtower) to automatic
 use new versions of its containers everyday at 4am, if a new version is available.
 
 %prep

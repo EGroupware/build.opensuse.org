@@ -25,6 +25,7 @@ if [ "$1" = remove ]; then
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
 	then
 		rm -f /etc/nginx/app.d/egroupware-docker.conf
+		rm -f /etc/nginx/sites-{available,enabled}/egroupware.conf
 		nginx -s reload
 	fi
 
