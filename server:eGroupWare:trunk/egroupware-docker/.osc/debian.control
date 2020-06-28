@@ -10,8 +10,8 @@ Architecture: any
 Depends: docker-compose (>= 1.10.0), docker.io | docker-ce, nginx | apache2 (>= 2.4)
 Recommends: egroupware-collabora-key
 Description: web-based groupware suite
- This package installs Docker and docker-compose and use it to run EGroupware
- via the container egroupware/egroupware:latest.
+ This package installs Docker and docker-compose and use it to run EGroupware via the
+ container egroupware/egroupware:latest, phpswoole/swoole:latest and nginx:stable-alpine.
  .
  It also uses containrrr/watchtower (https://github.com/containrrr/watchtower) to automatic
  use new versions of its containers everyday at 4am, if a new version is available.

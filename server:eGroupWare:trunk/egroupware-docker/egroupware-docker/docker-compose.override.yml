@@ -6,12 +6,12 @@
 ###
 ### If you want to make some modification / uncomment eg. some enviroment variables, you also have to:
 ### - uncomment the service eg. "egroupware:", if not already uncommented like egroupware
-### - uncomment the "enviroment:" section of the service
+### - uncomment the "environment:" section of the service
 ###
 ### services:
 ###   egroupware:
-###      enviroment:
-###      - EGW_APC_SHM_SIZE=256G
+###      environment:
+###      - EGW_APC_SHM_SIZE=256M
 ###
 ### Please note: indention with space (NOT tabs!) matter in .yml files!
 ###

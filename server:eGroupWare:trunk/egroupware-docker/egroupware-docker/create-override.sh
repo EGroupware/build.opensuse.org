@@ -119,7 +119,7 @@ test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand 
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources || \
   docker-compose up -d egroupware
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources && \
-test "$(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)" != /var/lib/docker/volumes/egroupware-docker_sources && {
+test "$(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)" = /var/lib/docker/volumes/egroupware-docker_sources || {
   grep "^volumes:" docker-compose.override.yml ||
     sed -e 's|^#volumes:|volumes:|' -i docker-compose.override.yml
   sed -i docker-compose.override.yml \

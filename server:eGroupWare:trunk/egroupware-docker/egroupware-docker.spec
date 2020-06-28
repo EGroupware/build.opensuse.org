@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 20.1.20200613
+Version: 20.1.20200628
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -225,9 +225,9 @@ esac
 
 %description
 This package installs docker and docker-compose and use it to run the container
-quay.io/egroupware/egroupware:latest and nginx:stable-alpine.
+egroupware/egroupware:latest, phpswoole/swoole:latest and nginx:stable-alpine.
 
-It also uses v2tec/watchtower (https://github.com/v2tec/watchtower) to automatic
+It also uses containrrr/watchtower (https://github.com/containrrr/watchtower) to automatic
 use new versions of its containers everyday at 4am, if a new version is available.
 
 %prep
