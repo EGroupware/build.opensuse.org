@@ -19,7 +19,7 @@ git clone $GITURL $BUILD/$PACKAGE-$VERSION
 tar $TAROPTS $OUTPUTDIR/$PACKAGE-$VERSION.tar.gz $PACKAGE-$VERSION 
 
 sed -e "s/^Version:.*/Version: $VERSION/g" \
-    -e "s/$PACKAGE-.*/$PACKAGE-$VERSION/g" \
+    -e "s/$PACKAGE-.*.tar.gz/$PACKAGE-$VERSION.tar.gz/g" \
     -i "" $OUTPUTDIR/$PACKAGE.dsc
 
 cd $OUTPUTDIR
