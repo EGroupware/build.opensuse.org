@@ -1,3 +1,11 @@
+egroupware-guacamole (1.2.0.20200706) hardy; urgency=low
+
+  * update to Guacamole 1.2.0
+  * add Wake-on-LAN config
+  * fix container version to package version
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 06 Jul 2020 20:00:00 +0200
+
 egroupware-guacamole (1.1.0.20200430) hardy; urgency=low
 
   * fix not saved group permissions on AD or LDAP installs

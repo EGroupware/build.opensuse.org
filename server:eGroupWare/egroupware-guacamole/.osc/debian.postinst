@@ -32,17 +32,39 @@ then
 	    sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
 	    systemctl restart mysqld
 	  } || echo "Cant change MariaDB to bind on docker0 addresss (172.17.0.1)!"
-	  # symlink openid auth extension to be used (first)
-	  mkdir -p /etc/egroupware-guacamole/guacamole-home/extensions
-	  cd /etc/egroupware-guacamole/guacamole-home/extensions
-	  ln -sf /opt/guacamole/openid/guacamole-auth-openid-1.1.0.jar 00-guacamole-auth-openid-1.1.0.jar
 	  # if domain name specified via HTTP_HOST environment variable, patch it into relevant files
-	  [ -n "$HTTP_HOST" ] && {
+	  [ -z "$HTTP_HOST" ] || {
 	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.yaml
-	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/guacamole-home/guacamole.properties
 	  }
 	fi
-
+	# update from pre 1.2.0 with openid config in guacamole-properties
+  grep -q "^      OPENID_AUTHORIZATION_ENDPOINT" /etc/egroupware-guacamole/docker-compose.yaml || {
+    cat <<EOF | patch -p2 /etc/egroupware-guacamole/docker-compose.yaml
+diff --git a/doc/docker-compose.yaml b/doc/docker-compose.yaml
+index b084698..44c8b02 100644
+--- a/doc/docker-compose.yaml
++++ b/doc/docker-compose.yaml
+@@ -21,6 +21,12 @@ services:
+       # guacamole-user-password must NOT contain special chars, eg. use the following to generate a save one: openssl rand --hex 16
+       MYSQL_PASSWORD: guacamole-user-password
+       GUACAMOLE_HOME: /etc/guacamole
++      # see https://github.com/apache/guacamole-client/blob/master/guacamole-docker/bin/start.sh#L552
++      OPENID_AUTHORIZATION_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/authorize
++      OPENID_JWKS_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/jwks
++      OPENID_ISSUER: https://example.org
++      OPENID_CLIENT_ID: guacamole
++      OPENID_REDIRECT_URI: https://example.org/guacamole/
+     image: guacamole/guacamole
+     links:
+       - guacd
+EOF
+    HTTP_HOST=$(grep openid-authorization-endpoint /etc/egroupware-guacamole/guacamole-home/guacamole.properties | cut -d/ -f3)
+    [ -z "$HTTP_HOST" ] || {
+      sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.yaml
+    }
+  }
+  # update docker-compose.yaml with fixed Guacamole container version to use
+  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.2.0|g' /etc/egroupware-guacamole/docker-compose.yml
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-guacamole
 	docker-compose pull && \
