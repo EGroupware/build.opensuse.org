@@ -1,3 +1,10 @@
+egroupware-guacamole (1.2.0.20200707) hardy; urgency=low
+
+  * fix error in package installation/update
+  * fix diverse Wake-on-LAN template errors
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 07 Jul 2020 10:30:00 +0200
+
 egroupware-guacamole (1.2.0.20200706) hardy; urgency=low
 
   * update to Guacamole 1.2.0
