@@ -64,7 +64,7 @@ EOF
     }
   }
   # update docker-compose.yaml with fixed Guacamole container version to use
-  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.2.0|g' /etc/egroupware-guacamole/docker-compose.yml
+  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.2.0|g' /etc/egroupware-guacamole/docker-compose.yaml
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-guacamole
 	docker-compose pull && \
