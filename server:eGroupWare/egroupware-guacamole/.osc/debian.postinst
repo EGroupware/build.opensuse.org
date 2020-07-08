@@ -39,6 +39,7 @@ then
 	fi
 	# update from pre 1.2.0 with openid config in guacamole-properties
   grep -q "^      OPENID_AUTHORIZATION_ENDPOINT" /etc/egroupware-guacamole/docker-compose.yaml || {
+    sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1|g' -i /etc/egroupware-guacamole/docker-compose.yaml
     cat <<EOF | patch -p2 /etc/egroupware-guacamole/docker-compose.yaml
 diff --git a/doc/docker-compose.yaml b/doc/docker-compose.yaml
 index b084698..44c8b02 100644
