@@ -28,7 +28,13 @@ Source: %{name}-%{version}.tar.gz
 	%define apache_user wwwrun
 	%define apache_group www
 	%define apache_service apache2
-    %define apache_package apache2
+%if 0%{?sle_version} >= 150000
+Requires: (nginx >= 1.14 or apache2 >= 2.4)
+Recommends: nginx
+%else
+# rpm version in SLE 12 does not support OR, using just apache2 as in 19.1
+Requires: apache2 >= 2.4
+%endif
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
 # recommend Collabora for (open)SUSE
@@ -39,8 +45,14 @@ Recommends: egroupware-collabora-key
 	%define apache_user apache
 	%define apache_group apache
 	%define apache_service httpd
-    %define apache_package httpd
     %define apache_extra mod_ssl
+%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
+Requires: (nginx >= 1.14 or httpd >= 2.4)
+Recommends: nginx
+%else
+# rpm version in RHEL/CentOS 7 does not support OR, using just httpd as in 19.1
+Requires: httpd >= 2.4
+%endif
 %endif
 
 Buildarch: noarch
@@ -54,7 +66,7 @@ Requires: docker-ce >= 1.12
 #Requires: docker >= 1.12
 %endif
 Requires: docker-compose >= 1.10.0
-Requires: %{apache_package} >= 2.4
+Requires: patch
 %if "%{?apache_extra}" != ""
 # require mod_ssl so we can patch include of our proxy into it
 Requires: %{apache_extra}
@@ -145,23 +157,42 @@ case "$1" in
 	systemctl enable docker
 	systemctl is-active --quiet docker || systemctl start docker
 
-	# patch include /etc/egroupware-docker/apache.conf into all vhosts
-	cd %{apache_vhosts_d}
-	for conf in $(grep -ril '<VirtualHost ' .)
-	do [ -z "$(grep '/etc/egroupware-docker/apache.conf' $conf)" ] && \
-		sed -i 's|</VirtualHost>|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf\n\n</VirtualHost>|g' $conf && \
-		echo "Include /etc/egroupware-docker/apache.conf added to site $conf"
-	done
+	# set up Nginx and reload it
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		# initial install: enable egroupware and disable default site
+		ln -fs ../../egroupware-docker/nginx.conf /etc/nginx/conf.d/egroupware.conf
+		[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+		# at least openSUSE does not have proxy_params
+		[ -f /etc/nginx/proxy_params ] || cat <<EOF > /etc/nginx/proxy_params ]
+proxy_set_header Host $http_host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+EOF
+		nginx -s reload
+	fi
 
-	systemctl enable %{apache_service}
-	# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
-	[ -x /usr/sbin/a2enmod ] && {
-		a2enmod proxy
-		a2enmod proxy_http
-		a2enmod proxy_wstunnel
-		a2enmod headers
-	}
-	systemctl restart %{apache_service}
+	# set up Apache by patch include /etc/egroupware-docker/apache.conf into all vhosts
+	if [ -d %{apache_vhost_d} ]
+	then
+		cd %{apache_vhosts_d}
+		for conf in $(grep -ril '<VirtualHost ' .)
+		do [ -z "$(grep '/etc/egroupware-docker/apache.conf' $conf)" ] && \
+			sed -i 's|</VirtualHost>|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf\n\n</VirtualHost>|g' $conf && \
+			echo "Include /etc/egroupware-docker/apache.conf added to site $conf"
+		done
+
+		systemctl enable %{apache_service}
+		# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
+		[ -x /usr/sbin/a2enmod ] && {
+			a2enmod proxy
+			a2enmod proxy_http
+			a2enmod proxy_wstunnel
+			a2enmod headers
+		}
+		systemctl restart %{apache_service}
+	fi
 
 	# fix permissions in data directory: Ubuntu www-data is uid/gid 33/33
     mkdir -p %{egwdatadir}/default/files/sqlfs
@@ -205,14 +236,22 @@ systemctl daemon-reload
 %preun
 case "$1" in
   0)# This is an un-installation.
-	cd %{apache_vhosts_d}
-	for conf in $(grep -li 'include /etc/egroupware-docker/apache.conf' *.conf)
-	do
-		sed -i 's|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf||g' $conf && \
-			echo "Include /etc/egroupware-docker/apache.conf removed from site $conf"
-	done
-	rm %{apache_conf_d}/egroupware-docker.conf
-	systemctl restart %{apache_service}
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		rm -f /etc/nginx/conf.d/egroupware.conf
+		nginx -s reload
+	fi
+    if [ -d %{apache_vhosts_d} ]
+    then
+		cd %{apache_vhosts_d}
+		for conf in $(grep -li 'include /etc/egroupware-docker/apache.conf' *.conf)
+		do
+			sed -i 's|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf||g' $conf && \
+				echo "Include /etc/egroupware-docker/apache.conf removed from site $conf"
+		done
+		rm %{apache_conf_d}/egroupware-docker.conf
+		systemctl restart %{apache_service}
+	fi
 	cd %{etc_dir}
 	docker-compose rm -fs
 	;;
