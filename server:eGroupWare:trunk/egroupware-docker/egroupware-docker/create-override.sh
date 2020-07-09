@@ -2,7 +2,7 @@
 ###################################################################################################
 ### Create docker-compose.override.yml in either of the following three cases:
 ### 1. update from 19.1 with docker-compose.yml modification: use pre 20.1 docker-compose.yml
-### 2. update from 19.1 without docker-compose.yml modification: create .override with 19.1 defaults
+### 2. update from 19.1 or before without docker-compose.yml modification: create .override with 19.1 defaults
 ### 3. new install: use latest-docker-compose.override.yml
 ###################################################################################################
 
@@ -46,7 +46,7 @@ EOF
   cp latest-docker-compose.yml docker-compose.yml
 }
 
-# case 2: 19.1 update without docker-compose.yml modification
+# case 2: 19.1 or earlier update without docker-compose.yml modification
 # we have no .override, but a header.inc.php with 'db_host' => 'localhost', this is a clean 19.1 update
 # (without docker-compose.yml modification) --> create nice minimal override for external db
 test -f docker-compose.override.yml || {
@@ -99,6 +99,16 @@ test -f docker-compose.override.yml || {
    # push server using phpswoole
    #push:
 EOF
+    # openSUSE/SLE update from before 19.1
+    if [ -d /var/run/mysql ]
+    then
+      sed -i 's|- /var/run/mysqld.*|- /var/run/mysql:/var/run/mysqld|g' %{etc_dir}/docker-compose.override.yml
+    fi
+    # RHEL/CentOS update from before 19.1
+    if [ -d /var/lib/mysql/mysql.sock ]
+    then
+      sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.override.yml
+    fi
   }
 }
 
@@ -115,7 +125,7 @@ grep -q "required for push" apache.conf || \
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
 
 # check and fix path of sources volume: /var/lib/docker/volumes/egroupware-docker_sources
-# Ubuntu 18.04 skips the dash: /var/lib/docker/volumes/egroupwaredocker_sources
+# Ubuntu 18.04 and openSUSE 15.1 skips the dash: /var/lib/docker/volumes/egroupwaredocker_sources
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources || \
   docker-compose up -d egroupware
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources && \
