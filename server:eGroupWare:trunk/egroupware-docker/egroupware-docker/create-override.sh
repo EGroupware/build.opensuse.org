@@ -119,7 +119,7 @@ test -f docker-compose.override.yml || cp latest-docker-compose.override.yml doc
 # we also need to add websocket proxy to apache on the host (in front of regular proxy!)
 grep -q "required for push" apache.conf || \
   sed -i apache.conf \
-      -e 's|^ProxyPass /egroupware/|# required for push / websocket\nProxyPass /egroupware/push ws://127.0.0.1:8080/egroupware/push nocanon\nProxyPass /egroupware/|'
+      -e 's|^ProxyPass /egroupware/|# required for push / websocket\nRewriteEngine on\nRewriteCond %{HTTP:Upgrade} websocket [NC]\nRewriteCond %{HTTP:Connection} upgrade [NC]\nRewriteRule /egroupware/push ws://127.0.0.1:8080/egroupware/push [P]\nProxyPass /egroupware/|'
 
 # new install: create .env file with MariaDB root password
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env

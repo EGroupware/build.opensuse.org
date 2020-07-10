@@ -164,13 +164,15 @@ case "$1" in
 		ln -fs ../../egroupware-docker/nginx.conf /etc/nginx/conf.d/egroupware.conf
 		[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
 		# at least openSUSE does not have proxy_params
-		[ -f /etc/nginx/proxy_params ] || cat <<EOF > /etc/nginx/proxy_params ]
+		[ -f /etc/nginx/proxy_params ] || cat <<EOF > /etc/nginx/proxy_params
 proxy_set_header Host $http_host;
 proxy_set_header X-Real-IP $remote_addr;
 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 proxy_set_header X-Forwarded-Proto $scheme;
 EOF
-		nginx -s reload
+		# enable and (re)start nginx
+		systemctl enable nginx
+		systemctl restart nginx
 	fi
 
 	# set up Apache by patch include /etc/egroupware-docker/apache.conf into all vhosts
