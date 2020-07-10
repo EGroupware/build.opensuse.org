@@ -66,7 +66,7 @@ test -f docker-compose.override.yml || {
      # 2. set EGW_DB_HOST=localhost AND
 @@ -44,15 +44,15 @@
      #    - RHEL/CentOS   /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock
-     #    - openSUSE/SLE  /var/run/mysql:/var/run/mysqld
+     #    - openSUSE/SLE  /var/run/mysql/mysql.sock:/var/run/mysqld/mysqld.sock
      #    - Debian/Ubuntu /var/run/mysqld:/var/run/mysqld
 -    #- /var/run/mysqld:/var/run/mysqld
 +    - /var/run/mysqld:/var/run/mysqld
@@ -102,12 +102,12 @@ EOF
     # openSUSE/SLE update from before 19.1
     if [ -d /var/run/mysql ]
     then
-      sed -i 's|- /var/run/mysqld.*|- /var/run/mysql:/var/run/mysqld|g' %{etc_dir}/docker-compose.override.yml
+      sed -i 's|- /var/run/mysqld.*|- /var/run/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' docker-compose.override.yml
     fi
     # RHEL/CentOS update from before 19.1
     if [ -d /var/lib/mysql/mysql.sock ]
     then
-      sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' %{etc_dir}/docker-compose.override.yml
+      sed -i 's|- /var/run/mysqld.*|- /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock|g' docker-compose.override.yml
     fi
   }
 }

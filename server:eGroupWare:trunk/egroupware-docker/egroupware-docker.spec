@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 20.1.20200628
+Version: 20.1.20200710
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: tar -czvf egroupware-docker-20.1.20200613.tar.gz egroupware-docker
+# create with: tar -czvf egroupware-docker-20.1.20200710.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -29,8 +29,8 @@ Source: %{name}-%{version}.tar.gz
 	%define apache_group www
 	%define apache_service apache2
 %if 0%{?sle_version} >= 150000
-Requires: (nginx >= 1.14 or apache2 >= 2.4)
-Recommends: nginx
+Requires: ((nginx >= 1.14 without apache2) or (apache2 >= 2.4 without nginx))
+Suggests: nginx
 %else
 # rpm version in SLE 12 does not support OR, using just apache2 as in 19.1
 Requires: apache2 >= 2.4
@@ -47,8 +47,8 @@ Recommends: egroupware-collabora-key
 	%define apache_service httpd
     %define apache_extra mod_ssl
 %if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
-Requires: (nginx >= 1.14 or httpd >= 2.4)
-Recommends: nginx
+Requires: ((nginx >= 1.14 without apache2) or (apache2 >= 2.4 without nginx))
+Suggests: nginx
 %else
 # rpm version in RHEL/CentOS 7 does not support OR, using just httpd as in 19.1
 Requires: httpd >= 2.4
