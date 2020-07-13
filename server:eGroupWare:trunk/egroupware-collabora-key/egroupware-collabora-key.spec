@@ -68,7 +68,7 @@ case "$1" in
 	fi
 
 	# set up Apache by patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
-	if [ -d %{apache_vhost_d} ]
+	if [ -d %{apache_vhosts_d} ]
 	then
 		# patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
 		cd %{apache_vhosts_d}
@@ -151,7 +151,7 @@ install -m 444 *.pem $RPM_BUILD_ROOT%{etc_loolwsd}
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-collabora-key.conf
-%if "%{apache_conf_d}" != "%{apache_vhost_d}"
+%if "%{apache_conf_d}" != "%{apache_vhosts_d}"
 mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %endif
 
@@ -162,7 +162,7 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %config(noreplace) %{etc_dir}/nginx.conf
 %config(noreplace) %{etc_dir}/docker-compose.yml
 %{apache_conf_d}
-%if "%{apache_conf_d}" != "%{apache_vhost_d}"
+%if "%{apache_conf_d}" != "%{apache_vhosts_d}"
 %{apache_vhosts_d}
 %endif
 %attr(0755,%{apache_user},%{apache_group}) %{etc_loolwsd}
