@@ -1,0 +1,72 @@
+#! /bin/sh
+
+#export DEBCONF_DEBUG=developer
+set -e
+# das hier muss ganz oben stehen (man debconf-devel)
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+
+webserver_soft_reload() {
+	if command -v invoke-rc.d >/dev/null 2>&1; then
+		invoke-rc.d "$1" force-reload || :
+	else
+		[ -x /etc/init.d/"$1" ] && /etc/init.d/"$1" force-reload || :
+	fi
+}
+
+
+if [ "$1" = configure -o "$1" = upgrade ]
+then
+	# If upgrading, $2 contains the release currently installed, otherwise it's empty
+	if [ -z "$2" ]
+	then
+		# new install
+		# change owner of loolwsd.xml so EGroupware can change it
+		chown -R www-data:www-data /var/lib/egroupware/default/loolwsd/loolwsd.xml
+	fi
+
+	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
+	cd /etc/egroupware-collabora-key
+	docker-compose pull && \
+	docker-compose up -d || true
+
+	# Set up web server and reload it.
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		# initial install: enable egroupware and disable default site
+		if [ -z "$2" ]
+		then
+			# fix older EGroupware nginx.conf to include app.d/egroupware*.conf
+			[ -d /etc/egroupware ] && [ -f /etc/egroupware/nginx.conf ] && \
+				[ -z "$(grep  'include app.d/' /etc/egroupware/nginx.conf)" ] && \
+				sed -i 's|# EGroupware installed in /usr/share/egroupware|# include other EGroupware parts like Collabora\n\tinclude app.d/egroupware*.conf;\n\n\t# EGroupware installed in /usr/share/egroupware|g' /etc/egroupware/nginx.conf
+
+			[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+			ln -fs ../../egroupware-collabora-key/nginx.conf /etc/nginx/app.d/egroupware-collabora-key.conf
+		fi
+		nginx -s reload
+	fi
+	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+	then
+		# initial install: add Include /etc/egroupware-collabora-key/apache.conf to all vhosts
+		if [ -z "$2" ]
+		then
+			cd /etc/apache2/sites-available
+			for conf in $(grep -il '<VirtualHost ' *.conf)
+			do
+				[ -z "$(grep '/etc/egroupware-collabora-key/apache.conf' $conf)" ] && \
+					sed -i 's|</VirtualHost>|\t# Collabora proxy needs to be included inside vhost\n\tinclude /etc/egroupware-collabora-key/apache.conf\n\n</VirtualHost>|g' $conf && \
+					echo "Include /etc/egroupware-collabora-key/apache.conf added to site $conf"
+			done
+		fi
+		a2enmod proxy
+		a2enmod proxy_http
+		a2enmod proxy_wstunnel
+		webserver_soft_reload apache2
+	fi
+fi
+
+#DEBHELPER#
+
+db_stop

@@ -1,0 +1,4 @@
+/var/lib/egroupware/default/loolwsd/loolwsd.xml
+/etc/egroupware-collabora-key/apache.conf
+/etc/egroupware-collabora-key/nginx.conf
+/etc/egroupware-collabora-key/docker-compose.yml
