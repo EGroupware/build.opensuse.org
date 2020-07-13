@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 3.3.20200618
+Version: 3.3.20200713
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-3.3.20200618.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-3.3.20200713.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -20,7 +20,7 @@ Source: %{name}-%{version}.tar.gz
 	%define apache_user wwwrun
 	%define apache_group www
 	%define apache_service apache2
-    %define apache_package apache2
+Requires: httpd
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
 Requires: net-tools-deprecated
@@ -30,7 +30,7 @@ Requires: net-tools-deprecated
 	%define apache_user apache
 	%define apache_group apache
 	%define apache_service httpd
-    %define apache_package httpd
+Requires: webserver
     %define apache_extra mod_ssl
 %endif
 
@@ -39,7 +39,6 @@ AutoReqProv: no
 
 Requires: docker >= 1.12
 Requires: docker-compose
-Requires: %{apache_package} >= 2.4
 %if "%{?apache_extra}" != ""
 # require mod_ssl so we can patch include of Rocket.Chat proxy into it
 Requires: %{apache_extra}
@@ -55,23 +54,36 @@ case "$1" in
 	# change owner of Rocket.Chat data-directory to 99999 used by container
 	chown -R 99999 /var/lib/egroupware/default/rocketchat
 
-	# patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
-	cd %{apache_vhosts_d}
-	for conf in $(grep -ril '<VirtualHost ' .)
-	do [ -z "$(grep '/etc/egroupware-rocketchat/apache.conf' $conf)" ] && \
-		sed -i 's|</VirtualHost>|\t# Rocket.Chat proxy needs to be included inside vhost\n\tinclude /etc/egroupware-rocketchat/apache.conf\n\n</VirtualHost>|g' $conf && \
-		echo "Include /etc/egroupware-rocketchat/apache.conf added to site $conf"
-	done
+	# set up Nginx, if used
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+		ln -fs ../../egroupware-rocketchat/nginx.conf /etc/nginx/app.d/egroupware-rocketchat.conf
+		systemctl enable nginx
+		systemctl restart nginx
+	fi
 
-	systemctl enable %{apache_service}
-	# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
-	[ -x /usr/sbin/a2enmod ] && {
-		a2enmod proxy
-		a2enmod proxy_http
-		a2enmod proxy_wstunnel
-		a2enmod rewrite
-	}
-	systemctl restart %{apache_service}
+	# set up Apache by patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
+	if [ -d %{apache_vhost_d} ]
+	then
+		# patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
+		cd %{apache_vhosts_d}
+		for conf in $(grep -ril '<VirtualHost ' .)
+		do [ -z "$(grep '/etc/egroupware-rocketchat/apache.conf' $conf)" ] && \
+			sed -i 's|</VirtualHost>|\t# Rocket.Chat proxy needs to be included inside vhost\n\tinclude /etc/egroupware-rocketchat/apache.conf\n\n</VirtualHost>|g' $conf && \
+			echo "Include /etc/egroupware-rocketchat/apache.conf added to site $conf"
+		done
+
+		systemctl enable %{apache_service}
+		# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
+		[ -x /usr/sbin/a2enmod ] && {
+			a2enmod proxy
+			a2enmod proxy_http
+			a2enmod proxy_wstunnel
+			a2enmod rewrite
+		}
+		systemctl restart %{apache_service}
+	fi
 
 	cd %{etc_dir}
 	# create docker-compose.override.yml from latest-docker-compose.override.yml
