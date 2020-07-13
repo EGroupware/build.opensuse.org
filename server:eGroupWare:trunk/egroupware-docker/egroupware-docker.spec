@@ -28,12 +28,10 @@ Source: %{name}-%{version}.tar.gz
 	%define apache_user wwwrun
 	%define apache_group www
 	%define apache_service apache2
+Requires: httpd
+# rpm version in SLE 12 does not support suggests
 %if 0%{?sle_version} >= 150000
-Requires: ((nginx >= 1.14 without apache2) or (apache2 >= 2.4 without nginx))
 Suggests: nginx
-%else
-# rpm version in SLE 12 does not support OR, using just apache2 as in 19.1
-Requires: apache2 >= 2.4
 %endif
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
@@ -46,12 +44,10 @@ Recommends: egroupware-collabora-key
 	%define apache_group apache
 	%define apache_service httpd
     %define apache_extra mod_ssl
+Requires: webserver
+# rpm version in RHEL/CentOS 7 does not support suggests
 %if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
-Requires: ((nginx >= 1.14 without apache2) or (apache2 >= 2.4 without nginx))
 Suggests: nginx
-%else
-# rpm version in RHEL/CentOS 7 does not support OR, using just httpd as in 19.1
-Requires: httpd >= 2.4
 %endif
 %endif
 
@@ -165,10 +161,10 @@ case "$1" in
 		[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
 		# at least openSUSE does not have proxy_params
 		[ -f /etc/nginx/proxy_params ] || cat <<EOF > /etc/nginx/proxy_params
-proxy_set_header Host $http_host;
-proxy_set_header X-Real-IP $remote_addr;
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header Host \$http_host;
+proxy_set_header X-Real-IP \$remote_addr;
+proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto \$scheme;
 EOF
 		# enable and (re)start nginx
 		systemctl enable nginx
