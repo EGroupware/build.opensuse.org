@@ -64,7 +64,7 @@ case "$1" in
 	fi
 
 	# set up Apache by patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
-	if [ -d %{apache_vhost_d} ]
+	if [ -d %{apache_vhosts_d} ]
 	then
 		# patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
 		cd %{apache_vhosts_d}
@@ -166,7 +166,7 @@ mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-rocketchat.conf
-%if "%{apache_conf_d}" != "%{apache_vhost_d}"
+%if "%{apache_conf_d}" != "%{apache_vhosts_d}"
 mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %endif
 
@@ -178,7 +178,7 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %config(noreplace) %{etc_dir}/docker-compose.yml
 %{etc_dir}/latest-docker-compose.override.yml
 %{apache_conf_d}
-%if "%{apache_conf_d}" != "%{apache_vhost_d}"
+%if "%{apache_conf_d}" != "%{apache_vhosts_d}"
 %{apache_vhosts_d}
 %endif
 /var/lib/egroupware/default/rocketchat
