@@ -1,4 +1,4 @@
-egroupware-collabora (4.2.20200713) hardy; urgency=low
+egroupware-collabora-key (4.2.20200713) hardy; urgency=low
 
   * support Nginx for rpm too (openSUSE/SLE/CentOS/RHEL)
 

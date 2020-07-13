@@ -1,5 +1,5 @@
-<directory name="egroupware-collabora-key" rev="4" srcmd5="2333dbb3198e9cc28ae3ec77baf537b7" vrev="1">
-  <entry md5="f67bac8748d8e10c4a4592a7611c0a03" mtime="1594631885" name="debian.changes" size="903" />
+<directory name="egroupware-collabora-key" rev="5" srcmd5="b0193120742294f07f27e191f9d221e0" vrev="2">
+  <entry md5="967591ed6162b3203750413344aac578" mtime="1594632397" name="debian.changes" size="907" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
   <entry md5="4a35b8e6fa98dc67b2d0e9b50fa90b37" mtime="1553521612" name="debian.control" size="783" />
   <entry md5="6b0a897291b51c4c6f2c7c4aa1235a9a" mtime="1553521612" name="debian.egroupware-collabora-key.conffiles" size="180" />
