@@ -172,7 +172,7 @@ EOF
 	fi
 
 	# set up Apache by patch include /etc/egroupware-docker/apache.conf into all vhosts
-	if [ -d %{apache_vhost_d} ]
+	if [ -d %{apache_vhosts_d} ]
 	then
 		cd %{apache_vhosts_d}
 		for conf in $(grep -ril '<VirtualHost ' .)
@@ -294,7 +294,7 @@ install -m 755 docker-egroupware.conf $RPM_BUILD_ROOT/etc/systemd/system/docker.
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-docker.conf
-%if "%{apache_conf_d}" != "%{apache_vhost_d}"
+%if "%{apache_conf_d}" != "%{apache_vhosts_d}"
 mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %endif
 
@@ -325,7 +325,7 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 %config(noreplace) %{nginx_app_dir}/egroupware-push.conf
 %config(noreplace) %{egwdatadir}/header.inc.php
 %{apache_conf_d}
-%if "%{apache_conf_d}" != "%{apache_vhost_d}"
+%if "%{apache_conf_d}" != "%{apache_vhosts_d}"
 %{apache_vhosts_d}
 %endif
 /usr/share/egroupware/doc/rpm-build/post_install.php
