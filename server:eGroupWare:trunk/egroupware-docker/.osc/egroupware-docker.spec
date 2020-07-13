@@ -184,6 +184,7 @@ EOF
 		systemctl enable %{apache_service}
 		# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
 		[ -x /usr/sbin/a2enmod ] && {
+			a2enmod rewrite
 			a2enmod proxy
 			a2enmod proxy_http
 			a2enmod proxy_wstunnel
@@ -219,6 +220,16 @@ EOF
 	;;
 
   2)# This is an upgrade.
+	# we might not have all required apache modules enabled for openSUSE/SLE, if comming from 17.1
+	if [ -d %{apache_vhosts_d} -a -x /usr/sbin/a2enmod ]
+	then
+		a2enmod rewrite
+		a2enmod proxy
+		a2enmod proxy_http
+		a2enmod proxy_wstunnel
+		a2enmod headers
+		systemctl restart %{apache_service}
+	fi
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd %{etc_dir}
 	test -f docker-compose.override.yml || /bin/bash create-override.sh
