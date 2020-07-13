@@ -1,5 +1,5 @@
 Name: egroupware-collabora-key
-Version: 1.3.20190911
+Version: 4.2.20200713
 Release:
 Summary: Collabora Online Office with support-key
 Group: Web/Database
@@ -58,14 +58,6 @@ case "$1" in
 	systemctl enable docker
 	systemctl is-active --quiet docker || systemctl start docker
 
-	# patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
-	cd %{apache_vhosts_d}
-	for conf in $(grep -ril '<VirtualHost ' .)
-	do [ -z "$(grep '/etc/egroupware-collabora-key/apache.conf' $conf)" ] && \
-		sed -i 's|</VirtualHost>|\t# Collabora proxy needs to be included inside vhost\n\tinclude /etc/egroupware-collabora-key/apache.conf\n\n</VirtualHost>|g' $conf && \
-		echo "Include /etc/egroupware-collabora-key/apache.conf added to site $conf"
-	done
-
 	# set up Nginx, if used
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
 	then
@@ -75,9 +67,17 @@ case "$1" in
 		systemctl restart nginx
 	fi
 
-	# set up Apache by patch include /etc/egroupware-docker/apache.conf into all vhosts
+	# set up Apache by patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
 	if [ -d %{apache_vhost_d} ]
 	then
+		# patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
+		cd %{apache_vhosts_d}
+		for conf in $(grep -ril '<VirtualHost ' .)
+		do [ -z "$(grep '/etc/egroupware-collabora-key/apache.conf' $conf)" ] && \
+			sed -i 's|</VirtualHost>|\t# Collabora proxy needs to be included inside vhost\n\tinclude /etc/egroupware-collabora-key/apache.conf\n\n</VirtualHost>|g' $conf && \
+			echo "Include /etc/egroupware-collabora-key/apache.conf added to site $conf"
+		done
+
 		systemctl enable %{apache_service}
 		# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
 		[ -x /usr/sbin/a2enmod ] && {
