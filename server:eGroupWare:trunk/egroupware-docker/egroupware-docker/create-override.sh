@@ -29,11 +29,10 @@ test -f docker-compose.override.yml || diff -q docker-compose.yml latest-docker-
   # docker-compose.override.yml need to be fully commented out, to safely concatenate with docker-compose.yml
   sed '/^ *#/! s/^\(.\)/#\1/g' latest-docker-compose.override.yml | \
     cat - docker-compose.yml > docker-compose.override.yml
-  # until 20.1 is latest, replace latest with 20.1
+  # replace latest with 20.1, to tie major release updates to package-updates
   sed -e 's|egroupware/egroupware:latest|egroupware/egroupware:20.1|g' \
       -e 's|download.egroupware.org/egroupware/epl:latest|download.egroupware.org/egroupware/epl:20.1|g' \
       -i docker-compose.override.yml
-  # ^^^ until 20.1 is latest, replace latest with 20.1 ^^^
   # disable internal database container (also happens for a modified/included old docker-compose.yml)
   cat <<EOF >> docker-compose.override.yml
 

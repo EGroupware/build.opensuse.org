@@ -36,7 +36,7 @@ then
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-docker
-	test -f docker-compose.override.yml || /bin/bash -x create-override.sh
+	test -f docker-compose.override.yml || /bin/bash create-override.sh
 	docker-compose pull && \
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
 	echo "y" | docker-compose up -d egroupware && sleep 5 && \

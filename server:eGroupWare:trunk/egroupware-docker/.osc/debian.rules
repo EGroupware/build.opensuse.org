@@ -37,6 +37,7 @@ install: build
 	install -m 644 egroupware-nginx.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 mariadb.cnf $(DEST_DIR)$(ETC_DIR)
 	install -m 755 use-epl.sh $(DEST_DIR)$(ETC_DIR)
+	install -m 755 mysql.sh $(DEST_DIR)$(ETC_DIR)
 	install -m 755 create-override.sh $(DEST_DIR)$(ETC_DIR)
 	install -m 755 egroupware-logs.sh $(DEST_DIR)$(ETC_DIR)
 	mkdir -p $(DEST_DIR)$(NGINX_APP_DIR)

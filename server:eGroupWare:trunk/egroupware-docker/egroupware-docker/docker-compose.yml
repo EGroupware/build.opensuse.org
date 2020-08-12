@@ -37,7 +37,7 @@ volumes:
 
 services:
   egroupware:
-    image: egroupware/egroupware:latest
+    image: egroupware/egroupware:20.1
     # EPL image can be set in docker-compose.override.yml: download.egroupware.org/egroupware/epl:latest
     volumes:
     - sources:/usr/share/egroupware

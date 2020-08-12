@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 20.1.20200710
+Version: 20.1.20200812
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: tar -czvf egroupware-docker-20.1.20200710.tar.gz egroupware-docker
+# create with: tar -czvf egroupware-docker-20.1.20200812.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -293,6 +293,7 @@ install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 egroupware-nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 use-epl.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 755 mysql.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 create-override.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 egroupware-logs.sh $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT%{nginx_app_dir}
