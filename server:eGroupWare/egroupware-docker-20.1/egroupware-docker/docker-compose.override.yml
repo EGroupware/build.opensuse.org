@@ -1,0 +1,100 @@
+#########################################################################################
+###
+### docker-compose.override.yml file for egroupware-docker package
+###
+### Place all your modifications in this file, instead of /etc/egroupware-docker/docker-compose.yml.
+###
+### If you want to make some modification / uncomment eg. some enviroment variables, you also have to:
+### - uncomment the service eg. "egroupware:", if not already uncommented like egroupware
+### - uncomment the "environment:" section of the service
+###
+### services:
+###   egroupware:
+###      environment:
+###      - EGW_APC_SHM_SIZE=256M
+###
+### Please note: indention with space (NOT tabs!) matter in .yml files!
+###
+##########################################################################################
+version: '3'
+
+#volumes:
+  # EGroupware data stored in /var/lib/egroupware on the host
+  #data:
+  #  driver_opts:
+  #    type: none
+  #    o: bind
+  #    device: /var/lib/egroupware
+
+services:
+  egroupware:
+    # egroupware images to use:
+    # - egroupware/egroupware: is the community edition of egroupware
+    # - download.egroupware.org/egroupware/epl: is the EPL / subscription version of EGroupware GmbH
+    # egroupware tags to use:
+    # - latest: recommended is to use tag latest for automatic updates incl. new stable major releases
+    # - 20.1: use a branch to keep on latest maintenance release for that branch, but not update automatic to next release
+    # - 20.1.20200613: use a maintenance release, to disable automatic updates via watchtower and run them manually
+    image: egroupware/egroupware:20.1
+    #volumes:
+    # if you want to use the host database:
+    # 1. follow instructions below to disable db service
+    # 2. set EGW_DB_HOST=localhost AND
+    # 3. uncomment the next line and modify the host path, it depends on your distro:
+    #    - RHEL/CentOS   /var/lib/mysql/mysql.sock:/var/run/mysqld/mysqld.sock
+    #    - openSUSE/SLE  /var/run/mysql/mysql.sock:/var/run/mysqld/mysqld.sock
+    #    - Debian/Ubuntu /var/run/mysqld:/var/run/mysqld
+    #- /var/run/mysqld:/var/run/mysqld
+    # private CA so egroupware can validate your certificate to talk to Collabora or Rocket.Chat
+    # multiple certificates (eg. a chain) have to be single files in a directory, with one named private-ca.crt!
+    #- /etc/egroupware-docker/private-ca.crt:/usr/local/share/ca-certificates/private-ca.crt:ro
+    #environment:
+    # setting a default language for a new installation
+    #- LANG=de
+    # MariaDB/MySQL host to use: for host database (socket bind-mounted into container) use "localhost"
+    #- EGW_DB_HOST=localhost
+    # for internal db service you should to specify a root password here AND in db service
+    # a database "egroupware" with a random password is created for you on installation (password is stored in header.inc.php in data directory)
+    #- EGW_DB_ROOT=root
+    #- EGW_DB_ROOT_PW=secret
+    # alternativly you can specify an already existing database with full right by the given user!
+    #- EGW_DB_NAME=egroupware
+    #- EGW_DB_USER=egroupware
+    #- EGW_DB_PASS=
+    # other php.ini values to set in the container and their current defaults
+    #- EGW_SESSION_TIMEOUT=14000
+    #- EGW_APC_SHM_SIZE=128M
+    #- EGW_MEMORY_LIMIT=128M
+    # set the ip-address of your docker host AND your official DNS name so EGroupware
+    # can access Rocket.Chat or Collabora without the need to go over your firewall
+    #extra_hosts:
+    #- "my.host.name:ip-address"
+
+  # to use the database on the host, uncomment all the following settings to disable the internal db service
+  #db:
+  #  image: busybox
+  #  entrypoint: /bin/true
+  #  restart: "no"
+
+  # push server using phpswoole
+  #push:
+
+  # nginx server of egroupware using /etc/egroupware-docker/egroupware-nginx.conf
+  # You want to install your certificate on the webserver/Nginx running on the host proxying to this one
+  #nginx:
+
+  # automatic updates of all containers daily at 4am
+  # see https://containrrr.github.io/watchtower for more information
+  #watchtower:
+    #environment:
+    #- WATCHTOWER_CLEANUP=true # delete old image after update to not fill up the disk
+    # for email notifications add your email and mail-server here
+    #- WATCHTOWER_NOTIFICATIONS=email
+    #- WATCHTOWER_NOTIFICATIONS_LEVEL=info # possible values: panic, fatal, error, warn, info or debug
+    #- WATCHTOWER_NOTIFICATION_EMAIL_FROM=watchtower@my-domain.com
+    #- WATCHTOWER_NOTIFICATION_EMAIL_TO=me@my-domain.com
+    #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER=mail.my-domain.com # if you give your MX here, you need no user/password
+    #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=25
+    #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=watchtower@my-domain.com
+    #- WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=secret
+    #command: --schedule "0 0 4 * * *"

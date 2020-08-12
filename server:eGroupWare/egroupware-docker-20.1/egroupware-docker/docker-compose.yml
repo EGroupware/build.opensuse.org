@@ -1,0 +1,107 @@
+#########################################################################################
+###
+### docker-compose file for egroupware-docker package
+###
+### DO NOT CHANGE OR MODIFY THIS FILE!
+###
+### Place you modifications in /etc/egroupware-docker/docker-compose.override.yml instead.
+###
+##########################################################################################
+version: '3'
+volumes:
+  # EGroupware sources shared between egroupware, nginx and push service
+  sources:
+  # MariaDB data, use EGroupware backup or docker exec egroupware-db mysqldump to backup
+  db:
+  # EGroupware data stored in /var/lib/egroupware on the host
+  data:
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/egroupware
+  # extra sources with apps not part of egroupware container
+  extra:
+    driver_opts:
+      type: none
+      o: bind
+      device: /usr/share/egroupware
+  # sources for push server, swoolepush subdirectory of egroupware sources
+  sources-push:
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/docker/volumes/egroupware-docker_sources/_data/swoolepush
+  # volume to store config.inc.php file / token shared between egroupware and push container
+  push-config:
+  sessions:
+
+services:
+  egroupware:
+    image: egroupware/egroupware:20.1
+    # EPL image can be set in docker-compose.override.yml: download.egroupware.org/egroupware/epl:latest
+    volumes:
+    - sources:/usr/share/egroupware
+    - extra:/usr/share/egroupware-extra
+    - data:/var/lib/egroupware
+    - sessions:/var/lib/php/sessions
+    - push-config:/var/lib/egroupware-push
+    environment:
+    # database to use: for internal service use "db", for host database (socket bind-mounted into container) use "localhost"
+    - EGW_DB_HOST=db
+    - EGW_DB_ROOT=root
+    - EGW_DB_ROOT_PW=${EGW_DB_ROOT_PW}
+    - EGW_DB_GRANT_HOST=%
+    restart: always
+    depends_on:
+    - db
+    container_name: egroupware
+
+  # run an own MariaDB:10.4 (you can use EGroupware's database backup and restore to add your existing database)
+  db:
+    image: mariadb:10.4
+    environment:
+      - MYSQL_ROOT=root
+      - MYSQL_ROOT_PASSWORD=${EGW_DB_ROOT_PW}
+    volumes:
+      - db:/var/lib/mysql
+      - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/egroupware.cnf
+    container_name: egroupware-db
+
+  # push server using phpswoole
+  push:
+    image: phpswoole/swoole:latest
+    volumes:
+      - sources-push:/var/www
+      - sessions:/var/lib/php/sessions
+      - push-config:/var/lib/egroupware-push
+    container_name: egroupware-push
+    restart: always
+    # as we get our sources from there
+    depends_on:
+      - egroupware
+
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+    - sources:/usr/share/egroupware:ro
+    - ./egroupware-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+    - "127.0.0.1:8080:80"
+    depends_on:
+    - egroupware
+    - push
+    container_name: egroupware-nginx
+    restart: always
+
+  # automatic updates of all containers daily at 4am
+  # see https://containrrr.github.io/watchtower for more information
+  watchtower:
+    image: containrrr/watchtower:latest
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /root/.docker/config.json:/config.json:ro
+    environment:
+    - WATCHTOWER_CLEANUP=true # delete old image after update to not fill up the disk
+    command: --schedule "0 0 4 * * *"
+    container_name: egroupware-watchtower
+    restart: always
