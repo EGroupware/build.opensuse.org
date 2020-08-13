@@ -123,6 +123,10 @@ grep -q "required for push" apache.conf || \
 # new install: create .env file with MariaDB root password
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
 
+# remove egroupware container, in case 20.1 update was run by watchtower and container lacks sessions volume
+docker-compose stop
+docker-compose rm -f egroupware
+
 # check and fix path of sources volume: /var/lib/docker/volumes/egroupware-docker_sources
 # Ubuntu 18.04 and openSUSE 15.1 skips the dash: /var/lib/docker/volumes/egroupwaredocker_sources
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources || \
