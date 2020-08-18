@@ -65,6 +65,7 @@ services:
     volumes:
       - db:/var/lib/mysql
       - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/egroupware.cnf
+    restart: always
     container_name: egroupware-db
 
   # push server using phpswoole
