@@ -107,6 +107,7 @@ db.rocketchat_settings.update({_id: 'Cloud_Workspace_Access_Token'}, {\$set: {va
 db.rocketchat_settings.update({_id: 'Cloud_Workspace_Client_Secret'}, {\$set: {value: ''}});
 db.rocketchat_settings.update({_id: 'Cloud_Workspace_Client_Id'}, {\$set: {value: ''}});
 db.rocketchat_settings.update({_id: 'Cloud_Workspace_Client_Secret_Expires_At'}, {\$set: {value: ''}});
+db.getCollection('_raix_push_app_tokens').remove({});
 "
 
 $MYSQL $EGW_DB_NAME <<EOF
