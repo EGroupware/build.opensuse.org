@@ -11,7 +11,7 @@ egroupware-docker (20.1.20200818) hardy; urgency=low
   * Filemanager: Fix broken drop-down button of create new file type
   * News admin: fix issue language filter in list is always empty
   * Univention: fix not running async jobs because of old overlay storage driver
-  * New installs: fix database not started automatic after reboot
+  * New installs: fix database not started automatic after reboot (missing db: restart: always)
 
  -- Ralf Becker <rb@egroupware.org>  Tue, 18 Aug 2020 14:58:09 +0200
 

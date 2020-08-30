@@ -72,6 +72,7 @@ then
 		a2enmod proxy_http
 		a2enmod proxy_wstunnel
 		a2enmod headers
+		a2enmod rewrite
 		webserver_soft_reload apache2
 	fi
 
