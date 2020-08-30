@@ -1,7 +1,7 @@
-<directory name="egroupware-docker" rev="93" srcmd5="da2d612b0cfe932b6ffdf2db3f5ee91c" vrev="2">
+<directory name="egroupware-docker" rev="94" srcmd5="bd4501841c2dddce91ed5486b0ca6d48" vrev="3">
   <entry md5="c23de8a5b1ac4f3bc0fabb60db95127c" mtime="1597756134" name="debian.changes" size="321470" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
-  <entry md5="8d6534b308f47bfa1ec2b97b99274f0f" mtime="1593355467" name="debian.control" size="3281" />
+  <entry md5="45b432482e23e940c8767823ad123831" mtime="1598769644" name="debian.control" size="3288" />
   <entry md5="860e252fae24180bc1c0fb135d0056ab" mtime="1562767761" name="debian.egroupware-docker.conffiles" size="191" />
   <entry md5="9fef2f56c6e01039c2eea27f8d1ac090" mtime="1598769432" name="debian.postinst" size="2781" />
   <entry md5="50315608e9ee83ba4da72f1527fe14dc" mtime="1592140817" name="debian.prerm" size="1017" />
