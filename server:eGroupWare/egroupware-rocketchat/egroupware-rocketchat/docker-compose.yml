@@ -14,7 +14,7 @@ volumes:
 
 services:
   rocketchat:
-    image: rocketchat/rocket.chat:latest
+    image: quay.io/egroupware/rocket.chat:stable
     command: >
       bash -c
         "for i in `seq 1 30`; do

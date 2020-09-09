@@ -52,6 +52,8 @@ then
       # otherwise create it from latest-docker-compose.override
       cp latest-docker-compose.override.yml docker-compose.override.yml
     }
+    # replace rocketchat/rocket.chat:latest with quay.io/egroupware/rocket.chat:stable, if version not already passed it
+    ./move2stable.sh
 	fi
 
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)

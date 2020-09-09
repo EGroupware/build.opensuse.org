@@ -1,13 +1,13 @@
-<directory name="egroupware-rocketchat" rev="12" srcmd5="0551e6d5d6b1eac95f38706b1febeff6" vrev="2">
-  <entry md5="e4236530a49eb54f812708d94d218c99" mtime="1597752581" name="debian.changes" size="1555" />
+<directory name="egroupware-rocketchat" rev="14" srcmd5="1b2c868e4fb737905637f16776d090d8" vrev="2">
+  <entry md5="bf3bda9094ca58f2caa0a3192bf28a7a" mtime="1599660598" name="debian.changes" size="1776" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
-  <entry md5="306b737b23c5a0fb1d2863a4798458e2" mtime="1592463083" name="debian.control" size="451" />
+  <entry md5="7ef0ffc54ad6994f5576375a80bb9881" mtime="1599660598" name="debian.control" size="463" />
   <entry md5="02023eca2e844d66ec2c3b87541e3092" mtime="1562833149" name="debian.egroupware-rocketchat.conffiles" size="123" />
-  <entry md5="8af77f380f03958b8af62860877c4e69" mtime="1592929907" name="debian.postinst" size="3420" />
+  <entry md5="5e51d2a2413b41f834f5ccaa9904a90e" mtime="1599656669" name="debian.postinst" size="3562" />
   <entry md5="67f76ecb9f4140d974f30f9f59fb064d" mtime="1562832710" name="debian.prerm" size="1000" />
-  <entry md5="064968892bb5c37c5e8cd32a0f02ded8" mtime="1592561441" name="debian.rules" size="1736" />
+  <entry md5="265e7ece4a6d024110b812c0773f5a0b" mtime="1599656674" name="debian.rules" size="1789" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
-  <entry md5="e2767eb0e14c43ab41ca680f7cebb8c5" mtime="1597769213" name="egroupware-rocketchat-3.5.20200818.tar.gz" size="136508" />
-  <entry md5="fc7d77fa8cbcfe64a70dbf4514b8b3d2" mtime="1597752582" name="egroupware-rocketchat.dsc" size="382" />
-  <entry md5="211798b8fa6b0d935ec9c10ff70c8dd1" mtime="1597752582" name="egroupware-rocketchat.spec" size="6097" />
+  <entry md5="c317114fcb92c230108e5ac55e9f9e0e" mtime="1599656675" name="egroupware-rocketchat-3.6.20200909.tar.gz" size="137186" />
+  <entry md5="63fd78119e8d44119f92aa061c99aa6d" mtime="1599660598" name="egroupware-rocketchat.dsc" size="382" />
+  <entry md5="cfab28027a59e61b3ff756445f3453fb" mtime="1599660598" name="egroupware-rocketchat.spec" size="6316" />
 </directory>

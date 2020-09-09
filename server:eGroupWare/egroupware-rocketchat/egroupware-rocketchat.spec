@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 3.5.20200818
+Version: 3.6.20200909
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-3.5.20200818.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-3.6.20200909.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -21,6 +21,7 @@ Source: %{name}-%{version}.tar.gz
 	%define apache_group www
 	%define apache_service apache2
     %define apache_package apache2
+Requires: jq
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
 Requires: net-tools-deprecated
@@ -106,6 +107,8 @@ case "$1" in
       # otherwise create it from latest-docker-compose.override
       cp latest-docker-compose.override.yml docker-compose.override.yml
     }
+    # replace rocketchat/rocket.chat:latest with quay.io/egroupware/rocket.chat:stable, if version not already passed it
+    ./move2stable.sh
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	docker-compose pull && \
 	echo "y" | docker-compose up -d || true
@@ -135,7 +138,7 @@ esac
 
 %description
 This package installs Docker and docker-compose and use it to run Rocket.Chat
-via the container rocketchat/rocket.chat:latest.
+via the container quay.io/egroupware/rocket.chat:stable.
 
 %prep
 %setup -n %{name}
@@ -149,6 +152,7 @@ install -m 644 docker-compose.override.yml $RPM_BUILD_ROOT%{etc_dir}/latest-dock
 install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 install-rocketchat.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 700 move2stable.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 mongodump-rocketchat-3.1.gz $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat
 
