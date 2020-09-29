@@ -2,9 +2,10 @@
 
 # make sure we have jq
 jq=$(which jq)
-[ -z "$jq" ] && {
+[ -z "$jq" -o ! -x "$jq" ] && {
   jq=/usr/local/bin/jq
-  curl https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 > $jq
+  curl -L https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 > $jq
+  chmod +x $jq
 }
 # check if current version not already passed our stable version in docker-compose (or user set an override, but not "latest")
 rc_info_url=http://localhost:3000/rocketchat/api/info
