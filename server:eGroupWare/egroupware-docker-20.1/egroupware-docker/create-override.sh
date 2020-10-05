@@ -129,7 +129,7 @@ docker-compose rm -f egroupware
 
 # check and fix path of sources volume: /var/lib/docker/volumes/egroupware-docker_sources
 # Ubuntu 18.04 and openSUSE 15.1 skips the dash: /var/lib/docker/volumes/egroupwaredocker_sources
-ls -1d /var/lib/docker/volumes/egroupware*docker_sources || \
+ls -1d /var/lib/docker/volumes/egroupware*docker_sources/_data/swoolepush || \
   docker-compose up -d egroupware
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources && \
 test "$(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)" = /var/lib/docker/volumes/egroupware-docker_sources || {

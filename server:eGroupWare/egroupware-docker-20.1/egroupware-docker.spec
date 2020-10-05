@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 20.1.20200818
+Version: 20.1.20201005
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: tar -czvf egroupware-docker-20.1.20200818.tar.gz egroupware-docker
+# create with: tar -czvf egroupware-docker-20.1.20201005.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -298,6 +298,8 @@ install -m 755 create-override.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 755 egroupware-logs.sh $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT%{nginx_app_dir}
 install -m 644 nginx-egroupware-push.conf $RPM_BUILD_ROOT%{nginx_app_dir}/egroupware-push.conf
+install -m 644 nginx-phpmyadmin.conf $RPM_BUILD_ROOT%{etc_dir}
+install -m 644 phpmyadmin.yml $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build
 install -m 755 post_install.php $RPM_BUILD_ROOT/usr/share/egroupware/doc/rpm-build/
 # tell systemd to start docker after MariaDB

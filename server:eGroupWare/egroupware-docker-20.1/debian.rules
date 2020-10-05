@@ -35,6 +35,8 @@ install: build
 	install -m 644 apache.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 egroupware-nginx.conf $(DEST_DIR)$(ETC_DIR)
+	install -m 644 nginx-phpmyadmin.conf $(DEST_DIR)$(ETC_DIR)
+	install -m 644 phpmyadmin.yml $(DEST_DIR)$(ETC_DIR)
 	install -m 644 mariadb.cnf $(DEST_DIR)$(ETC_DIR)
 	install -m 755 use-epl.sh $(DEST_DIR)$(ETC_DIR)
 	install -m 755 mysql.sh $(DEST_DIR)$(ETC_DIR)
