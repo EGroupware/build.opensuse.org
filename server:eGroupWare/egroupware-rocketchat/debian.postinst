@@ -19,13 +19,13 @@ webserver_soft_reload() {
 if [ "$1" = configure -o "$1" = upgrade ]
 then
   cd /etc/egroupware-rocketchat
+  # change owner of Rocket.Chat data-directory to 65533 used by container
+  chown -R 65533 /var/lib/egroupware/default/rocketchat
+
 	# If upgrading, $2 contains the release currently installed, otherwise it's empty
 	if [ -z "$2" ]
 	then
-		# new install
-		# change owner of Rocket.Chat data-directory to 99999 used by container
-		chown -R 99999 /var/lib/egroupware/default/rocketchat
-
+    # new install
 	  # create docker-compose.override.yml from latest-docker-compose.override.yml
     cp latest-docker-compose.override.yml docker-compose.override.yml
 

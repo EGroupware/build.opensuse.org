@@ -1,3 +1,10 @@
+egroupware-rocketchat (3.7.20201102) hardy; urgency=low
+
+  * upstream version 3.7.1
+  * chown rocketchat upload directory to 65533 for newer RC versions
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 02 Nov 2020 15:30:00 -0100
+
 egroupware-rocketchat (3.6.20200925) hardy; urgency=low
 
   * upstream version 3.6.3

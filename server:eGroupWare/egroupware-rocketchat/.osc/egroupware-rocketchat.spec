@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 3.6.20200925
+Version: 3.7.20201102
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -47,14 +47,14 @@ Requires: %{apache_extra}
 %endif
 
 %post
+# change owner of Rocket.Chat data-directory to 65533 used by container
+chown -R 65533 /var/lib/egroupware/default/rocketchat
+
 case "$1" in
   1)# This is an initial install.
 	# enable and start docker
 	systemctl enable docker
 	systemctl status docker || systemctl start docker
-
-	# change owner of Rocket.Chat data-directory to 99999 used by container
-	chown -R 99999 /var/lib/egroupware/default/rocketchat
 
 	# patch include /etc/egroupware-rocketchat/apache.conf into all vhosts
 	cd %{apache_vhosts_d}
