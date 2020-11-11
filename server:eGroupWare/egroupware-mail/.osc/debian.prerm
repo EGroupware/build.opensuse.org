@@ -1,0 +1,17 @@
+#! /bin/sh
+
+set -e
+
+if [ "$1" = remove ]; then
+	cd /etc/egroupware-mail
+	docker-compose stop
+	docker-compose rm -f
+fi
+
+
+if [ "$1" = purge ]; then
+	rm -rf /var/lib/egroupware-mail
+fi
+
+
+#DEBHELPER#

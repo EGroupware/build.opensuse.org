@@ -401,6 +401,7 @@ unknown_local_recipient_reject_code = 550
 #alias_maps = hash:/etc/aliases
 #alias_maps = hash:/etc/aliases, nis:mail.aliases
 #alias_maps = netinfo:/aliases
+#alias_maps =
 
 # The alias_database parameter specifies the alias database(s) that
 # are built with "newaliases" or "sendmail -bi".  This is a separate
@@ -411,6 +412,7 @@ unknown_local_recipient_reject_code = 550
 #alias_database = dbm:/etc/mail/aliases
 #alias_database = hash:/etc/aliases
 #alias_database = hash:/etc/aliases, hash:/opt/majordomo/aliases
+alias_database =
 
 # ADDRESS EXTENSIONS (e.g., user+foo)
 #
@@ -676,3 +678,49 @@ readme_directory = /usr/share/doc/postfix/readme
 inet_protocols = ipv4
 meta_directory = /etc/postfix
 shlib_directory = /usr/lib/postfix
+
+# generated 2020-11-09, Mozilla Guideline v5.6, Postfix 3.4.8, OpenSSL 1.1.1d, intermediate configuration
+# https://ssl-config.mozilla.org/#server=postfix&version=3.4.8&config=intermediate&openssl=1.1.1d&guideline=5.6
+smtpd_tls_security_level = may
+smtpd_tls_auth_only = yes
+smtpd_tls_cert_file = /etc/dovecot/certificate.pem
+smtpd_tls_key_file = /etc/dovecot/certificate.pem
+smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtpd_tls_mandatory_ciphers = medium
+
+# curl https://ssl-config.mozilla.org/ffdhe2048.txt > /etc/postfix/dh.pem
+# not actually 1024 bits, this applies to all DHE >= 1024 bits
+smtpd_tls_dh1024_param_file = /etc/postfix/dh.pem
+
+tls_medium_cipherlist = ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+tls_preempt_cipherlist = no
+
+# Message size up to 32MB
+message_size_limit = 35000000
+
+# allow Dovecot and EGroupware send unauthenticated
+mynetworks_style = subnet
+
+# SQL maps using EGroupware database
+mydestination = localhost mysql:/etc/postfix/sql-domains.cf
+virtual_mailbox_maps = mysql:/etc/postfix/sql-mailboxes.cf
+virtual_alias_maps = mysql:/etc/postfix/sql-aliases.cf
+
+# transport local mail to Dovecot via lmtp
+lmtp_dns_support_level = disabled
+local_transport = lmtp:mail:24
+
+# log to stdout
+maillog_file = /dev/stdout
+
+# uncomment this section to use a smarthost to relay all mail to
+# add relayhost, user and password to /etc/postfix/sasl_password
+# and then run: postmap hash:/etc/postfix/sasl_password
+#relayhost = [mail.example.org]
+#smtp_tls_security_level = may
+#smtp_sasl_auth_enable = yes
+#smtp_sasl_security_options = noanonymous
+#smtp_sasl_password_maps = hash:/etc/postfix/sasl_password
+
+header_size_limit = 4096000

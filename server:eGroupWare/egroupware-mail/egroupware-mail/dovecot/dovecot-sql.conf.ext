@@ -29,7 +29,7 @@
 # );
 
 # Database driver: mysql, pgsql, sqlite
-#driver = 
+driver = mysql
 
 # Database connection string. This is driver-specific setting.
 #
@@ -71,7 +71,7 @@
 #   connect = host=sql.example.com dbname=virtual user=virtual password=blarg
 #   connect = /etc/dovecot/authdb.sqlite
 #
-#connect =
+connect = option_file=/etc/dovecot/my.cnf
 
 # Default password scheme.
 #
@@ -127,18 +127,37 @@
 #   user_query = SELECT dir AS home, user AS uid, group AS gid FROM users where userid = '%u'
 #   user_query = SELECT home, 501 AS uid, 501 AS gid FROM users WHERE userid = '%u'
 #
-#user_query = \
-#  SELECT home, uid, gid \
-#  FROM users WHERE username = '%n' AND domain = '%d'
+user_query = \
+  SELECT CONCAT('/var/dovecot/', home.mail_value) AS home, \
+    CONCAT('*:storage=', quota.mail_value, 'MB') AS quota_rule\
+  FROM egw_accounts \
+  JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active' \
+  JOIN egw_mailaccounts home ON egw_accounts.account_id=home.account_id AND home.mail_type=5 \
+  LEFT JOIN egw_mailaccounts quota ON egw_accounts.account_id=quota.account_id AND quota.mail_type=2 \
+  JOIN egw_addressbook ON egw_addressbook.account_id=egw_accounts.account_id \
+  WHERE account_lid<>'anonymous' AND account_status='A' AND account_type='u' AND (account_expires=-1 OR account_expires>UNIX_TIMESTAMP()) \
+    AND (account_lid='%n' OR contact_email='%u')
+# we use egw_mailaccounts.mail_value on mail_type=5, as it does not change, if user get's renamed
 
 # If you wish to avoid two SQL lookups (passdb + userdb), you can use
 # userdb prefetch instead of userdb sql in dovecot.conf. In that case you'll
 # also have to return userdb fields in password_query prefixed with "userdb_"
 # string. For example:
-#password_query = \
-#  SELECT userid AS user, password, \
-#    home AS userdb_home, uid AS userdb_uid, gid AS userdb_gid \
-#  FROM users WHERE userid = '%u'
+password_query = \
+  SELECT account_lid AS username, account_pwd AS password, \
+    CONCAT('/var/dovecot/', home.mail_value) AS userdb_home, \
+    CONCAT('*:storage=', quota.mail_value, 'MB') AS userdb_quota_rule \
+  FROM egw_accounts \
+  JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active' \
+  JOIN egw_mailaccounts home ON egw_accounts.account_id=home.account_id AND home.mail_type=5 \
+  LEFT JOIN egw_mailaccounts quota ON egw_accounts.account_id=quota.account_id AND quota.mail_type=2 \
+  JOIN egw_addressbook ON egw_addressbook.account_id=egw_accounts.account_id \
+  WHERE account_lid<>'anonymous' AND account_status='A' AND account_type='u' AND (account_expires=-1 OR account_expires>UNIX_TIMESTAMP()) \
+    AND (account_lid='%n' OR contact_email='%u')
 
 # Query to get a list of all usernames.
-#iterate_query = SELECT username AS user FROM users
+iterate_query = \
+  SELECT account_lid AS user \
+  FROM egw_accounts \
+  JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active' \
+  WHERE account_lid<>'anonymous' AND account_status='A' AND account_type='u' AND (account_expires=-1 OR account_expires>UNIX_TIMESTAMP())

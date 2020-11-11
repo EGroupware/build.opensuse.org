@@ -1,0 +1,48 @@
+#########################################################################################
+###
+### docker-compose.override.yml file for egroupware-mail package
+###
+### Place all your modifications in this file, instead of /etc/egroupware-mail/docker-compose.yml.
+###
+### If you want to make some modification / uncomment eg. some volumes, you also have to:
+### - uncomment the service eg. "mail:", if not already uncommented
+### - uncomment the "volumes:" section of the service
+###
+### services:
+###   mail:
+###      volumes:
+###      - /path/to/certificate.pem:/etc/dovecot/certificate.pem
+###
+### Please note: indention with space (NOT tabs!) matter in .yml files!
+###
+##########################################################################################
+
+version: '3'
+# we need access to networks of egroupware to be able to access the db, if running in a container
+# some distros remove the dash from egroupware-docker_default (used 3 times!)
+#networks:
+#  egroupwaredocker_default:
+#    external: true
+#services:
+#  mail:
+#    networks:
+#      - egroupwaredocker_default
+#    hostname: egroupware-mail
+#    extra_hosts:
+#      - "example.org:172.17.0.1"
+#    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+#      - "db:172.17.0.1"
+#    volumes:
+#      - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
+#      - /path/to/certificate.pem:/etc/dovecot/certificate.pem
+#
+#  smtp:
+#    restart: always
+#    networks:
+#      - egroupwaredocker_default
+#    hostname: egroupware-smtp
+#    extra_hosts:
+#      - "example.org:172.17.0.1"
+#    volumes:
+#     - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
+#     - /path/to/certificate.pem:/etc/postfix/certificate.pem

@@ -1,0 +1,41 @@
+# Alias map returns internal mailboxes and external email addresses forwarded to
+# we require: an active, not expired account, with an active mail account
+# we accept: email or alias with domain
+
+# http://www.postfix.com/mysql_table.5.html
+# %s = search
+# %d = domain part of search
+# %u = name part of search
+
+hosts = db
+dbname = egroupware
+user = egroupware
+password = secret
+
+query = SELECT CONCAT(account_lid,'@',config_value)
+    FROM egw_accounts
+    JOIN egw_config ON config_app='phpgwapi' AND config_name='mail_suffix'
+    JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active'
+    LEFT JOIN egw_addressbook ON egw_accounts.account_id=egw_addressbook.account_id
+    LEFT JOIN egw_mailaccounts alias ON egw_accounts.account_id=alias.account_id AND alias.mail_type=3
+    LEFT JOIN egw_mailaccounts delivery ON egw_accounts.account_id=delivery.account_id AND delivery.mail_type=1
+    WHERE account_lid<>'anonymous' AND account_status='A' AND account_type='u' AND (account_expires=-1 OR account_expires>NOW()) AND
+        (delivery.mail_value IS NULL OR delivery.mail_value<>'forwardOnly') AND
+        (contact_email='%s' OR alias.mail_value='%s')
+    UNION
+    # (external) forwards
+    SELECT forward.mail_value
+    	FROM egw_accounts
+        JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active'
+        JOIN egw_mailaccounts forward ON egw_accounts.account_id=forward.account_id AND forward.mail_type=4
+        LEFT JOIN egw_addressbook ON egw_accounts.account_id=egw_addressbook.account_id
+        LEFT JOIN egw_mailaccounts alias ON egw_accounts.account_id=alias.account_id AND alias.mail_type=3
+    	WHERE account_lid<>'anonymous' AND account_status='A' AND account_type='u' AND (account_expires=-1 OR account_expires>NOW()) AND
+    		(contact_email='%s' OR alias.mail_value='%s')
+    	UNION
+    # group email addresses resolving to email addresses of all members
+    SELECT contact_email
+    FROM egw_mailaccounts
+    JOIN egw_acl ON acl_appname='phpgw_group' AND acl_location=egw_mailaccounts.account_id
+    JOIN egw_addressbook ON egw_addressbook.account_id=acl_account
+    WHERE mail_type=3 AND egw_mailaccounts.account_id<0 AND mail_value='%s'

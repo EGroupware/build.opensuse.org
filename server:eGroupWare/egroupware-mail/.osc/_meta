@@ -1,0 +1,15 @@
+<package name="egroupware-mail" project="server:eGroupWare">
+  <title>Containerized mail-server for EGroupware</title>
+  <description> This package installs Docker and docker-compose and use it to run Dovecot
+ and Postfix in containers as mail-server for an EGroupware installation.
+ The mail-server is administrated through EGroupware.
+</description>
+  <build>
+    <disable/>
+    <enable arch="x86_64" repository="Debian_10"/>
+  </build>
+  <publish>
+    <disable/>
+  </publish>
+</package>
+

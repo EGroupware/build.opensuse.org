@@ -1,0 +1,2 @@
+# give Dovecot master-user access to everything
+* user=dovecot-admin lra

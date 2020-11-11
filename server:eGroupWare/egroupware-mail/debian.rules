@@ -1,0 +1,132 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=5
+
+# this is where we install into
+DEST_DIR = /usr/src/packages/BUILD/debian/egroupware-mail
+ETC_DIR = /etc/egroupware-mail
+ETC_DOVECOT = $(ETC_DIR)/dovecot
+ETC_DOVECOT_D = $(ETC_DOVECOT)/conf.d
+ETC_POSTFIX = $(ETC_DIR)/postfix
+DATA_DIR = /var/lib/egroupware-mail
+
+clean:
+	dh_testdir
+	dh_testroot
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# installing files from tar-ball in there locations
+	mkdir -p $(DEST_DIR)$(ETC_DOVECOT_D)
+	mkdir -p $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 docker-compose.yml $(DEST_DIR)$(ETC_DIR)
+	install -m 644 docker-compose.override.yml $(DEST_DIR)$(ETC_DIR)/latest-docker-compose.override.yml
+	# /etc/dovecot
+	install -m 644 dovecot/dovecot.conf $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-dict-auth.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-dict-sql.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-push.lua $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-sql.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-sql-master.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot.conf $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/global-acls $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 600 dovecot/my.cnf $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 600 dovecot/dh.pem $(DEST_DIR)$(ETC_DOVECOT)
+	# /etc/dovecot/conf.d
+	install -m 644 dovecot/conf.d/10-auth.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/10-director.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/10-logging.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/10-mail.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/10-master.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/10-ssl.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/10-tcpwrapper.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/14-egroupware-push.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/15-lda.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/15-mailboxes.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/20-imap.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/20-lmtp.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/20-managesieve.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/20-pop3.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/90-acl.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/90-plugin.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/90-quota.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/90-sieve.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/90-sieve-extprograms.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-checkpassword.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-deny.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-dict.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-master.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-passwdfile.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-static.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-system.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-vpopmail.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	# /etc/postfix
+	install -m 644 postfix/main.cf $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/master.cf $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 600 postfix/dh.pem $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/sasl_password $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/sql-aliases.cf $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/sql-domains.cf $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/sql-mailboxes.cf $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/access $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/aliases $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/aliases.db $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/dynamicmaps.cf $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/generic $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/header_checks $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/main.cf.proto $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/master.cf.proto $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/postfix-files $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/relocated $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/transport $(DEST_DIR)$(ETC_POSTFIX)
+	install -m 644 postfix/virtual $(DEST_DIR)$(ETC_POSTFIX)
+	mkdir -p $(DEST_DIR)$(DATA_DIR)
+
+# Build architecture-independent files here.
+binary-indep: build install
+	# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installdebconf
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_installinit
+	dh_installcron
+	dh_installman
+	dh_installinfo
+#	dh_undocumented
+	dh_installchangelogs
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_makeshlibs
+	dh_installdeb
+#	dh_perl
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

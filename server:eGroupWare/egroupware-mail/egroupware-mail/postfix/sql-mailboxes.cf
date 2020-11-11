@@ -1,0 +1,22 @@
+# Mailboxes map returns returns something for all local mailboxes
+# we require: an active, not expired account, with an active mail account and not forward-only
+# we accept: account_lid@mail_suffix eg. ralf@boulder.egroupware.org
+
+# http://www.postfix.com/mysql_table.5.html
+# %s = search
+# %d = domain part of search
+# %u = name part of search
+
+hosts = db
+dbname = egroupware
+user = egroupware
+password = secret
+
+query =	SELECT CONCAT(account_lid,'@',config_value)
+    FROM egw_accounts
+    JOIN egw_config ON config_app='phpgwapi' AND config_name='mail_suffix'
+    JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active'
+    LEFT JOIN egw_mailaccounts delivery ON egw_accounts.account_id=delivery.account_id AND delivery.mail_type=1
+    WHERE account_status='A' AND account_type='u' AND (account_expires=-1 OR account_expires>NOW()) AND
+        (delivery.mail_value IS NULL OR delivery.mail_value<>'forwardOnly') AND account_lid<>'anonymous' AND
+        account_lid='%u' AND config_value='%d'

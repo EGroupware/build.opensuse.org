@@ -1,0 +1,21 @@
+# Domain map returns something for local domain(s)
+# we use mail_suffix from egw_config as our local mail domain
+
+# http://www.postfix.com/mysql_table.5.html
+# %s = search
+# %d = domain part of search
+# %u = name part of searcj
+
+hosts = db
+dbname = egroupware
+user = egroupware
+password = secret
+
+query = SELECT config_value
+	FROM egw_config
+	WHERE config_app='phpgwapi' AND config_name='mail_suffix' AND config_value='%s'
+	# allow all domains from configured aliases
+	UNION
+	SELECT DISTINCT RIGHT(mail_value, LENGTH(mail_value)-INSTR(mail_value, '@'))
+	FROM egw_mailaccounts
+	WHERE mail_type=3 AND mail_value LIKE '%%@%s'

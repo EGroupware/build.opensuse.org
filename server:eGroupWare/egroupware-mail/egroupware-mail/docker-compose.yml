@@ -1,0 +1,57 @@
+#########################################################################################
+###
+### Mail service for EGroupware
+###
+### DO NOT CHANGE OR MODIFY THIS FILE!
+###
+### Place you modifications in /etc/egroupware-mail/docker-compose.override.yml instead.
+###
+##########################################################################################
+
+version: '3'
+# we need access to networks of egroupware to be able to access the db, if running in a container
+networks:
+  egroupware-docker_default:
+    external: true
+services:
+  mail:
+    restart: always
+    networks:
+      - egroupware-docker_default
+    image: quay.io/egroupware/dovecot:lua
+    container_name: egroupware-mail
+    hostname: egroupware-mail
+    ports:
+      - "143:143"
+      - "993:993"
+      - "110:110"
+      - "995:995"
+      - "4190:4190"
+      - "587:587"
+    #extra_hosts:
+    #  - "example.org:172.17.0.1"
+    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+    #  - "db:172.17.0.1"
+    volumes:
+    #  - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
+      - /var/lib/egroupware-mail:/var/dovecot
+      - $PWD/dovecot:/etc/dovecot
+      - $PWD/certificate.pem:/etc/dovecot/certificate.pem
+  smtp:
+    restart: always
+    networks:
+      - egroupware-docker_default
+    image: quay.io/egroupware/postfix:mysql
+    container_name: egroupware-smtp
+    hostname: egroupware-smtp
+    ports:
+      - "25:25"
+      - "465:465"
+    #extra_hosts:
+    #  - "example.org:172.17.0.1"
+    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+    #  - "db:172.17.0.1"
+    volumes:
+    #  - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
+      - $PWD/postfix:/etc/postfix
+      - $PWD/certificate.pem:/etc/postfix/certificate.pem

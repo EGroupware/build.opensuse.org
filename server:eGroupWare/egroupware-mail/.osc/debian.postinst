@@ -1,0 +1,75 @@
+#! /bin/sh
+
+#export DEBCONF_DEBUG=developer
+set -e
+set -x
+# das hier muss ganz oben stehen (man debconf-devel)
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+
+if [ "$1" = configure -o "$1" = upgrade ]
+then
+  cd /etc/egroupware-mail
+
+	# If upgrading, $2 contains the release currently installed, otherwise it's empty
+	if [ -z "$2" ]
+	then
+    # new install
+    # generate a self-signed certificate the user can replace later
+    openssl req -x509 -newkey rsa:2048 -keyout /etc/egroupware-mail/certificate.pem -out /etc/egroupware-mail/certificate.pem -days 3650 -nodes -subj '/CN=localhost'
+    chmod 600 /etc/egroupware-mail/certificate.pem
+
+    # generate/download new dhparms (if that fails the distributed ones are used)
+    curl https://ssl-config.mozilla.org/ffdhe2048.txt > dh.pem && cp dh.pem dovecot/ && cp dh.pem postfix/ || true
+
+	  # create docker-compose.override.yml from latest-docker-compose.override.yml
+    cp latest-docker-compose.override.yml docker-compose.override.yml
+
+    # patch bearer token for push into dovecot/conf.d/14-egroupware-push.conf
+    token=$(docker exec egroupware-push cat /var/www/config.inc.php | grep bearer_token | cut -d"'" -f2)
+    sed -i "s/Bearer:token/Bearer:$token/" dovecot/conf.d/14-egroupware-push.conf
+
+    # mysql can be on host or in 20.1+ in a container ('db_host' => 'db')
+    MYSQL=mysql
+    test -f /etc/egroupware-docker/.env &&
+    grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
+      source /etc/egroupware-docker/.env
+      MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
+    } || {
+      # change MariaDB to bind on docker0 address
+      [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
+        sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
+        systemctl restart mysqld
+      } || echo "Cant change MariaDB to bind on docker0 addresss (172.17.0.1)!"
+    }
+    # check EGroupware database is accessible
+    $MYSQL egroupware --execute "SELECT config_value FROM egw_config WHERE config_name='install_id'" &&
+    {
+      # create and patch DB credentials
+      password=$(openssl rand --hex 16)
+      for f in dovecot/my.cnf postfix/sql-{aliases,mailboxes,domains}; do
+        sed -i "s/^user =.*/user = mail/g" $f
+        sed -i "s/^password =.*/password = $password/g" $f
+      done
+      $MYSQL --execute "GRANT SELECT on egroupware.* TO mail@\`%\` IDENTIFIED BY "$password'"
+      cat <<EOF | $MYSQL egroupware || true
+REPLACE INTO `egw_ea_accounts` VALUES (1,'EGroupware Mail',1,'mail',2,993,1,'mail',4190,'INBOX/Sent','INBOX/Trash','INBOX/Drafts','INBOX/Templates','mail',1,587,'Smtp\\Sql','Imap\\Dovecot','standard','egroupware.local',0,1,NOW(),5,1,'INBOX/Junk',NULL,NULL,1,'INBOX/Archive',1,NULL,'');
+REPLACE INTO `egw_ea_valid` VALUES (1,0);
+INSERT INTO `egw_ea_identities` VALUES (1,1,'','','','',0,NULL);
+EOF
+    } || echo "Can NOT connect to EGroupware database as user 'root', you need to create and add DB credentials to" dovecot/my.cnf postfix/sql-{aliases,mailboxes,domains}
+
+  else # update
+
+	fi
+
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
+	docker-compose pull && \
+	echo "y" | docker-compose up -d || true
+
+fi
+
+#DEBHELPER#
+
+db_stop
