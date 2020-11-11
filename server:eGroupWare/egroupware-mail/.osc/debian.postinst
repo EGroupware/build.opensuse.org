@@ -48,19 +48,19 @@ then
     {
       # create and patch DB credentials
       password=$(openssl rand --hex 16)
-      for f in dovecot/my.cnf postfix/sql-{aliases,mailboxes,domains}; do
+      for f in dovecot/my.cnf postfix/sql-*.cf; do
         sed -i "s/^user =.*/user = mail/g" $f
         sed -i "s/^password =.*/password = $password/g" $f
       done
-      $MYSQL --execute "GRANT SELECT on egroupware.* TO mail@\`%\` IDENTIFIED BY "$password'"
+      $MYSQL --execute "GRANT SELECT on egroupware.* TO mail@\`%\` IDENTIFIED BY '$password'"
       cat <<EOF | $MYSQL egroupware || true
-REPLACE INTO `egw_ea_accounts` VALUES (1,'EGroupware Mail',1,'mail',2,993,1,'mail',4190,'INBOX/Sent','INBOX/Trash','INBOX/Drafts','INBOX/Templates','mail',1,587,'Smtp\\Sql','Imap\\Dovecot','standard','egroupware.local',0,1,NOW(),5,1,'INBOX/Junk',NULL,NULL,1,'INBOX/Archive',1,NULL,'');
-REPLACE INTO `egw_ea_valid` VALUES (1,0);
-INSERT INTO `egw_ea_identities` VALUES (1,1,'','','','',0,NULL);
+REPLACE INTO egw_ea_accounts VALUES (1,'EGroupware Mail',1,'mail',2,993,1,'mail',4190,'INBOX/Sent','INBOX/Trash','INBOX/Drafts','INBOX/Templates','mail',1,587,'Smtp\\Sql','Imap\\Dovecot','standard','egroupware.local',0,1,NOW(),5,1,'INBOX/Junk',NULL,NULL,1,'INBOX/Archive',1,NULL,'');
+REPLACE INTO egw_ea_valid VALUES (1,0);
+INSERT INTO egw_ea_identities VALUES (1,1,'','','','',0,NULL);
 EOF
-    } || echo "Can NOT connect to EGroupware database as user 'root', you need to create and add DB credentials to" dovecot/my.cnf postfix/sql-{aliases,mailboxes,domains}
+    } || echo "Can NOT connect to EGroupware database as user 'root', you need to create and add DB credentials to dovecot/my.cnf postfix/sql-{aliases,mailboxes,domains}.cf"
 
-  else # update
+  #else # update
 
 	fi
 
