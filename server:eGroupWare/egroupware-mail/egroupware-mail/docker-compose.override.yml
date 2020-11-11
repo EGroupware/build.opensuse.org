@@ -33,16 +33,15 @@ version: '3'
 #    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
 #      - "db:172.17.0.1"
 #    volumes:
-#      - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
 #      - /path/to/certificate.pem:/etc/dovecot/certificate.pem
 #
 #  smtp:
-#    restart: always
 #    networks:
 #      - egroupwaredocker_default
 #    hostname: egroupware-smtp
 #    extra_hosts:
 #      - "example.org:172.17.0.1"
+#    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+#      - "db:172.17.0.1"
 #    volumes:
-#     - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
 #     - /path/to/certificate.pem:/etc/postfix/certificate.pem

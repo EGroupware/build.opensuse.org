@@ -28,12 +28,7 @@ services:
       - "995:995"
       - "4190:4190"
       - "587:587"
-    #extra_hosts:
-    #  - "example.org:172.17.0.1"
-    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
-    #  - "db:172.17.0.1"
     volumes:
-    #  - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
       - /var/lib/egroupware-mail:/var/dovecot
       - $PWD/dovecot:/etc/dovecot
       - $PWD/certificate.pem:/etc/dovecot/certificate.pem
@@ -47,11 +42,6 @@ services:
     ports:
       - "25:25"
       - "465:465"
-    #extra_hosts:
-    #  - "example.org:172.17.0.1"
-    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
-    #  - "db:172.17.0.1"
     volumes:
-    #  - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
       - $PWD/postfix:/etc/postfix
       - $PWD/certificate.pem:/etc/postfix/certificate.pem
