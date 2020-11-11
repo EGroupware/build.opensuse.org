@@ -41,6 +41,46 @@ then
       [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
         sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
         systemctl restart mysqld
+        # add extra_hosts for db to docker-compose.override.yml
+        cat <<EOF | patch -p4
+diff --git a/server:eGroupWare/egroupware-mail/egroupware-mail/docker-compose.override.yml b/server:eGroupWare/egroupware-mail/egroupware-mail/docker-compose.override.yml
+index e7626ad..6670cbd 100644
+--- a/server:eGroupWare/egroupware-mail/egroupware-mail/docker-compose.override.yml
++++ b/server:eGroupWare/egroupware-mail/egroupware-mail/docker-compose.override.yml
+@@ -23,25 +23,25 @@ version: '3'
+ #networks:
+ #  egroupwaredocker_default:
+ #    external: true
+-#services:
+-#  mail:
++services:
++  mail:
+ #    networks:
+ #      - egroupwaredocker_default
+ #    hostname: egroupware-mail
+-#    extra_hosts:
++    extra_hosts:
+ #      - "example.org:172.17.0.1"
+ #    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+-#      - "db:172.17.0.1"
++      - "db:172.17.0.1"
+ #    volumes:
+ #      - /path/to/certificate.pem:/etc/dovecot/certificate.pem
+ #
+-#  smtp:
++  smtp:
+ #    networks:
+ #      - egroupwaredocker_default
+ #    hostname: egroupware-smtp
+-#    extra_hosts:
++    extra_hosts:
+ #      - "example.org:172.17.0.1"
+ #    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+-#      - "db:172.17.0.1"
++      - "db:172.17.0.1"
+ #    volumes:
+ #     - /path/to/certificate.pem:/etc/postfix/certificate.pem
+EOF
       } || echo "Cant change MariaDB to bind on docker0 addresss (172.17.0.1)!"
     }
     # check EGroupware database is accessible
