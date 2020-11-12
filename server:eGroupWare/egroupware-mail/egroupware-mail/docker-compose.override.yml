@@ -30,7 +30,7 @@ version: '3'
 #    hostname: egroupware-mail
 #    extra_hosts:
 #      - "example.org:172.17.0.1"
-#    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+#    # pre 20.1 installs run MariaDB on the host and need to change bind_address to docker0 172.17.0.1
 #      - "db:172.17.0.1"
 #    volumes:
 #      - /path/to/certificate.pem:/etc/dovecot/certificate.pem
@@ -41,7 +41,7 @@ version: '3'
 #    hostname: egroupware-smtp
 #    extra_hosts:
 #      - "example.org:172.17.0.1"
-#    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+#    # pre 20.1 installs run MariaDB on the host
 #      - "db:172.17.0.1"
 #    volumes:
 #     - /path/to/certificate.pem:/etc/postfix/certificate.pem

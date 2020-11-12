@@ -59,6 +59,7 @@ install: build
 	install -m 644 dovecot/conf.d/20-lmtp.conf $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/20-managesieve.conf $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/20-pop3.conf $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/20-submission.conf $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/90-acl.conf $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/90-plugin.conf $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/90-quota.conf $(DEST_DIR)$(ETC_DOVECOT_D)
@@ -69,6 +70,7 @@ install: build
 	install -m 644 dovecot/conf.d/auth-dict.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-master.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-passwdfile.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-sql.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-static.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-system.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-vpopmail.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
@@ -93,6 +95,8 @@ install: build
 	install -m 644 postfix/transport $(DEST_DIR)$(ETC_POSTFIX)
 	install -m 644 postfix/virtual $(DEST_DIR)$(ETC_POSTFIX)
 	mkdir -p $(DEST_DIR)$(DATA_DIR)
+	chown 90:101 $(DEST_DIR)$(DATA_DIR)
+	chmod 750 $(DEST_DIR)$(DATA_DIR)
 
 # Build architecture-independent files here.
 binary-indep: build install
