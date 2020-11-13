@@ -32,6 +32,7 @@ services:
       - /var/lib/egroupware-mail:/var/dovecot
       - $PWD/dovecot:/etc/dovecot
       - $PWD/certificate.pem:/etc/dovecot/certificate.pem
+      - $PWD/certificate.key:/etc/dovecot/certificate.key
   smtp:
     restart: always
     networks:
@@ -45,3 +46,4 @@ services:
     volumes:
       - $PWD/postfix:/etc/postfix
       - $PWD/certificate.pem:/etc/postfix/certificate.pem
+      - $PWD/certificate.key:/etc/dovecot/certificate.key
