@@ -19,8 +19,10 @@
 
 version: '3'
 # we need access to networks of egroupware to be able to access the db, if running in a container
-# some distros remove the dash from egroupware-docker_default (used 3 times!)
+# some distros (eg. Ubuntu 20.04) remove the dash from egroupware-docker_default (uncomment all 3 networks sections!)
 #networks:
+#  egroupware-docker_default:
+#    external: false
 #  egroupwaredocker_default:
 #    external: true
 #services:
@@ -29,19 +31,23 @@ version: '3'
 #      - egroupwaredocker_default
 #    hostname: egroupware-mail
 #    extra_hosts:
-#      - "example.org:172.17.0.1"
 #    # pre 20.1 installs run MariaDB on the host and need to change bind_address to docker0 172.17.0.1
 #      - "db:172.17.0.1"
 #    volumes:
-#      - /path/to/certificate.pem:/etc/dovecot/certificate.pem
+#      # to use a recognized (not self-signed) certificate, add it here (certificate.pem is the certificate plus the chain!)
+#      # eg. to use the one created by LetsEncrypt's Certbot for the webserver use the following (replace your domain!)
+#      - /etc/letsencrypt/live/egw.example.org/privkey.pem:/etc/dovecot/certificate.key
+#      - /etc/letsencrypt/live/egw.example.org/fullchain.pem:/etc/dovecot/certificate.pem
 #
 #  smtp:
 #    networks:
 #      - egroupwaredocker_default
 #    hostname: egroupware-smtp
 #    extra_hosts:
-#      - "example.org:172.17.0.1"
 #    # pre 20.1 installs run MariaDB on the host
 #      - "db:172.17.0.1"
 #    volumes:
-#     - /path/to/certificate.pem:/etc/postfix/certificate.pem
+#      # to use a recognized (not self-signed) certificate, add it here (certificate.pem is the certificate plus the chain!)
+#      # eg. to use the one created by LetsEncrypt's Certbot for the webserver use the following (replace your domain!)
+#      - /etc/letsencrypt/live/egw.example.org/privkey.pem:/etc/dovecot/certificate.key
+#      - /etc/letsencrypt/live/egw.example.org/fullchain.pem:/etc/dovecot/certificate.pem
