@@ -105,6 +105,11 @@ EOF
           -e 's/^#\(      - egroupwaredocker_default\)/\1/g' \
           -i docker-compose.override.yml
     }
+
+    # fix not set /var/lib/egroupware-mail ownership and permissions from debian.rules
+    chown 90:101 /var/lib/egroupware-mail
+    chmod 750 /var/lib/egroupware-mail
+
   #else # update
 
 	fi
@@ -112,6 +117,9 @@ EOF
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	docker-compose pull && \
 	echo "y" | docker-compose up -d || true
+
+	# fix postfix can't find it's (already installed) mysql driver
+	docker exec -it egroupware-smtp sh -c "apk del postfix-mysql; apk --update add postfix-mysql; postfix reload" || true
 
 fi
 

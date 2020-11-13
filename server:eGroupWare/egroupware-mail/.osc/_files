@@ -1,8 +1,8 @@
-<directory name="egroupware-mail" rev="21" srcmd5="e0e4b99f0332ef6d63a567dff48d6b35" vrev="21">
+<directory name="egroupware-mail" rev="22" srcmd5="a1eba24a752172f9d95be4c2a8c093a4" vrev="22">
   <entry md5="3c4b04a2085d57c81626c91804cafd0d" mtime="1605101807" name="debian.changes" size="181" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1605101807" name="debian.compat" size="3" />
   <entry md5="2737cb14ba01a289c2e67aa6232e203e" mtime="1605191233" name="debian.control" size="539" />
-  <entry md5="814b84bc0c36bf2252709b16a31fba7c" mtime="1605266414" name="debian.postinst" size="6892" />
+  <entry md5="1d0ecbd5652a228816f9e266da801886" mtime="1605267366" name="debian.postinst" size="7246" />
   <entry md5="cbd61cd87d33b362fa733c7801a31881" mtime="1605192421" name="debian.prerm" size="225" />
   <entry md5="0ae38d4f4206c699551ee7a690e6c111" mtime="1605205942" name="debian.rules" size="5822" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1605101810" name="debian.tar.gz" size="120" />
