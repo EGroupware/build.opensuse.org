@@ -86,7 +86,7 @@ EOF
     } || echo "Can NOT connect to EGroupware database as user 'root', you need to create and add DB credentials to dovecot/my.cnf postfix/sql-{aliases,mailboxes,domains}.cf"
 
     # some distros (eg. Ubuntu 20.04) remove dashes from names used in docker, we need to fix these to be able to access EGroupware network
-    [ "$(docker network ls|grep egroupware-docker_default|sed 's/ \+/ /g'|cut -d' ' -f2)" = "egroupware-docker_default"] || {
+    [ "$(docker network ls|grep egroupware-docker_default|sed 's/ \+/ /g'|cut -d' ' -f2)" = "egroupware-docker_default" ] || {
       sed -e 's/^#\(networks:\)/\1/g' \
           -e 's/^#\(  egroupware-docker_default:\)/\1/g' \
           -e 's/^#\(  egroupwaredocker_default:\)/\1/g' \
