@@ -64,22 +64,29 @@ then
       $MYSQL --execute "GRANT SELECT on egroupware.* TO mail@\`%\` IDENTIFIED BY '$password'"
       cat <<EOF | $MYSQL --force egroupware || true
 # create dovecot-admin user (as member of Default group account_id=1)
-REPLACE INTO egw_accounts (account_id, account_lid, account_pwd, account_status, account_expires, account_type, account_primary_group) VALUES (NULL, 'dovecot-admin', '$da_hash', 'A', -1, 'u', -1);
-REPLACE INTO egw_acl (acl_appname,acl_location,acl_account,acl_rights) SELECT 'phpgw_group','-1',account_id,1 FROM egw_accounts WHERE account_lid='dovecot-admin';
+REPLACE INTO egw_accounts (account_id, account_lid, account_pwd, account_status, account_expires, account_type, account_primary_group)
+  VALUES (NULL, 'dovecot-admin', '{crypt}$da_hash', 'A', -1, 'u', -1);
+REPLACE INTO egw_acl (acl_appname,acl_location,acl_account,acl_rights)
+  SELECT 'phpgw_group','-1',account_id,1 FROM egw_accounts WHERE account_lid='dovecot-admin';
 REPLACE INTO egw_addressbook (account_id,contact_owner,n_given,n_family,n_fn,contact_creator,contact_created,contact_modified)
   SELECT account_id,0,'Dovecot','Master','Dovecot Master',0,UNIX_TIMESTAMP(),UNIX_TIMESTAMP() FROM egw_accounts WHERE account_lid='dovecot-admin';
 # overwrite mail-account created by setup with new "EGroupware Mail" account and dummy domain "egroupware.local"
 REPLACE INTO egw_ea_accounts (acc_id, acc_name, ident_id, acc_imap_host, acc_imap_ssl, acc_imap_port, acc_sieve_enabled, acc_sieve_host, acc_sieve_port, acc_folder_sent, acc_folder_trash, acc_folder_draft, acc_folder_template, acc_smtp_host, acc_smtp_ssl, acc_smtp_port, acc_smtp_type, acc_imap_type, acc_imap_logintype, acc_domain, acc_user_editable, acc_sieve_ssl, acc_modified, acc_modifier, acc_smtp_auth_session, acc_folder_junk, acc_imap_default_quota, acc_imap_timeout, acc_user_forward, acc_folder_archive, acc_further_identities, acc_folder_ham, acc_spam_api)
   VALUES (1,'EGroupware Mail',1,'mail',2,993,1,'mail',4190,'INBOX/Sent','INBOX/Trash','INBOX/Drafts','INBOX/Templates','mail',1,587,'Smtp\\\\Sql','Imap\\\\Dovecot','standard','egroupware.local',0,1,NOW(),5,1,'INBOX/Junk',NULL,NULL,1,'INBOX/Archive',1,NULL,'');
-REPLACE INTO egw_ea_valid (acc_id, account_id) VALUES (1,0);
-REPLACE INTO egw_ea_credentials (acc_id, cred_type, account_id, cred_username, cred_password, cred_pw_enc) VALUES (1,8,0,'dovecot-admin','$da_password',0);
+REPLACE INTO egw_ea_valid (acc_id, account_id)
+  VALUES (1,0);
+REPLACE INTO egw_ea_credentials (acc_id, cred_type, account_id, cred_username, cred_password, cred_pw_enc)
+  VALUES (1,8,0,'dovecot-admin','$da_password',0);
 # set acc_domain from mail_suffix, if not localhost, otherwise set mail_suffix from acc_domain="egroupware.local"
 UPDATE egw_ea_accounts JOIN egw_config ON config_name='mail_suffix' AND config_app='phpgwapi'
   SET acc_domain=config_value WHERE acc_id=1 AND config_value<>'localhost';
-REPLACE INTO egw_config (config_app,config_name,config_value) SELECT 'phpgwapi','mail_suffix',acc_domain FROM egw_ea_accounts WHERE acc_id=1;
-REPLACE INTO egw_config (config_app,config_name,config_value) VALUES ('mail','imap_hosts_with_push','mail');
+REPLACE INTO egw_config (config_app,config_name,config_value)
+  SELECT 'phpgwapi','mail_suffix',acc_domain FROM egw_ea_accounts WHERE acc_id=1;
+REPLACE INTO egw_config (config_app,config_name,config_value)
+  VALUES ('mail','imap_hosts_with_push','mail');
 # this is an insert statement on purpose, to fail and keep current content / signature
-INSERT INTO egw_ea_identities (ident_id, acc_id, ident_realname, ident_email, ident_org, ident_signature, account_id, ident_name) VALUES (1,1,'','','','',0,NULL);
+INSERT IGNORE INTO egw_ea_identities (ident_id, acc_id, ident_realname, ident_email, ident_org, ident_signature, account_id, ident_name)
+  VALUES (1,1,'','','','',0,NULL);
 EOF
       # restart EGroupware to invalidate cache after updating config in DB
       docker exec egroupware kill -s USR2 1
