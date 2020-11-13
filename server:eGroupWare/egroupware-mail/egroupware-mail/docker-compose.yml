@@ -46,4 +46,4 @@ services:
     volumes:
       - $PWD/postfix:/etc/postfix
       - $PWD/certificate.pem:/etc/postfix/certificate.pem
-      - $PWD/certificate.key:/etc/dovecot/certificate.key
+      - $PWD/certificate.key:/etc/postfix/certificate.key
