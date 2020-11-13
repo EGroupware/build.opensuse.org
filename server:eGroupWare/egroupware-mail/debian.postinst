@@ -76,7 +76,7 @@ REPLACE INTO egw_ea_accounts (acc_id, acc_name, ident_id, acc_imap_host, acc_ima
 REPLACE INTO egw_ea_valid (acc_id, account_id)
   VALUES (1,0);
 REPLACE INTO egw_ea_credentials (acc_id, cred_type, account_id, cred_username, cred_password, cred_pw_enc)
-  VALUES (1,8,0,'dovecot-admin','$da_password',0);
+  VALUES (1,8,0,'dovecot-admin',TO_BASE64('$da_password'),0);
 # set acc_domain from mail_suffix, if not localhost, otherwise set mail_suffix from acc_domain="egroupware.local"
 UPDATE egw_ea_accounts JOIN egw_config ON config_name='mail_suffix' AND config_app='phpgwapi'
   SET acc_domain=config_value WHERE acc_id=1 AND config_value<>'localhost';
@@ -119,7 +119,7 @@ EOF
 	echo "y" | docker-compose up -d || true
 
 	# fix postfix can't find it's (already installed) mysql driver
-	docker exec -it egroupware-smtp sh -c "apk del postfix-mysql; apk --update add postfix-mysql; postfix reload" || true
+	docker exec egroupware-smtp sh -c "apk del postfix-mysql; apk --update add postfix-mysql; postfix reload" || true
 
 fi
 
