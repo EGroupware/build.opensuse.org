@@ -1,4 +1,4 @@
-# This file is used to establish a Dovecot master user called "dovecot-admin"
+# This file is used to establish a Dovecot master user called "dovecot"
 # it's included from conf.d/auth-sql.conf.ext
 
 # This file is opened as root, so it should be owned by root and mode 0600.
@@ -12,9 +12,9 @@ driver = mysql
 # Database connection string. This is driver-specific setting.
 connect = option_file=/etc/dovecot/my.cnf
 
-# allows a user named "dovecot-admin" and it's password as Dovecot master-user
+# allows a user named "dovecot" and it's password as Dovecot master-user
 password_query = \
   SELECT account_lid AS username, account_pwd AS password \
   FROM egw_accounts \
-  WHERE account_lid='dovecot-admin' AND account_status='A' AND account_type='u' AND \
+  WHERE account_lid='dovecot' AND account_status='A' AND account_type='u' AND \
     (account_expires=-1 OR account_expires>UNIX_TIMESTAMP())
