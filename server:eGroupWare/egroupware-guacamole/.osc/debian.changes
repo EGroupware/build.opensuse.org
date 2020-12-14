@@ -1,3 +1,10 @@
+egroupware-guacamole (1.2.0.20201214) hardy; urgency=low
+
+  * support new EGroupware 20.1 with db running in container
+  * adding a docker-compose.override.yml to keep installation specific changes separate
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 12 Dec 2020 10:30:00 +0200
+
 egroupware-guacamole (1.2.0.20200707) hardy; urgency=low
 
   * fix error in package installation/update

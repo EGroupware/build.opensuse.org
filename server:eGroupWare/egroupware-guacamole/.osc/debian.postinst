@@ -22,50 +22,164 @@ then
 	if [ -z "$2" ]
 	then
 	  # new install:
-	  # patch newly generated db-password and -user into docker-compose file (new user/password as docker-compose has problems with special chars!)
+	  # create a docker-compose.override.yml file for installation specific changes
+    cat <<EOF > /etc/egroupware-guacamole/docker-compose.override.yml
+#########################################################################################
+###
+### docker-compose.override.yml file for egroupware-guacamole package
+###
+### Place all your modifications in this file, instead of /etc/egroupware-guacamole/docker-compose.yaml.
+###
+### If you want to make some modification / uncomment eg. some enviroment variables, you also have to:
+### - uncomment the service eg. "guacamole:", if not already uncommented
+### - uncomment the "environment:" section of the service
+###
+### services:
+###   guacamole:
+###      environment:
+###      - MYSQL_PASSWORD: guacamole-user-password
+###
+### Please note: indention with space (NOT tabs!) matter in .yml files!
+###
+##########################################################################################
+version: '3'
+EOF
+	  # generate long save hex-only password for guacamole user as docker-compose has problems with special chars!
 	  password=$(openssl rand --hex 16)
-	  sed -i "s/MYSQL_USER:.*/MYSQL_USER: guacamole/" /etc/egroupware-guacamole/docker-compose.yaml
-	  sed -i "s/MYSQL_PASSWORD:.*/MYSQL_PASSWORD: $password/" /etc/egroupware-guacamole/docker-compose.yaml
-	  mysql --execute "GRANT ALL on egroupware.* TO guacamole@\`%\` IDENTIFIED BY '$password'"
-	  # change MariaDB to bind on docker0 address, as Guacamole/Tomcat seems unable to use socket
-	  [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
-	    sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
-	    systemctl restart mysqld
-	  } || echo "Cant change MariaDB to bind on docker0 addresss (172.17.0.1)!"
+    # mysql can be on host or in 20.1+ in a container ('db_host' => 'db')
+    MYSQL=mysql
+    test -f /etc/egroupware-docker/.env &&
+    grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
+      . /etc/egroupware-docker/.env
+      MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
+      # add EGroupware's network to allow to access db container
+      egw_network=$(docker network ls|grep -E 'egroupware-?docker_default'|sed 's/ \+/ /g'|cut -d' ' -f2)
+      cat <<EOF >> /etc/egroupware-guacamole/docker-compose.override.yml
+# we need access to networks of egroupware to be able to access the db, if running in a container
+# some distros / docker-versions remove the dash from egroupware-docker_default
+networks:
+  $egw_network:
+    external: true
+services:
+  guacamole:
+    networks:
+      - $egw_network
+    environment:
+      # MariaDB running as container
+      MYSQL_HOSTNAME: db
+EOF
+      [ "$(docker network ls|grep egroupware-docker_default|sed 's/ \+/ /g'|cut -d' ' -f2)" = "egroupware-docker_default" ] ||
+        sed 's/egroupware-docker_default/egroupwaredocker_default/g' -i /etc/egroupware-guacamole/docker-compose.override.yml
+    } || {
+      cat <<EOF >> /etc/egroupware-guacamole/docker-compose.override.yml
+services:
+  guacamole:
+    environment:
+      # MariaDB running on host with bind-address of docker0 interface 172.17.0.1
+      MYSQL_HOSTNAME: 172.17.0.1
+EOF
+      # change MariaDB or MySQL to bind on docker0 address
+      [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
+        sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
+        systemctl restart mysqld
+      } || [ -f /etc/mysql/mysql.conf.d/mysqld.cnf ] && {
+        sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mysql.conf.d/mysqld.cnf
+        systemctl restart mysql
+      } || echo "No EGroupware MariaDB container, nor able to change MariaDB or MySQL to bind on docker0 addresss (172.17.0.1)!"
+    }
+    cat <<EOF >> /etc/egroupware-guacamole/docker-compose.override.yml
+      MYSQL_DATABASE: egroupware
+      MYSQL_USER: guacamole
+      # guacamole-user-password must NOT contain special chars, eg. use the following to generate a save one: openssl rand --hex 16
+      MYSQL_PASSWORD: $password
+      # see https://github.com/apache/guacamole-client/blob/master/guacamole-docker/bin/start.sh#L552
+      OPENID_AUTHORIZATION_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/authorize
+      OPENID_JWKS_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/jwks
+      OPENID_ISSUER: https://example.org
+      OPENID_CLIENT_ID: guacamole
+      OPENID_REDIRECT_URI: https://example.org/guacamole/
+    image: guacamole/guacamole:latest
+    # set the ip-address of docker0 interface or your docker host AND your official DNS name so Guacamole
+    # can access EGroupware without the need to go over your firewall
+#   extra_hosts:
+#   - "example.org:172.17.0.1"
+  guacd:
+    image: guacamole/guacd:latest
+EOF
+	  $MYSQL --execute "GRANT ALL on egroupware.* TO guacamole@\`%\` IDENTIFIED BY '$password'"
 	  # if domain name specified via HTTP_HOST environment variable, patch it into relevant files
-	  [ -z "$HTTP_HOST" ] || {
-	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.yaml
-	  }
+	  [ -n "$HTTP_HOST" ] && {
+	    sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.override.yml
+	  } || echo "NO HTTP_HOST enviroment variable specified, you need to replace example.org with your fully qualified domain in /etc/egroupware-guacamole/docker-compose.override.yml manually!"
 	fi
+
+	# update AND new install from here on
+	# if no docker-compose.override.yml (update only!) create one and migrate changes
+	[ -f /etc/egroupware-guacamole/docker-compose.override.yml ] || {
+    cat <<EOF > /etc/egroupware-guacamole/docker-compose.override.yml
+#########################################################################################
+###
+### docker-compose.override.yml file for egroupware-guacamole package
+###
+### Place all your modifications in this file, instead of /etc/egroupware-guacamole/docker-compose.yaml.
+###
+### If you want to make some modification / uncomment eg. some enviroment variables, you also have to:
+### - uncomment the service eg. "guacamole:", if not already uncommented
+### - uncomment the "environment:" section of the service
+###
+### services:
+###   guacamole:
+###      environment:
+###      - MYSQL_PASSWORD: guacamole-user-password
+###
+### Please note: indention with space (NOT tabs!) matter in .yml files!
+###
+##########################################################################################
+version: '3'
+services:
+  guacamole:
+    environment:
+      # MariaDB running on host with bind-address of docker0 interface 172.17.0.1
+      MYSQL_HOSTNAME: 172.17.0.1
+      MYSQL_DATABASE: egroupware
+      MYSQL_USER: guacamole
+      # guacamole-user-password must NOT contain special chars, eg. use the following to generate a save one: openssl rand --hex 16
+      MYSQL_PASSWORD: guacamole-user-password
+      # see https://github.com/apache/guacamole-client/blob/master/guacamole-docker/bin/start.sh#L552
+      OPENID_AUTHORIZATION_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/authorize
+      OPENID_JWKS_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/jwks
+      OPENID_ISSUER: https://example.org
+      OPENID_CLIENT_ID: guacamole
+      OPENID_REDIRECT_URI: https://example.org/guacamole/
+    image: guacamole/guacamole:latest
+    # set the ip-address of docker0 interface or your docker host AND your official DNS name so Guacamole
+    # can access EGroupware without the need to go over your firewall
+#   extra_hosts:
+#   - "example.org:172.17.0.1"
+  guacd:
+    image: guacamole/guacd:latest
+EOF
+    # replace example.org with domain from docker-compose.yaml, if set (1.2 install)
+    grep -qv "^      OPENID_AUTHORIZATION_ENDPOINT" /etc/egroupware-guacamole/docker-compose.yaml || {
+      HTTP_HOST=$(grep "^      OPENID_AUTHORIZATION_ENDPOINT" /etc/egroupware-guacamole/docker-compose.yaml | cut -d/ -f3)
+      [ -z "$HTTP_HOST" ] || {
+        sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.override.yml
+      }
+    }
+    # migrate MYSQL_PASSWORD from docker-compose.yaml to docker-compose.override.yml
+    password=$(grep "^      MYSQL_PASSWORD" /etc/egroupware-guacamole/docker-compose.yaml | cut -d: -f2 | sed 's/ *//g')
+    sed -i "s/guacamode-user-password/$password/g" /etc/egroupware-guacamole/docker-compose.override.yml
+  }
 	# update from pre 1.2.0 with openid config in guacamole-properties
   grep -q "^      OPENID_AUTHORIZATION_ENDPOINT" /etc/egroupware-guacamole/docker-compose.yaml || {
     sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1|g' -i /etc/egroupware-guacamole/docker-compose.yaml
-    cat <<EOF | patch -p2 /etc/egroupware-guacamole/docker-compose.yaml
-diff --git a/doc/docker-compose.yaml b/doc/docker-compose.yaml
-index b084698..44c8b02 100644
---- a/doc/docker-compose.yaml
-+++ b/doc/docker-compose.yaml
-@@ -21,6 +21,12 @@ services:
-       # guacamole-user-password must NOT contain special chars, eg. use the following to generate a save one: openssl rand --hex 16
-       MYSQL_PASSWORD: guacamole-user-password
-       GUACAMOLE_HOME: /etc/guacamole
-+      # see https://github.com/apache/guacamole-client/blob/master/guacamole-docker/bin/start.sh#L552
-+      OPENID_AUTHORIZATION_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/authorize
-+      OPENID_JWKS_ENDPOINT: https://example.org/egroupware/openid/endpoint.php/jwks
-+      OPENID_ISSUER: https://example.org
-+      OPENID_CLIENT_ID: guacamole
-+      OPENID_REDIRECT_URI: https://example.org/guacamole/
-     image: guacamole/guacamole
-     links:
-       - guacd
-EOF
     HTTP_HOST=$(grep openid-authorization-endpoint /etc/egroupware-guacamole/guacamole-home/guacamole.properties | cut -d/ -f3)
     [ -z "$HTTP_HOST" ] || {
-      sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.yaml
+      sed -i "s/example.org/$HTTP_HOST/g" /etc/egroupware-guacamole/docker-compose.override.yml
     }
   }
-  # update docker-compose.yaml with fixed Guacamole container version to use
-  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.2.0|g' -i /etc/egroupware-guacamole/docker-compose.yaml
+  # update docker-compose.override.yml with fixed Guacamole container version to use
+  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.2.0|g' -i /etc/egroupware-guacamole/docker-compose.override.yml
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-guacamole
 	docker-compose pull && \

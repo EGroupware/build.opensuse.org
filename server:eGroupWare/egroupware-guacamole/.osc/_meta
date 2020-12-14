@@ -1,11 +1,11 @@
 <package name="egroupware-guacamole" project="server:eGroupWare">
   <title>Apache Guacamole managed by EGroupware</title>
-  <description>This package installs Docker and docker-compose and use it to run Guacamole&#13;
-in two containers.&#13;
-&#13;
-Guacamole makes RDP or VNC desktops available via html5 inside EGroupware.&#13;
-EGroupware supplies account information, authentication via OpenID Connect&#13;
-and allows to manage connections.&#13;
+  <description>This package installs Docker and docker-compose and use it to run Guacamole
+in two containers.
+
+Guacamole makes RDP or VNC desktops available via html5 inside EGroupware.
+EGroupware supplies account information, authentication via OpenID Connect
+and allows to manage connections.
 </description>
   <build>
     <disable/>
