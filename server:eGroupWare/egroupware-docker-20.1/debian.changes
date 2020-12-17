@@ -1,3 +1,75 @@
+egroupware-docker (20.1.20201217) hardy; urgency=low
+
+  * Status/Videoconference: add support for BigBlueButton videoconferencing, it can be configured via Status app's site-configuration
+  * Collabora: support Collabora Online 6.4
+  * Admin/EMail: display administrative IMAP actions folder ACL and vacation notice in IMAP tab too
+  * Mail: Config setting for how many mailing lists are returned in address search results
+  * Setup: fix no accounts found for SQL instances
+  * Calendar: Fix missing / incorrect recurrence date in cancel notification iCal
+  * Calendar: Show correct event date when notified of a single cancelled recurring event
+  * Calendar: Fix quick add 'Save' button would close the whole window, if it had been opened by a different window
+  * Calendar: Fix todo sizing / scrolling
+  * Addressbook: fix 'undefined' title shown for some contact links opened in CRM view tabs
+  * SmallPART: CSV export of comments for course-owner and students own comments and recording time of comments
+  * SmallPART: fixed not playing uploaded vidoes through egroupware-docker package update (container is not enough!)
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 17 Dec 2020 08:47:29 +0100
+
+egroupware-docker (20.1.20201202) hardy; urgency=low
+
+  * API: call async-services via HTTP to fix diverse caching problems
+  * Tracker: fix empty notification mail, if ticket was opened by following a link in notification mail
+  * Addressbook: allow sharing of individual contacts to make them available to other addressbooks or users
+  * Addressbook: Open CRM views into individual tabs
+  * Addressbook: Fix newly added distribution lists could not be added to with the context menu
+  * EPL/Policy: limit what contact-fields are shared and which are required to share in certain addressbooks
+  * Ads/CardDAV/Addressbook: fix exception / HTTP status 401 when trying to delete an not existing distribution list
+  * Filemanager: Put file creation & modification times in user timezone
+  * Calendar: Fix quick add -> edit would incorrectly set end date
+  * Saml/Shiboleth/SmallPART: allow to use affiliation attribute to sync with Teachers group
+  * Projectmanager: Fix project links no longer get opened in element list view
+  * Status/Videoconference: remove port from room-name, if EGw was setup with a url using a port
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 02 Dec 2020 09:27:40 +0100
+
+egroupware-docker (20.1.20201028) hardy; urgency=low
+
+  * Push: fix regression in keep-alive check causing clients sometimes creating a huge number of connections
+  * Addressbook: allow to configure sending fax via email by replacing the number with an email address
+  * ActiveDirectory/Mail: fix groups as distribution lists
+  * ActiveDirectory: implement addtional user or group filter
+  * Calendar: Fix missing category in event tooltip
+  * RocketChat: show unread messages in status app and on tab header
+  * SmallPART: fix not working LTI launch after last maintenance release
+  * SmallPART: allow to record watched videos: start-, end-time, position, duration and paused times
+  * SmallPART: fix not working iframe embedding by LTI host
+  * SmallPART: add missing frame-ancestors ContentSecurityPolicy for LTI 1.3
+  * SmallPART: allow to run a presentation / html overlay in sync with the video without need to modify video
+  * Admin: fix IP address validation in site configuration
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 28 Oct 2020 16:24:34 +0100
+
+egroupware-docker (20.1.20201020) hardy; urgency=low
+
+  * Swoolepush: fix access to undeclared static propertiy SwoolPush\Backend::$failed_attempts
+  * Swoolepush: periodically pinging server from browser to detect lost websocket connection and reconnect
+  * Api: detect if framework data is missing for popups too and redirect to cd=popup to load it
+  * Api: setting configured server-timezone for the databases connection, to fix cases were they do not match
+  * Admin: fix session list did NOT show interactive sessions, if push is used
+  * OpenIDConnect/Guacamole: fix clients managed as EGroupware apps require Rocket.Chat run rights
+  * Infolog: Responsible user in a different timezone would adjust the due date when saving
+  * Mail: do not override existing compose fields with predefined values
+  * Filemanager: fix drag and drop a file no longer working from outside of browser into the list
+  * HTML Editor: fix bug in editing uploaded image
+  * HTML Editor: add table button into html editor's toolbar
+  * Rocket.Chat: fix not working login with newer desktop clients
+  * Calendar: Current time line now spans all columns in single day view
+  * Calendar/Merge: Fix {{link}} placeholder not working for HTML mails, use {{link/href}} to get a clickable link
+  * Tracker: Fix export database values always gave 0 rows
+  * PostgreSQL/SmallPART: fix installation / update to 20.1 failed
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 20 Oct 2020 09:38:59 +0200
+
 egroupware-docker (20.1.20201005) hardy; urgency=low
 
   * WatchTowner/Nginx: modified Nginx config to resolve changed IP addresses of updated containers, fix 502 Bad Gateway errors
