@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 3.9.20201217
+Version: 3.9.20201219
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database

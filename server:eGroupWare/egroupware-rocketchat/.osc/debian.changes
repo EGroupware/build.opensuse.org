@@ -1,3 +1,9 @@
+egroupware-rocketchat (3.9.20201219) hardy; urgency=low
+
+  * upstream version 3.9.3: Important Cross-Site-Scripting (XSS) security fix
+
+ -- Ralf Becker <rb@egroupware.org>  Sat, 19 Dec 2020 18:00:00 +0100
+
 egroupware-rocketchat (3.9.20201217) hardy; urgency=low
 
   * upstream version 3.9.1
