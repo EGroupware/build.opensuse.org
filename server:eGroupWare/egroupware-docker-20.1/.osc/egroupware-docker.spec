@@ -195,6 +195,7 @@ EOF
 
 	# fix permissions in data directory: Ubuntu www-data is uid/gid 33/33
     mkdir -p %{egwdatadir}/default/files/sqlfs
+    mkdir -p %{egwdatadir}/default/files/smallpart
     mkdir -p %{egwdatadir}/default/backup
 	chown -R 33:33 %{egwdatadir}
 
