@@ -34,21 +34,24 @@ then
     MYSQL=mysql
     test -f /etc/egroupware-docker/.env &&
     grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
-      source /etc/egroupware-docker/.env
+      . /etc/egroupware-docker/.env
       MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
     } || {
-      # change MariaDB to bind on docker0 address
+      # change MariaDB or MySQL to bind on docker0 address
       [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
         sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mariadb.conf.d/50-server.cnf
         systemctl restart mysqld
-        # add extra_hosts for db to docker-compose.override.yml
-        sed -e 's/^#\(services:\)/\1/g' \
-            -e 's/^#\(  mail:\)/\1/g' \
-            -e 's/^#\(  smtp:\)/\1/g' \
-            -e 's/^#\(    extra_hosts:\)/\1/g' \
-            -e 's/^#\(      - "db:172.17.0.1"\)/\1/g' \
-            -i docker-compose.override.yml
-      }|| echo "Can't change MariaDB to bind on docker0 addresss (172.17.0.1), you need to do that manual!"
+      } || [ -f /etc/mysql/mysql.conf.d/mysqld.cnf ] && {
+        sed -i "s/bind-address.*/bind-address = 172.17.0.1/g" -i /etc/mysql/mysql.conf.d/mysqld.cnf
+        systemctl restart mysql
+      } || echo "No EGroupware MariaDB container, nor able to change MariaDB or MySQL to bind on docker0 addresss (172.17.0.1)!"
+      # add extra_hosts for db to docker-compose.override.yml
+      sed -e 's/^#\(services:\)/\1/g' \
+          -e 's/^#\(  mail:\)/\1/g' \
+          -e 's/^#\(  smtp:\)/\1/g' \
+          -e 's/^#\(    extra_hosts:\)/\1/g' \
+          -e 's/^#\(      - "db:172.17.0.1"\)/\1/g' \
+          -i docker-compose.override.yml
     }
     # check EGroupware database is accessible
     $MYSQL egroupware --execute "SELECT config_value FROM egw_config WHERE config_name='install_id'" &&
