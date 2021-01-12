@@ -28,6 +28,7 @@ services:
       - "995:995"
       - "4190:4190"
       - "587:587"
+      - "465:465"
     volumes:
       - /var/lib/egroupware-mail:/var/dovecot
       - $PWD/dovecot:/etc/dovecot
@@ -42,7 +43,6 @@ services:
     hostname: egroupware-smtp
     ports:
       - "25:25"
-      - "465:465"
     volumes:
       - $PWD/postfix:/etc/postfix
       - $PWD/certificate.pem:/etc/postfix/certificate.pem

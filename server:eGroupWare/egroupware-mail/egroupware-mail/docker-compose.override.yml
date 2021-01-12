@@ -51,5 +51,7 @@ version: '3'
 #      # to use a recognized (not self-signed) certificate, add it here (certificate.pem is the certificate plus the chain!)
 #      # eg. to use the one created by LetsEncrypt's Certbot for the webserver use the following (replace your domain!)
 #      - /etc/letsencrypt:/etc/letsencrypt
-#      - /etc/letsencrypt/live/egw.example.org/privkey.pem:/etc/dovecot/certificate.key
-#      - /etc/letsencrypt/live/egw.example.org/fullchain.pem:/etc/dovecot/certificate.pem
+#      - /etc/letsencrypt/live/egw.example.org/privkey.pem:/etc/postfix/certificate.key
+#      - /etc/letsencrypt/live/egw.example.org/fullchain.pem:/etc/postfix/certificate.pem
+#      # run the following command once to make sure mail-services get restarted on certificate renewal:
+#      # certbot renew --force-renew --post-hook "docker-compose -f /etc/egroupware-mail/docker-compose.yml restart"

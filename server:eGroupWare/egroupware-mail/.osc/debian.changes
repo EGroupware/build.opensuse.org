@@ -1,3 +1,12 @@
+egroupware-mail (2.3.20210112) hardy; urgency=low
+
+  * Dovecot 2.3.13, if not already updated through watchtower
+  * additional allow submission via Dovecot on port 465 with implicit TLS
+  * fix starttls for Postfix on port 25 for your MX
+  * document certbot --post-hook "docker-compose -f /etc/egroupware-mail/docker-compose restart"
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 12 Jan 2021 16:30:00 -0100
+
 egroupware-mail (2.3.20201111) hardy; urgency=low
 
   * initial version with Dovecot 2.3.10.2 and Postfix 3.5.8

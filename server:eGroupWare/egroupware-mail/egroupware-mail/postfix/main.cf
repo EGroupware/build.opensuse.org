@@ -683,8 +683,8 @@ shlib_directory = /usr/lib/postfix
 # https://ssl-config.mozilla.org/#server=postfix&version=3.4.8&config=intermediate&openssl=1.1.1d&guideline=5.6
 smtpd_tls_security_level = may
 smtpd_tls_auth_only = yes
-smtpd_tls_cert_file = /etc/dovecot/certificate.pem
-smtpd_tls_key_file = /etc/dovecot/certificate.key
+smtpd_tls_cert_file = /etc/postfix/certificate.pem
+smtpd_tls_key_file = /etc/postfix/certificate.key
 smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
 smtpd_tls_mandatory_ciphers = medium
