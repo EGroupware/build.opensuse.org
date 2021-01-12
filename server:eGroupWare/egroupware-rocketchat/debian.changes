@@ -1,3 +1,10 @@
+egroupware-rocketchat (3.10.20210112) hardy; urgency=low
+
+  * upstream version 3.10.3
+  * fix broken own avatar image (missing /rocketchat prefix)
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 12 Jan 2021 09:30:00 +0100
+
 egroupware-rocketchat (3.9.20201219) hardy; urgency=low
 
   * upstream version 3.9.3: Important Cross-Site-Scripting (XSS) security fix
