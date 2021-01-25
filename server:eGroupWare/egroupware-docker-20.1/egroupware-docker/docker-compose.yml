@@ -76,7 +76,9 @@ services:
 
   # push server using phpswoole
   push:
-    image: phpswoole/swoole:latest
+    image: phpswoole/swoole:4.6-php7.4-alpine
+    command:
+      - /var/www/server.php
     volumes:
       - sources-push:/var/www
       - sessions:/var/lib/php/sessions
