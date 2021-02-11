@@ -1,3 +1,10 @@
+egroupware-rocketchat (3.11.20210211) hardy; urgency=low
+
+  * upstream version 3.11.1
+  * fix broken file-upload and omnichannel-directory (missing /rocketchat prefix)
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 11 Feb 2021 11:30:00 +0100
+
 egroupware-rocketchat (3.10.20210112) hardy; urgency=low
 
   * upstream version 3.10.3
