@@ -63,6 +63,7 @@ networks:
 services:
   guacamole:
     networks:
+      - default
       - $egw_network
     environment:
       # MariaDB running as container
