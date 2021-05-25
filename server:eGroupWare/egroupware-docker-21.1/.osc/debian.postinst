@@ -39,7 +39,7 @@ then
 	test -f docker-compose.override.yml && {
 	  case "$2" in
 	  20.1.*)
-	    sed -i docker-compose.override.yml -e 's/^ *image:\(.*\):20.1$/image:\1:21.1/g' || true
+	    sed -i docker-compose.override.yml -e 's/^\( *image\):\(.*\):20.1$/\1:\2:21.1/g' || true
 	    ;;
 	  esac
 	} || /bin/bash create-override.sh

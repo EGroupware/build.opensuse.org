@@ -235,7 +235,7 @@ EOF
 	cd %{etc_dir}
 	test -f docker-compose.override.yml && {
 	  # RPM does not pass old version, so we have to try updating unconditionally :(
-	  sed -i docker-compose.override.yml -e 's/^ *image:\(.*\):20.1$/image:\1:21.1/g' || true
+	  sed -i docker-compose.override.yml -e 's/^\( *image\):\(.*\):20.1$/\1:\2:21.1/g' || true
 	} || /bin/bash create-override.sh
 	docker-compose pull && \
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
