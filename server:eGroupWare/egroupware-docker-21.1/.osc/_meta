@@ -1,0 +1,24 @@
+<package name="egroupware-docker-21.1" project="server:eGroupWare">
+  <title>EGroupware next</title>
+  <description>Preview / release candidates for next EGroupware release</description>
+  <build>
+    <disable/>
+    <enable arch="x86_64" repository="CentOS_7"/>
+    <enable arch="x86_64" repository="Debian_10"/>
+    <enable arch="x86_64" repository="RHEL_7"/>
+    <enable arch="x86_64" repository="SLE_12"/>
+    <enable arch="x86_64" repository="SLE_15"/>
+    <enable arch="x86_64" repository="xUbuntu_16.04"/>
+    <enable arch="x86_64" repository="xUbuntu_18.04"/>
+    <enable arch="x86_64" repository="Debian_9.0"/>
+    <enable arch="x86_64" repository="CentOS_8"/>
+    <enable arch="x86_64" repository="xUbuntu_20.04"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.2"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.3"/>
+  </build>
+  <publish>
+    <disable arch="i586"/>
+    <enable/>
+  </publish>
+</package>
+
