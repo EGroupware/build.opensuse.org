@@ -21,6 +21,8 @@ set -e
 
 cd $(dirname $0)
 
+EGW_DB_NAME=egroupware
+
 # mysql can be on host or in 20.1+ in a container ('db_host' => 'db')
 MYSQL=mysql
 test -f /etc/egroupware-docker/.env &&
@@ -29,8 +31,13 @@ grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
   MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
 }
 # check EGroupware database is accessible
-$MYSQL $EGW_DB_NAME --execute "SELECT config_value FROM egw_config WHERE config_name='install_id'" || {
+$MYSQL $EGW_DB_NAME --execute "SELECT config_value FROM egw_config WHERE config_name='install_id'" >/dev/null || {
   echo "Can NOT connect to EGroupware database as user 'root', maybe no /root/.my.cnf file with password --> exiting"
+  exit 0
+}
+# check if given Site_Url is reasonable
+[ -z "$1" ] || [[ "$1" =~ ^https?://[0-9a-z][0-9a-z._-]+[0-9a-z]/$ ]] || {
+  echo "Invalid Site_Url '$1' given! Please specify an URL like 'https://egw.example.org/'."
   exit 0
 }
 
@@ -44,7 +51,6 @@ SITE_URL=${1:-$(docker exec -i rocketchat-mongo mongo mongo/rocketchat --eval "d
   grep Site_Url | cut -d'"' -f8 | cut -d/ -f1-3)/}
 
 echo "Changing Site_Url to '$SITE_URL'"
-exit
 
 docker exec -i rocketchat-mongo mongo mongo/rocketchat --eval "
 db.rocketchat_settings.update({_id: 'Site_Url'}, {\$set: {value: '$SITE_URL', packageValue: '$SITE_URL'}});
@@ -67,7 +73,7 @@ echo "Rocket.Chat URL successful changed to '$SITE_URL"
 echo ""
 # if running in a terminal, tail the log of starting rocketchat
 [ -t 0 -a -t 1 ] && {
-  echo "Please wait until Rocket.Chat reports: SERVER RUNNING"
+  echo "Please wait until Rocket.Chat reports: SERVER RUNNING (exit with ^C)"
   echo ""
   docker-compose logs -f rocketchat
 } || true

@@ -27,7 +27,7 @@ cd $(dirname $0)
 }
 
 # values to configure Rocket.Chat and EGroupware
-SITE_URL="https://$HTTP_HOST/rocketchat"
+SITE_URL="https://$HTTP_HOST/"
 UNIQUE_ID=$(openssl rand -hex 15 | cut -b1-17)
 JWT_SECRET=$(openssl rand -base64 40 | cut -b1-43)
 ENDPOINT="https://$HTTP_HOST/egroupware/openid/endpoint.php"

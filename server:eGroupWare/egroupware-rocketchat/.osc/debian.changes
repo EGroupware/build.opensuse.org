@@ -1,3 +1,10 @@
+egroupware-rocketchat (3.14.20210528) hardy; urgency=low
+
+  * upstream version 3.14.4 security hotfix
+  * fix broken download (adding proxy for doubled /rocketchat prefix)
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 19 Apr 2021 10:00:00 +0200
+
 egroupware-rocketchat (3.11.20210301) hardy; urgency=low
 
   * upstream version 3.11.2 security hotfix

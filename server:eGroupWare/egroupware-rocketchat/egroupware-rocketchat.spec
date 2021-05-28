@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 3.11.20210301
+Version: 3.14.20210528
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-3.11.20210301.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-3.14.20210528.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
