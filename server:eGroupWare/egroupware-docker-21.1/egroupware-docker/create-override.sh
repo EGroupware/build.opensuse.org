@@ -24,14 +24,14 @@ test -f docker-compose.override.yml || diff -q docker-compose.yml latest-docker-
 
 # case 1: 19.1 update with docker-compose.yml modification
 # we have no .override file and docker-compose.yml is not identical to latest-docker-compose.yml
-# we assume an update from before 20.1 and create .override from stock .override and old docker-compose.yml
+# we assume an update from before 21.1 and create .override from stock .override and old docker-compose.yml
 test -f docker-compose.override.yml || diff -q docker-compose.yml latest-docker-compose.yml || {
   # docker-compose.override.yml need to be fully commented out, to safely concatenate with docker-compose.yml
   sed '/^ *#/! s/^\(.\)/#\1/g' latest-docker-compose.override.yml | \
     cat - docker-compose.yml > docker-compose.override.yml
-  # replace latest with 20.1, to tie major release updates to package-updates
-  sed -e 's|egroupware/egroupware:latest|egroupware/egroupware:20.1|g' \
-      -e 's|download.egroupware.org/egroupware/epl:latest|download.egroupware.org/egroupware/epl:20.1|g' \
+  # replace latest with 21.1, to tie major release updates to package-updates
+  sed -e 's|egroupware/egroupware:latest|egroupware/egroupware:21.1|g' \
+      -e 's|download.egroupware.org/egroupware/epl:latest|download.egroupware.org/egroupware/epl:21.1|g' \
       -i docker-compose.override.yml
   # disable internal database container (also happens for a modified/included old docker-compose.yml)
   cat <<EOF >> docker-compose.override.yml
@@ -55,9 +55,9 @@ test -f docker-compose.override.yml || {
 --- docker-compose.override.yml	2020-06-16 10:50:49.000000000 +0200
 +++ docker-compose.override-19.1.yml	2020-06-17 09:16:46.000000000 +0200
 @@ -36,7 +36,7 @@
-     # - 20.1: use a branch to keep on latest maintenance release for that branch, but not update automatic to next release
-     # - 20.1.20200613: use a maintenance release, to disable automatic updates via watchtower and run them manually
-     image: egroupware/egroupware:20.1
+     # - 21.1: use a branch to keep on latest maintenance release for that branch, but not update automatic to next release
+     # - 21.1.20210521: use a maintenance release, to disable automatic updates via watchtower and run them manually
+     image: egroupware/egroupware:21.1
 -    #volumes:
 +    volumes:
      # if you want to use the host database:
@@ -123,7 +123,7 @@ grep -q "required for push" apache.conf || \
 # new install: create .env file with MariaDB root password
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
 
-# remove egroupware container, in case 20.1 update was run by watchtower and container lacks sessions volume
+# remove egroupware container, in case 20.1+ update was run by watchtower and container lacks sessions volume
 docker-compose stop
 docker-compose rm -f egroupware
 

@@ -262,7 +262,7 @@ case "$1" in
 			sed -i 's|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf||g' $conf && \
 				echo "Include /etc/egroupware-docker/apache.conf removed from site $conf"
 		done
-		rm %{apache_conf_d}/egroupware-docker.conf
+		rm -f %{apache_conf_d}/egroupware-docker.conf
 		systemctl restart %{apache_service}
 	fi
 	cd %{etc_dir}
