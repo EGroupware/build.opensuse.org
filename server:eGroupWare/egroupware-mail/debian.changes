@@ -1,3 +1,9 @@
+egroupware-mail (2.3.20210628) hardy; urgency=low
+
+  * fix crash with Dovecot 2.3.15
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 28 Jun 2021 14:30:00 -0200
+
 egroupware-mail (2.3.20210211) hardy; urgency=low
 
   * fixing not working vacation notices and sieve forwards (submission_host = smtp:25)

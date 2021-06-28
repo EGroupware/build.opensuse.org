@@ -4,7 +4,7 @@
 # of "master users", who can log in as anyone else.
 # <doc/wiki/Authentication.MasterUsers.txt>
 
-# Dovecot master uses "dovecot-admin" user and it's password
+# Dovecot master uses "dovecot" user and it's password
 passdb {
   driver = sql
   args = /etc/dovecot/dovecot-sql-master.conf.ext

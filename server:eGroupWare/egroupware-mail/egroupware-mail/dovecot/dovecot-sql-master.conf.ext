@@ -16,5 +16,5 @@ connect = option_file=/etc/dovecot/my.cnf
 password_query = \
   SELECT account_lid AS username, account_pwd AS password \
   FROM egw_accounts \
-  WHERE account_lid='dovecot' AND account_status='A' AND account_type='u' AND \
+  WHERE account_lid='dovecot' AND account_lid='%n' AND account_status='A' AND account_type='u' AND \
     (account_expires=-1 OR account_expires>UNIX_TIMESTAMP())
