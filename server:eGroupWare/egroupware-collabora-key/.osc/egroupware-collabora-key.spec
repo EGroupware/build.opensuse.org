@@ -43,8 +43,14 @@ BuildRequires:	-post-build-checks
 Buildarch: noarch
 AutoReqProv: no
 
-Requires: docker >= 1.12
-Requires: docker-compose
+# RHEL/CentOS 8 no longer provides docker
+%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
+Requires: docker-ce >= 1.12
+%else
+#disabled to allow docker-ce too, we still require docker-compose
+#Requires: docker >= 1.12
+%endif
+Requires: docker-compose >= 1.10.0
 Requires: %{apache_package} >= 2.4
 %if "%{?apache_extra}" != ""
 # require mod_ssl so we can patch include of Collabora proxy into it
@@ -77,14 +83,14 @@ case "$1" in
 
 	# start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 	;;
 
   2)# This is an upgrade.
 	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
 	docker-compose pull && \
-	docker-compose up -d || true
+	echo "y" | docker-compose up -d || true
 	;;
 esac
 
