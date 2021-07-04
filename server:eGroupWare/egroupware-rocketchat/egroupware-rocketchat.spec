@@ -38,8 +38,14 @@ Requires: net-tools-deprecated
 Buildarch: noarch
 AutoReqProv: no
 
-Requires: docker >= 1.12
-Requires: docker-compose
+# RHEL/CentOS 8 no longer provides docker
+%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
+Requires: docker-ce >= 1.12
+%else
+#disabled to allow docker-ce too, we still require docker-compose
+#Requires: docker >= 1.12
+%endif
+Requires: docker-compose >= 1.10.0
 Requires: %{apache_package} >= 2.4
 %if "%{?apache_extra}" != ""
 # require mod_ssl so we can patch include of Rocket.Chat proxy into it
