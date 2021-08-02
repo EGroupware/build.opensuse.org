@@ -3,7 +3,7 @@ Version: 20.1.20210125
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
-License: GPLv2 or (at your option) any later version
+License: GPL-2.0-or-later
 URL: http://www.egroupware.org/EPL
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
@@ -259,7 +259,7 @@ case "$1" in
 			sed -i 's|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf||g' $conf && \
 				echo "Include /etc/egroupware-docker/apache.conf removed from site $conf"
 		done
-		rm %{apache_conf_d}/egroupware-docker.conf
+		rm -f %{apache_conf_d}/egroupware-docker.conf
 		systemctl restart %{apache_service}
 	fi
 	cd %{etc_dir}
