@@ -1,13 +1,14 @@
 Name: egroupware-collabora-key
-Version: 1.3.20190911
+Version: 4.6.20210802
 Release:
 Summary: Collabora Online Office with support-key
 Group: Web/Database
-License: GPLv2
-URL: http://www.egroupware.org/EPL
-Vendor: EGroupware GmbH, http://www.egroupware.org/
+License: MPL-2.0
+URL: https://www.collaboraoffice.com/terms/collabora-online-mplv2/
+Vendor: EGroupware GmbH, https://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
+# create with: tar -czvf egroupware-collabora-key-4.6.20210802.tar.gz egroupware-collabora-key
 Source: %{name}-%{version}.tar.gz
 #Source0: docker-compose.yml
 #Source1: apache.conf
