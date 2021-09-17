@@ -1,14 +1,14 @@
 Name: egroupware-rocketchat
-Version: 3.7.20201102
+Version: 2.3.20210917
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
 License: MIT
-URL: https://rocket.chat
+URL: https://github.com/EGroupware/egroupware/wiki/EGroupwareMail
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-3.6.20200925.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-mail-2.3.20210917.tar.gz egroupware-mail
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro

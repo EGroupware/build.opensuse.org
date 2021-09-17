@@ -1,3 +1,9 @@
+egroupware-mail (2.3.20210917) hardy; urgency=low
+
+  * improve documentation in docker-composer.override.yml about using a certificate
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 17 Sep 2021 09:30:00 -0200
+
 egroupware-mail (2.3.20210628) hardy; urgency=low
 
   * fix crash with Dovecot 2.3.15
