@@ -1,4 +1,4 @@
-<directory name="egroupware-collabora-key" rev="32" srcmd5="37f8adde3083c799ee0dd46755cf8722" vrev="1">
+<directory name="egroupware-collabora-key" rev="33" srcmd5="7383fd291ba66e1815835095e9725c9b" vrev="2">
   <entry md5="324bf681f358f933170838e34066d86c" mtime="1639821533" name="debian.changes" size="1386" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
   <entry md5="4a35b8e6fa98dc67b2d0e9b50fa90b37" mtime="1553521612" name="debian.control" size="783" />
@@ -7,7 +7,7 @@
   <entry md5="a47e6b078743cd4120cceb08ff51caf7" mtime="1562841191" name="debian.prerm" size="1013" />
   <entry md5="ebeaa6b98b99bd6b54ea76cec8020360" mtime="1553521613" name="debian.rules" size="1715" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
-  <entry md5="e3e4ded748a9fe22034bfa765eaaf241" mtime="1639821533" name="egroupware-collabora-key-21.11.20211218.tar.gz" size="9629" />
+  <entry md5="554e7314ac66ee069892c03aca5e7f33" mtime="1639822678" name="egroupware-collabora-key-21.11.20211218.tar.gz" size="9625" />
   <entry md5="33824e7598ffcf344ed613f13fe34290" mtime="1639821534" name="egroupware-collabora-key.dsc" size="395" />
   <entry md5="ae73cf83391234d164f9cb66300c02b1" mtime="1639821535" name="egroupware-collabora-key.spec" size="5229" />
 </directory>
