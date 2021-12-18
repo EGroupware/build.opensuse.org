@@ -3,13 +3,16 @@ version: '2'
 services:
   collabora-key:
     image: "quay.io/egroupware/collabora-key:stable"
+    #image: "collabora/code:latest"
     volumes:
     - /var/lib/egroupware/default/loolwsd:/etc/loolwsd
-    # dont try to regenerate the (not used certificate) as volumn is readonly
+    # support for Collabora/CODE 21.11+
+    - /var/lib/egroupware/default/loolwsd:/etc/coolwsd
+    - /var/lib/egroupware/default/loolwsd/loolwsd.xml:/etc/coolwsd/coolwsd.xml
+    - /var/lib/egroupware/default/loolwsd/loolkitconfig.xcu:/etc/coolwsd/loolkitconfig.xcu
+    # dont try to regenerate the (not used certificate) as volume is readonly
     environment:
     - DONT_GEN_SSL_CERT=1
-    # uncomment AND add additional dictionaries (then: docker-compose up -d collabora-key)
-    #- dictionaries=de_DE en_GB en_US es_ES fr_FR it nl pt_BR pt_PT ru
     ports:
     - "127.0.0.1:9980:9980"
     restart: always
@@ -17,8 +20,8 @@ services:
     # set the ip-address of your docker host AND your official DNS name so Collabora
     # can access EGroupware without the need to go over your firewall
     #extra_hosts:
-    #- "my.host.name:ip-address"
-  # watchtower is disabled now in favor of the one included in egroupware-docer updating all container
+    #- "my.host.name:172.17.0.1"
+  # watchtower is disabled now in favor of the one included in egroupware-docker updating all container
   # see https://containrrr.github.io/watchtower for more information
   #watchtower:
   #  image: containrrr/watchtower

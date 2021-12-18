@@ -1,3 +1,9 @@
+egroupware-collabora-key (21.11.20211218) hardy; urgency=low
+
+  * update proxy configuration to support Collabora/CODE 21.11+ AND previous versions
+
+ -- Ralf Becker <rb@egroupware.org>  Sat, 18 Dec 2021 12:00 -0100
+
 egroupware-collabora-key (6.4.20211207) hardy; urgency=low
 
   * updated loolwsd.xml to allow conversation API from all docker networks (172.16.0.0/12)
