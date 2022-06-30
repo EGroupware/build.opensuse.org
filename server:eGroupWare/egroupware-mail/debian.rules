@@ -6,7 +6,7 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatibility version to use.
-export DH_COMPAT=5
+export DH_COMPAT=7
 
 # this is where we install into
 DEST_DIR = /usr/src/packages/BUILD/debian/egroupware-mail
@@ -40,6 +40,8 @@ install: build
 	install -m 644 dovecot/dovecot-push.lua $(DEST_DIR)$(ETC_DOVECOT)
 	install -m 644 dovecot/dovecot-sql.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
 	install -m 644 dovecot/dovecot-sql-master.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-ldap.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
+	install -m 644 dovecot/dovecot-ldap-master.conf.ext $(DEST_DIR)$(ETC_DOVECOT)
 	install -m 644 dovecot/dovecot.conf $(DEST_DIR)$(ETC_DOVECOT)
 	install -m 644 dovecot/global-acls $(DEST_DIR)$(ETC_DOVECOT)
 	install -m 600 dovecot/my.cnf $(DEST_DIR)$(ETC_DOVECOT)
@@ -71,6 +73,7 @@ install: build
 	install -m 644 dovecot/conf.d/auth-master.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-passwdfile.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-sql.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
+	install -m 644 dovecot/conf.d/auth-ldap.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-static.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-system.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)
 	install -m 644 dovecot/conf.d/auth-vpopmail.conf.ext $(DEST_DIR)$(ETC_DOVECOT_D)

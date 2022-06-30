@@ -2,6 +2,7 @@
 #
 # <doc/wiki/AuthDatabase.SQL.txt>
 
+# EGroupware authentication with LDAP/ADS: comment the full block
 passdb {
   driver = sql
 
@@ -12,6 +13,7 @@ passdb {
 # "prefetch" user database means that the passdb already provided the
 # needed information and there's no need to do a separate userdb lookup.
 # <doc/wiki/UserDatabase.Prefetch.txt>
+# EGroupware authentication with LDAP/ADS: comment the full block
 userdb {
   driver = prefetch
 }

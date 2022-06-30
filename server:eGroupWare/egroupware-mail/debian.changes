@@ -1,3 +1,9 @@
+egroupware-mail (2.3.20220630) hardy; urgency=low
+
+  * adding LDAP/ADS configuration files to allow to configure authentication via LDAP
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 30 Jun 2021 08:30:00 -0200
+
 egroupware-mail (2.3.20210917) hardy; urgency=low
 
   * improve documentation in docker-composer.override.yml about using a certificate

@@ -55,4 +55,4 @@ version: '3'
 #      - /etc/letsencrypt/live/egw.example.org/privkey.pem:/etc/postfix/certificate.key
 #      - /etc/letsencrypt/live/egw.example.org/fullchain.pem:/etc/postfix/certificate.pem
 #    # run the following command once to make sure mail-services get restarted on certificate renewal:
-#    # certbot renew --force-renew --post-hook "docker-compose -f /etc/egroupware-mail/docker-compose.yml restart"
+#    # certbot renew --force-renew --post-hook 'bash -c "cd /etc/egroupware-mail; docker-compose restart"'

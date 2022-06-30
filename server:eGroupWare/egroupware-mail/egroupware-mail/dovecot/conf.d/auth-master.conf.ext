@@ -6,8 +6,10 @@
 
 # Dovecot master uses "dovecot" user and it's password
 passdb {
+  # EGroupware authentication with LDAP/ADS: change to driver = ldap and comment sql-master and uncomment ldap-master
   driver = sql
   args = /etc/dovecot/dovecot-sql-master.conf.ext
+  #args = /etc/dovecot/dovecot-ldap-master.conf.ext
   master = yes
   result_success = continue
 }

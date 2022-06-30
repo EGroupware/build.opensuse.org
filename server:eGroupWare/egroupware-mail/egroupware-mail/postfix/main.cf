@@ -716,11 +716,11 @@ maillog_file = /dev/stdout
 
 # uncomment this section to use a smarthost to relay all mail to
 # add relayhost, user and password to /etc/postfix/sasl_password
-# and then run: postmap hash:/etc/postfix/sasl_password
+# and then reload Postfix: docker exec -it egroupware-smtp postfix reload
 #relayhost = [mail.example.org]
 #smtp_tls_security_level = may
 #smtp_sasl_auth_enable = yes
 #smtp_sasl_security_options = noanonymous
-#smtp_sasl_password_maps = hash:/etc/postfix/sasl_password
+#smtp_sasl_password_maps = texthash:/etc/postfix/sasl_password
 
 header_size_limit = 4096000

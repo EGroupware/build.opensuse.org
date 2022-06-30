@@ -1,0 +1,9 @@
+# EGroupware master configuration
+# includes ldap configuration and overwrites pass_filter to only allow uid=dovecot
+
+!include dovecot-ldap.conf.ext
+
+# LDAP
+#pass_filter = (&(objectClass=posixAccount)(uid=%u)(uid=dovecot))
+# ActiveDirectory
+pass_filter = (&(objectClass=user)(sAMAccountName=%u)(sAMAccountName=dovecot))
