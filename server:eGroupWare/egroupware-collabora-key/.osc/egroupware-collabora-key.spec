@@ -126,10 +126,10 @@ case "$1" in
         cd /var/lib/egroupware/default/loolwsd
         mv coolwsd.xml.dpkg-dist coolwsd.xml
         grep '<termination .*>true</termination>' loolwsd.xml &&
-            sed 's#>false</termination>#>true</termination>#' -i /var/lib/egroupware/default/loolwsd/coolwsd.xml
+            sed 's#>false</termination>#>true</termination>#' -i /var/lib/egroupware/default/loolwsd/coolwsd.xml || true
         grep '<support_key>.*</support_key>' loolwsd.xml &&
             sed "s#<support_key></support_key>#<support_key>$(grep '<support_key>.*</support_key>' /var/lib/egroupware/default/loolwsd/loolwsd.xml|sed 's/^ *//')</support_key>#" \
-                -i /var/lib/egroupware/default/loolwsd/coolwsd.xml
+                -i /var/lib/egroupware/default/loolwsd/coolwsd.xml || true
     } || true
     :
   ;;
