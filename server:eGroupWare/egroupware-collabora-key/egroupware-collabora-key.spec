@@ -1,5 +1,5 @@
 Name: egroupware-collabora-key
-Version: 21.11.20211218
+Version: 22.05.20220815
 Release:
 Summary: Collabora Online Office with support-key
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://www.collaboraoffice.com/terms/collabora-online-mplv2/
 Vendor: EGroupware GmbH, https://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-collabora-key-21.11.20211218.tar.gz egroupware-collabora-key
+# create with: tar -czvf egroupware-collabora-key-22.05.20220815.tar.gz egroupware-collabora-key
 Source: %{name}-%{version}.tar.gz
 #Source0: docker-compose.yml
 #Source1: apache.conf
@@ -88,6 +88,7 @@ case "$1" in
 	;;
 
   2)# This is an upgrade.
+
 	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
 	docker-compose pull && \
@@ -111,7 +112,25 @@ case "$1" in
 	;;
 
   1)# This is an upgrade.
-    # Do nothing.
+    # if we have no separate coolwsd.xml created it now, but patch in termination and support_key from loolwsd.xml
+    test ! -s /var/lib/egroupware/default/loolwsd/coolwsd.xml -a -f /var/lib/egroupware/default/loolwsd/coolwsd.xml.rpmnew && {
+        cd /etc/egroupware-collabora-key
+        docker-compose stop
+        docker-compose rm -f
+        # if we are not using the current docker-compose.yml, mv it in place, but keep extra_hosts
+        test -f docker-compose.yml.rpmnew && {
+        (echo; grep -A2 '^ *extra_hosts:' docker-compose.yml | grep -v '^ *#') >> docker-compose.yml.rpmnew
+        mv docker-compose.yml docker-compose.yml.rpmold
+        mv docker-compose.yml.rpmnew docker-compose.yml
+        } || true
+        cd /var/lib/egroupware/default/loolwsd
+        mv coolwsd.xml.dpkg-dist coolwsd.xml
+        grep '<termination .*>true</termination>' loolwsd.xml &&
+            sed 's#>false</termination>#>true</termination>#' -i /var/lib/egroupware/default/loolwsd/coolwsd.xml
+        grep '<support_key>.*</support_key>' loolwsd.xml &&
+            sed "s#<support_key></support_key>#<support_key>$(grep '<support_key>.*</support_key>' /var/lib/egroupware/default/loolwsd/loolwsd.xml|sed 's/^ *//')</support_key>#" \
+                -i /var/lib/egroupware/default/loolwsd/coolwsd.xml
+    } || true
     :
   ;;
 esac
@@ -141,6 +160,8 @@ install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT%{etc_loolwsd}
 install -m 644 loolwsd.xml $RPM_BUILD_ROOT%{etc_loolwsd}
 install -m 444 loolkitconfig.xcu $RPM_BUILD_ROOT%{etc_loolwsd}
+install -m 644 coolwsd.xml $RPM_BUILD_ROOT%{etc_loolwsd}
+install -m 444 coolkitconfig.xcu $RPM_BUILD_ROOT%{etc_loolwsd}
 install -m 444 *.pem $RPM_BUILD_ROOT%{etc_loolwsd}
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
@@ -161,3 +182,6 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %endif
 %attr(0755,%{apache_user},%{apache_group}) %{etc_loolwsd}
 %config(noreplace) %attr(0644,%{apache_user},%{apache_group}) %{etc_loolwsd}/loolwsd.xml
+%config(noreplace) %attr(0644,%{apache_user},%{apache_group}) %{etc_loolwsd}/loolkitconfig.xcu
+%config(noreplace) %attr(0644,%{apache_user},%{apache_group}) %{etc_loolwsd}/coolwsd.xml
+%config(noreplace) %attr(0644,%{apache_user},%{apache_group}) %{etc_loolwsd}/coolkitconfig.xcu

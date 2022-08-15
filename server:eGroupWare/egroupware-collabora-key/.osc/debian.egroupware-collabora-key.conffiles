@@ -1,4 +1,7 @@
 /var/lib/egroupware/default/loolwsd/loolwsd.xml
+/var/lib/egroupware/default/loolwsd/loolkitconfig.xcu
+/var/lib/egroupware/default/loolwsd/coolwsd.xml
+/var/lib/egroupware/default/loolwsd/coolkitconfig.xcu
 /etc/egroupware-collabora-key/apache.conf
 /etc/egroupware-collabora-key/nginx.conf
 /etc/egroupware-collabora-key/docker-compose.yml

@@ -8,8 +8,6 @@ services:
     - /var/lib/egroupware/default/loolwsd:/etc/loolwsd
     # support for Collabora/CODE 21.11+
     - /var/lib/egroupware/default/loolwsd:/etc/coolwsd
-    - /var/lib/egroupware/default/loolwsd/loolwsd.xml:/etc/coolwsd/coolwsd.xml
-    - /var/lib/egroupware/default/loolwsd/loolkitconfig.xcu:/etc/coolwsd/loolkitconfig.xcu
     # dont try to regenerate the (not used certificate) as volume is readonly
     environment:
     - DONT_GEN_SSL_CERT=1
