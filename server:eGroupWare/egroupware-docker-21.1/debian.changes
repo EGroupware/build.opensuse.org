@@ -1,3 +1,189 @@
+egroupware-docker (21.1.20220916) hardy; urgency=low
+
+  * Mail/RichTextEditor: common preference "small paragraph" now changes return key to a line break instead of a paragraph (with margin)
+  * Mail: remove left (and right) margin of p and div, which can interact bad with the signature
+  * Mail/Calendar: fix applying a participant reply as organizer overwrote event with data send by the participant (not just his status)
+  * Mail/SAML/SSO: show mail accounts requiring the session password as Error, but load the other accounts
+  * OpenID Connect: autodiscovery support via /.well-known/openid-configuration
+  * LDAP/AD/OpenID Connect: fix error creating tokens with profile claim, if user has a picture
+  * EPL/CTI/Placetel: set CSP to fix not playing voice-mail
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 16 Sep 2022 11:42:23 +0200
+
+egroupware-docker (21.1.20220905) hardy; urgency=low
+
+  * Calendar/Mail: allow every participant to apply changes from extern organizer and warn if sender is not identical to iCal organizer or participant
+  * CalDAV/CardDAV/TbSync: fix wrong/minimal privileges on sub-collections causing TbSync not to display this calendars or addressbooks
+  * CalDAV/Calendar: expand-property report used by iCal app (Mac) did not return rights on other users calendar
+  * Mail: register EGroupware as protocol handler for mail, you need to click on the double-diamond in the url bar and confirm it
+  * Mail: explicitly apply default font and -size before sending mail
+  * Mail: do NOT fail setting ACL recursive on folders, if single folder fail (eg. wrongly in subscription file)
+  * Mail/Sieve: fix vacation notice activated by date does not work if the start date is set in future
+  * Mail/Dovecot: allow to use admin credentials to access mail when no session password is available, e.g. for SSO
+  * Mobile view: fix broken Security & Password menu
+  * Kanban: Add columns under Kanban context menu action for other applications
+  * Filemanager/WebDAV: fix WebDAV mounts from other EGroupware or next|ownCloud failed for non-alphanumeric passwords
+  * Filemanager: use bigger popups to open files (PDF: 1024*1024, text: 800*1024, images: 640*800)
+  * Calendar/Mobile view: Add a date indicator for all views in mobile theme
+  * Api: Merge placeholder that checks for EMPTY {{IF fieldname~EMPTY~True text~False text}}
+  * Projectmanager: Fix "add app" in element list has wrong starting app
+  * Rocketchat: fix RC user's status no longer visible
+  * Setup: fix installation check to correctly detect installed packages with Composer 2.x
+  * SAML/Univention: support for Univention SAML IdP for SSO incl. docu
+  * SAML: generate a self-signed certificate (not just the public key)
+  * ActiveDirectory/LDAP: implemented deleting of accounts via full/initial import, periodic import does NOT delete
+  * ActiveDirectory/LDAP: allow to configure an optional group-context
+  * ActiveDirectory/LDAP: periodic import of account into SQL database
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 05 Sep 2022 08:47:03 +0200
+
+egroupware-docker (21.1.20220408) hardy; urgency=low
+
+  * All: fix regression causing older browsers (Firefox < 69 and Safari < 1.4) to display EGroupware
+  * Filemanager/SMB: fix not working sharing of SMB shares (with fixed credentials!)
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 08 Apr 2022 11:58:11 +0200
+
+egroupware-docker (21.1.20220406) hardy; urgency=low
+
+  * smallPART: annotate PDF files in realtime with multiple people like it was already possible for videos
+  * smallPART: new graphical question types for tests: mark-choice and mill-out
+  * smallPART: use an office document (opened via Collabora) to make notes about the video or PDF
+  * smallPART: test now blocks clicks outside test-area until test is finished or paused (if allowed)
+  * smallPART: experimental cognitive load measurement allow to use smallPART for research projects
+  * Api: splitter widget did not restore size from preference
+  * Addressbook: allow keeping custom fileAs value (LDAP: displayname) by adding it as first option
+  * Filemanager/WebDAV: add (missing) trailing slash in mount URL for WebDAV, as NextCloud requires it
+  * Filemanager/WebDAV: fix errors mounting and reading files via WebDAV from other EGroupware or *Cloud
+  * Filemanager/WebDAV: fix PHP error if mounted WebDAV server got eg. a wrong password (did not return a 207 on PROPFIND)
+  * InfoLog: set replyTo for async notification to owner of InfoLog, otherwise the user causing the change
+  * Calendar: New preference so default alarm can be for current user or all participants
+  * Calendar/CalDAV: ignore Outlook CalDAV Synchronizer setting participant status back to unknown/needs-action (other status will be updated)
+  * Notifications: Admins now configure the mail account to use for email notifications instead of the user account
+  * Admin: fix delete user account always displayed 0 entries
+  * InfoLog: fix saving an InfoLog twice gave error that entry was modified, if user timezone was different from server
+  * Collabora: do NOT show menubars for readonyl files
+  * EPL/Projectmanager/Calendar: Add calendar integration so projects can be shown as events in calendar
+  * EPL/CTI: new user-specific preference when to show CRM view: for incoming or outgoing calls, both directions or never
+  * EPL/Placetel: fix not working voice mail playback
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 06 Apr 2022 07:52:47 +0200
+
+egroupware-docker (21.1.20220207) hardy; urgency=low
+
+  * Calendar: fix not working placeholders $$date$$ & $$fullname$$
+  * CardDAV/Addressbook: fix GET request regression after REST API introduction
+  * CardDAV/ActiveDirectory: fix empty account-addressbook if sync-collection-report is used
+  * Etemplate: Add link icon overlay to link list
+  * Collabora: fix direct edits and such via a share end up in different Collabora edit-sessions
+  * Collabora: support for version 21.11+ (needs new egroupware-collabora-key package too!)
+  * Kanban/PostgreSQL: fix SQL error by replacing MySQL specific syntax with a sub-query
+  * OpenID Connect: implement "groups" claim and scope return memberships
+  * ProjectManager: Fix SQL error adding project list to Home
+  * Guacamole/Backup/Restore: fix not working restore for Guacamole
+  * EPL/Placetel: support more the one number-prefix / area-code
+  * EPL: CTI for Asterisk using ARI (Asterisk Rest API): click2dial, CRM-view and call-lists
+  * Setup/EPL: do not autoinstall uninstalled EPL apps when container restarts
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 07 Feb 2022 11:13:42 +0100
+
+egroupware-docker (21.1.20211130) hardy; urgency=low
+
+  * PHP 8.0: tons of fixes to support 8.0, this is probably the last container using PHP 7.4 by default
+  * Addressbook: new REST API for contacts https://github.com/EGroupware/egroupware/tree/master/doc/REST-CalDAV-CardDAV
+  * LDAP/Addressbook: fix region contains for given country invalid value gives an LDAP error on update
+  * Admin/Filemanager: correctly encode user "WORKGROUP\$user" for SMB mounts and do NOT require mountpoints to exist
+  * Filemanager: fix not working variables eg. $user in GUI mount (Admin > Filemanager)
+  * Filemanager: fix video controller not working in filemanager gallery
+  * Filemanager: add action to unlock files
+  * Filemanager: fix super user could not remove other users' subscriptions
+  * Filemanager: add actions to convert editable files to PDF or PNG and a checkbox to merge file as PDF
+  * Collabora: merge placeholder dialogs
+  * All apps: add preference to set directory and filename of merged documents using placeholders
+  * Calendar: fix changing the recurrence end date did not add/remove the events in the UI
+  * InfoLog: fix not working overwrite check (optimistic locking) plus incrementing etag
+  * Mail: make sure pressing [del] key twice in a row does not delete the first row on the second press
+  * Mail: add set flags action into mail filters
+  * Mail: implements date extension for vacation rule. None imap admin user can also set vacation rule by date.
+  * Kanban: fix deleting card did not delete link to the board (includes a DB update to remove orphans from links)
+  * Resources: add inventory number to resource list columns
+  * smallPART/PostgreSQL: fix SQL error when opening a course
+  * smallPART/PostgreSQL: fix SQL error during update (you need to restore egw_smallpart* tables AND set egw_applications.app_version='21.1')
+  * API: update jQuery-ui to 1.13.0 and TinyMCE to 5.10.1
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 30 Nov 2021 09:11:58 +0100
+
+egroupware-docker (21.1.20210923) hardy; urgency=low
+
+  * smallPART: many new features and improvements for the new semester:
+  - push changes in course, videos, participants and comments instantly to all online users
+  - new video-controls for speed, skip 10s forward/back, full width, speaker control
+  - add staff rolls: tutor (readonly teacher access), teacher and co-admin (identical to owner)
+  - split students in groups and limit visibility of comments to their group, staff can filter by group
+  - allow students to pick a nickname displayed to fellow students, always show staff and students to staff with full name
+  - videos are ordered now alphabetic, use eg. 1st, 2nd, ... as prefix to force videos to a desired order
+  - record date and time student subscribes or unsubscribes a course
+  - CSV comment export adds user retweeting in front of his comment
+  - fix questions with same start-time got identical question-numbers
+  - fix LTI automatic registration and interactive content-selection (LTI 1.3 eg. for Moodle 3.10+)
+    + content-selection shows all available courses, not just subscribed ones
+    + fix not working content selection if there is only a single 1.3 config (no 1.0 one)
+    + fix not working buttons to change between video, questions and scores
+  * Filemanager: added user-interface to mount WebDAV or SMB shares
+  * Filemanager/Sharing: create different share-token for different recipients (before recipients where added to the token)
+  * Kanban: Boards now remember collapsed columns & swimlanes
+  * Kanban: improve formatting for small columns
+  * Kanban: Fix Infolog field "Projectmanager" did not load in board edit Column & Listen dialogs after first being set.
+  * Calendar: Activate links in location & description in event tooltip
+  * Knowledge Base: fix pasting/dragging image into htmlarea editor does not work
+  * Addressbook/Mobile theme: fix opening contacts fails in mobile theme
+  * Tracker: Add configuration for defaulting group (all queues and queue specific)
+  * Mail: fix updating/deleting mail accounts does not refresh the mail tree no more
+  * Api: Fix some merge files were opened in browser instead of downloaded
+  * Api: Fix entry list stops scrolling if a row is updated while the tab is not visible
+  * Api: Fix changes in history log had a hash instead of user if the change was made after a share was opened.
+  * PostgreSQL/Addressbook: fix SQL error deleting a contact finally
+  * PostgreSQL/Addressbook/All Apps: fix SQL error in history tab if there are attachments
+  * PostgreSQL: fix SQL error when accessing eg. InfoLog
+  * Calendar/Addressbook/InfoLog: no longer allow to immediately delete entries as it breaks CalDAV/CardDAV sync
+  * Setup: support uninstalling automatic installed apps (no more reinstalling next update)
+  * EPL/Univention: support permanent uninstalling EPL features / downgrade to CE
+  * Chrome 94.0.4606.54: fix CSP error clicking on sidebox menu
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 23 Sep 2021 09:59:42 +0200
+
+egroupware-docker (21.1.20210723) hardy; urgency=low
+
+  * Security Update: all 21.1 users should upgrade ASAP, 20.1 and below is not affected
+  * Filemanager/VFS: when creating a new file as root eg. via (docker exec) filemanager/cli.php do NOT create files unreadable by webserver
+  * Collabora: Fix editing files in mounted share
+  * Kanban/PostgreSQL: fix installation of example board under PostgreSQL
+  * smallPART/PostgreSQL: fix multiple SQL errors
+  * smallPART/PostgreSQL: fix installation under PostgreSQL
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 23 Jul 2021 08:09:50 +0200
+
+egroupware-docker (21.1.20210629) hardy; urgency=low
+
+  * Mail/Admin: fix not working mail wizard
+  * Mail/SMIME: fix signed calendar events not being displayed (error:importing the ical!)
+  * Mail/Dovecot: allow to disable caching of flags in site config to support Dovecot private seen flags on shared folders
+  * Api: Prevent invalid customfield names
+  * Api: Clear initial load URL after using it, so F5 takes you to the app's normal entry point
+  * InfoLog: allow to limit list to last N month in site-configuration, if ordered by last modified
+  * Setup: skip files backup on update even if configured
+  * smallPART: only show own memberships when selecting an organisation for a course
+  * smallPART: allow to create new courses via LTI content-selection
+  * smallPART: fix ACL not used for course-list and giving you a "Course not found" error trying to subscribe
+  * smallPART: allow to interactive choose a course and video via LTI 1.3
+  * smallPART: automatic registration from Moodle 3.10+
+  * smallPART: using now ceLTIc/LTI for LTI 1.3 too
+  * smallPART: automatic use SameSite=None cookie attribute when embedding via LTI
+  * smallPART: fix failed opening of courses from course-list via LTI
+  * smallPART: allow to configure "Moodle username" for checking or creating an EGroupware user
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 29 Jun 2021 09:50:53 +0200
+
 egroupware-docker (21.1.20210521) hardy; urgency=low
 
   * final 21.1 release from 25th May incl. new login background
