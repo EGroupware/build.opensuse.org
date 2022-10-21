@@ -180,7 +180,7 @@ EOF
     }
   }
   # update docker-compose.override.yml with fixed Guacamole container version to use
-  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.3.0|g' -i /etc/egroupware-guacamole/docker-compose.override.yml
+  sed 's|image: guacamole/\([^:]*\).*|image: guacamole/\1:1.4.0|g' -i /etc/egroupware-guacamole/docker-compose.override.yml
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
 	cd /etc/egroupware-guacamole
 	docker-compose pull && \
