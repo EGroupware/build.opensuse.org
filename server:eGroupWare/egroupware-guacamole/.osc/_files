@@ -1,12 +1,12 @@
-<directory name="egroupware-guacamole" rev="40" srcmd5="070301c914ac2f50bb1ba7b823e28a0e" vrev="2">
-  <entry md5="a2b3c29e1ebdbb3c013970da881042f0" mtime="1666339280" name="build.sh" size="668" />
-  <entry md5="13396a873ed0e6445d30ee8300f08a50" mtime="1666339280" name="debian.changes" size="2284" />
+<directory name="egroupware-guacamole" rev="41" srcmd5="f265f295c1e9365aeb950ebeddaeaa90" vrev="1">
+  <entry md5="25075b020ef9f8f803ed3c85686ac8a7" mtime="1674144800" name="build.sh" size="635" />
+  <entry md5="2ead86f0941222e744c2d5adba7f57ed" mtime="1674144801" name="debian.changes" size="2491" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1586979810" name="debian.compat" size="3" />
   <entry md5="4c3f7cfad5251536aa8096ba73f45089" mtime="1605547097" name="debian.control" size="657" />
   <entry md5="b13d66287da8a2828de70944f19861d8" mtime="1666339280" name="debian.postinst" size="10384" />
   <entry md5="843ccd358399fd95d811deb54f555ae9" mtime="1586979810" name="debian.prerm" size="991" />
   <entry md5="c934279765120f30d3b5465651f02219" mtime="1652206676" name="debian.rules" size="2028" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1586979811" name="debian.tar.gz" size="120" />
-  <entry md5="65eb9204b3d11bfc54c835463e2706ba" mtime="1666339715" name="egroupware-guacamole-1.4.0.20221021.tar.gz" size="25467" />
-  <entry md5="d5de1bfcd0c85a9c68afc945e945543d" mtime="1666339281" name="egroupware-guacamole.dsc" size="383" />
+  <entry md5="8f21e8e69f20f3fbe2bc4416ac03f955" mtime="1674144802" name="egroupware-guacamole-1.4.0.20230119.tar.gz" size="102900" />
+  <entry md5="030d9ec6f8d42a526cedf3f60f3ab088" mtime="1674144802" name="egroupware-guacamole.dsc" size="383" />
 </directory>

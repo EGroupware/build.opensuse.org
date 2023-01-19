@@ -1,3 +1,9 @@
+egroupware-guacamole (1.4.0.20230114) hardy; urgency=low
+
+  * update EGroupware app to work with EGroupware 23.1 *and* previous versions
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 19 Jan 2023 10:00:00 -0700
+
 egroupware-guacamole (1.4.0.20221021) hardy; urgency=low
 
   * update to Guacamole 1.4.0

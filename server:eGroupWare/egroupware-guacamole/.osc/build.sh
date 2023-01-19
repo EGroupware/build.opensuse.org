@@ -2,11 +2,11 @@
 
 VERSION=${1:-1.4.0.$(date +%Y%m%d)}
 PACKAGE=egroupware-guacamole
-GITURL=git@github.com:EGroupware/guacamole.git
+GITURL=https://github.com/EGroupware/guacamole.git
 BUILD=/tmp/$PACKAGE-build-root
 OUTPUTDIR=$(dirname $0)
 [[ $OUTPUTDIR = /* ]] || OUTPUTDIR=$PWD/${OUTPUTDIR#./}
-TAROPTS="--exclude .git --exclude .gitignore --uid 0 --gid 0 -cvzf"
+TAROPTS="--uid 0 --gid 0 -cvzf"
 
 
 rm -rf $BUILD $OUTPUTDIR/$PACKAGE-*.tar.gz
