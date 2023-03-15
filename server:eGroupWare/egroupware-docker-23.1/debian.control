@@ -1,0 +1,87 @@
+Source: egroupware-docker
+Section: web
+Priority: optional
+Maintainer: Ralf Becker <rb@egroupware.org>
+Build-Depends: debhelper (>= 9)
+Homepage: https://www.egroupware.org/
+
+Package: egroupware-docker
+Architecture: any
+Depends: docker-compose (>= 1.10.0), docker.io | docker-ce, nginx | apache2 (>= 2.4), patch
+Recommends: egroupware-collabora-key
+Description: web-based groupware suite
+ This package installs Docker and docker-compose and use it to run EGroupware via the
+ container egroupware/egroupware:latest, phpswoole/swoole:latest and nginx:stable-alpine.
+ .
+ It also uses containrrr/watchtower (https://github.com/containrrr/watchtower) to automatic
+ use new versions of its containers everyday at 4am, if a new version is available.
+# egroupware-docker replaces and conflicts all non-deprecated egroupware-epl* packages
+Replaces: egroupware-epl,
+# packages replaced in 23.1 as they are not supporting PHP 8.1
+ egroupware-epl-jdots,
+ egroupware-epl-phpbrain,
+ egroupware-epl-sitemgr,
+ egroupware-epl-wiki,
+ egroupware-epl-compat,
+# packages replaced in 21.1 and before
+ egroupware-epl-core,
+ egroupware-epl-bookmarks,
+ egroupware-epl-calendar,
+ egroupware-epl-collabora,
+ egroupware-epl-esync,
+ egroupware-epl-esyncpro,
+ egroupware-epl-functions,
+ egroupware-epl-phpfreechat,
+ egroupware-epl-mail,
+ egroupware-epl-filemanager,
+ egroupware-epl-importexport,
+ egroupware-epl-infolog,
+ egroupware-epl-news-admin,
+ egroupware-epl-notifications,
+ egroupware-epl-projectmanager,
+ egroupware-epl-registration,
+ egroupware-epl-resources,
+ egroupware-epl-sambaadmin,
+ egroupware-epl-timesheet,
+ egroupware-epl-tracker,
+ egroupware-epl-vendor,
+# packages replaced in 17.1 and before
+ egroupware, egroupware-core, egroupware-addressbook, egroupware-epl-addressbook,
+ egroupware-syncml, egroupware-epl-syncml, egroupware-polls, egroupware-epl-polls, egroupware-phpsysinfo, egroupare-epl-phpsysinfo,
+ egroupware-epl-pear, egroupware-pear, egroupware-epl-manual, egroupware-manual, egroupware-developer-tools, egroupware-epl-developer-tools,
+ egroupware-emailadmin, egroupware-epl-emailadmin, egroupware-epl-pixelegg
+Conflicts: egroupware-epl,
+# packages replaced in 23.1 as they are not supporting PHP 8.1
+ egroupware-epl-jdots,
+ egroupware-epl-phpbrain,
+ egroupware-epl-sitemgr,
+ egroupware-epl-wiki,
+ egroupware-epl-compat,
+# packages replaced in 21.1 and before
+ egroupware-epl-core,
+ egroupware-epl-bookmarks,
+ egroupware-epl-calendar,
+ egroupware-epl-collabora,
+ egroupware-epl-esync,
+ egroupware-epl-esyncpro,
+ egroupware-epl-functions,
+ egroupware-epl-phpfreechat,
+ egroupware-epl-mail,
+ egroupware-epl-filemanager,
+ egroupware-epl-importexport,
+ egroupware-epl-infolog,
+ egroupware-epl-news-admin,
+ egroupware-epl-notifications,
+ egroupware-epl-projectmanager,
+ egroupware-epl-registration,
+ egroupware-epl-resources,
+ egroupware-epl-sambaadmin,
+ egroupware-epl-timesheet,
+ egroupware-epl-tracker,
+ egroupware-epl-vendor,
+ egroupware, egroupware-syncml, egroupware-epl-syncml, egroupware-polls, egroupware-epl-polls, egroupware-phpsysinfo, egroupware-epl-phpsysinfo,
+ egroupware-epl-pear, egroupware-pear, egroupware-epl-manual, egroupware-manual, egroupware-epl-developer-tools,
+ egroupware-emailadmin, egroupware-epl-emailadmin, egroupware-epl-pixelegg
+# suggest mariadb and rocketchat, so they dont get deinstalled by apt autoremove
+Suggests: mariadb-server | mysql-server,
+ egroupware-rocketchat
