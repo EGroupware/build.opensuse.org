@@ -135,10 +135,12 @@ Obsoletes: %{old_name}-timesheet
 Obsoletes: %{old_name}-tracker
 Obsoletes: %{old_name}-vendor
 # 23.1 egroupware-docker obsoletes deprecated packages, as they do NOT support PHP 8.1
+Obsoletes: %{old_name}-jdots
 Obsoletes: %{old_name}-phpbrain
 Obsoletes: %{old_name}-sitemgr
 Obsoletes: %{old_name}-wiki
 Obsoletes: %{old_name}-compat
+Obsoletes: %{old_name}-groups
 
 # Provides of former egroupware-epl-core package allowing to install egroupware-epl-{wiki,sitemgr,phpbrain,compat}
 Provides: egw-core %{version}
