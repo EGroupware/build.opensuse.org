@@ -4,7 +4,7 @@ egroupware-guacamole (1.5.1.20230414) hardy; urgency=low
   * 1.5.0 changelog: https://guacamole.apache.org/releases/1.5.0/#changelog
   * 1.5.1 changelog: https://guacamole.apache.org/releases/1.5.1/#changelog
   * EGroupware 23.1: fix problems creating connections
-  * requires Docker >= 20.10.24 (see https://docs.docker.com/engine/install/debian/ for docker-ce installation)
+  * requires Docker >= 20.10.5 (see https://docs.docker.com/engine/install/debian/ for docker-ce installation)
 
  -- Ralf Becker <rb@egroupware.org>  Fri, 14 Apr 2023 12:00:00 +0200
 
