@@ -20,7 +20,7 @@ if [ "$1" = configure -o "$1" = upgrade ]
 then
   cd /etc/egroupware-rocketchat
   # change owner of Rocket.Chat data-directory to 65533 used by container
-  chown -R 65533 /var/lib/egroupware/default/rocketchat
+  chown -R 65533:65533 /var/lib/egroupware/default/rocketchat
 
 	# If upgrading, $2 contains the release currently installed, otherwise it's empty
 	if [ -z "$2" ]

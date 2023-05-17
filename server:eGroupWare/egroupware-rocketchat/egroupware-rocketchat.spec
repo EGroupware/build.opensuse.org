@@ -54,7 +54,7 @@ Requires: %{apache_extra}
 
 %post
 # change owner of Rocket.Chat data-directory to 65533 used by container
-chown -R 65533 /var/lib/egroupware/default/rocketchat
+chown -R 65533:65533 /var/lib/egroupware/default/rocketchat
 
 case "$1" in
   1)# This is an initial install.
@@ -181,7 +181,7 @@ install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 install-rocketchat.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 move2stable.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 mongodump-rocketchat-3.1.gz $RPM_BUILD_ROOT%{etc_dir}
-mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat
+mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-rocketchat.conf
@@ -200,4 +200,4 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"
 %{apache_vhosts_d}
 %endif
-/var/lib/egroupware/default/rocketchat
+/var/lib/egroupware/default/rocketchat/uploads

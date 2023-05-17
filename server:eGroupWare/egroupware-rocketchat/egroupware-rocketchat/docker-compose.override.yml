@@ -10,7 +10,7 @@
 ###
 ### services:
 ###   rocketchat:
-###      enviroment:
+###      environment:
 ###      - ROOT_URL=https://example.org/rocketchat
 ###
 ### Please note: indention with space (NOT tabs!) matter in .yml files!

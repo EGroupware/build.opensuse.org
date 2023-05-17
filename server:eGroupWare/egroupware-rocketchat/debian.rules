@@ -35,7 +35,7 @@ install: build
 	install -m 700 move2stable.sh $(DEST_DIR)$(ETC_DIR)
 	install -m 644 mongodump-rocketchat-3.1.gz $(DEST_DIR)$(ETC_DIR)
 
-	mkdir -p $(DEST_DIR)$(DATA_DIR)
+	mkdir -p $(DEST_DIR)$(DATA_DIR)/uploads
 
 # Build architecture-independent files here.
 binary-indep: build install
