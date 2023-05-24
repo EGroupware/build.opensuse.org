@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 3.14.20210528
+Version: 5.4.20230524
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-3.14.20210528.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-5.4.20230524.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -54,7 +54,7 @@ Requires: %{apache_extra}
 
 %post
 # change owner of Rocket.Chat data-directory to 65533 used by container
-chown -R 65533 /var/lib/egroupware/default/rocketchat
+chown -R 65533:65533 /var/lib/egroupware/default/rocketchat
 
 case "$1" in
   1)# This is an initial install.
@@ -118,18 +118,35 @@ case "$1" in
 	# if we dont have it, create docker-compose.override.yml
     test -f docker-compose.override.yml || {
       # if we have modifications in docker-compose.yml update created a docker-compose.yml.rpmnew
-      test -f docker-compose.yml.rpmnew && {
+      test docker-compose.yml.rpmnew -nt docker-compose.yml && {
          # use current docker-compose.yml as .override
          sed "s|version:'2'|version:'3'|" docker-compose.yml > docker-compose.override.yml
-         # and move .rpmnew one in place
+         # disabling a couple of settings, which would break with MongoDB 5.0 and Rocket.Chat 5.4
+         sed -i  docker-compose.override.yml \
+          -e "s|^\( *\)\(- MONGO_.*\)$|\1#\2|" \
+          -e "s|^\( *\)\(image: *mongo:.*\)$|\1#\2|" \
+          -e "s|^\( *\)\(command: *mongod.*\)$|\1#\2|"
+         # and move new .rpmnew in place
          mv docker-compose.yml.rpmnew docker-compose.yml
       } || \
       # otherwise create it from latest-docker-compose.override
       cp latest-docker-compose.override.yml docker-compose.override.yml
     }
-    # replace rocketchat/rocket.chat:latest with quay.io/egroupware/rocket.chat:stable, if version not already passed it
-    ./move2stable.sh
-	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
+    # if docker-compose.yml.rpmnew exists and is newer than docker-compose.yml --> replace it
+    test docker-compose.yml.rpmnew -nt docker-compose.yml && {
+      mv docker-compose.yml.rpmnew docker-compose.yml
+    } || true
+    # update to MongoDB to 5.0
+    ./update-mongodb.sh 5.0 && {
+      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:latest from docker-compose.yml
+      sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
+      # remove mongo service overwrites, as docker-compose.yml has everything for 5.0
+      sed -e '/^ *mongo:/,+99d' docker-compose.override.yml
+    } || {
+      # on failure: set old "stable" image, as the new one does NOT support MongoDB 4.0
+      sed 's|^\( *\)#*\(image: *.*rocket.chat.*\)$|\1image: quay.io/egroupware/rocket.chat:stable|g' -i docker-compose.override.yml
+    }
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wired state!)
 	docker-compose pull && \
 	echo "y" | docker-compose up -d || true
 	;;
@@ -179,9 +196,9 @@ install -m 644 docker-compose.override.yml $RPM_BUILD_ROOT%{etc_dir}/latest-dock
 install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 install-rocketchat.sh $RPM_BUILD_ROOT%{etc_dir}
-install -m 700 move2stable.sh $RPM_BUILD_ROOT%{etc_dir}
-install -m 644 mongodump-rocketchat-3.1.gz $RPM_BUILD_ROOT%{etc_dir}
-mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat
+install -m 700 update-mongodb.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 644 mongodump-rocketchat-5.4.gz $RPM_BUILD_ROOT%{etc_dir}
+mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-rocketchat.conf
@@ -200,4 +217,4 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"
 %{apache_vhosts_d}
 %endif
-/var/lib/egroupware/default/rocketchat
+/var/lib/egroupware/default/rocketchat/uploads

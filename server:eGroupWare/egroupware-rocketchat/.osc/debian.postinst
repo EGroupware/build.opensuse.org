@@ -20,7 +20,7 @@ if [ "$1" = configure -o "$1" = upgrade ]
 then
   cd /etc/egroupware-rocketchat
   # change owner of Rocket.Chat data-directory to 65533 used by container
-  chown -R 65533 /var/lib/egroupware/default/rocketchat
+  chown -R 65533:65533 /var/lib/egroupware/default/rocketchat
 
 	# If upgrading, $2 contains the release currently installed, otherwise it's empty
 	if [ -z "$2" ]
@@ -42,21 +42,38 @@ then
   else # update
 	  # if we dont have it, create docker-compose.override.yml
     test -f docker-compose.override.yml || {
-      # if we have modifications in docker-compose.yml update created a docker-compose.yml.rpmnew
-      test -f docker-compose.yml.rpmnew && {
+      # if we have modifications in docker-compose.yml update created a docker-compose.yml.dpgk-dist
+      test docker-compose.yml.dpgk-dist -nt docker-compose.yml && {
          # use current docker-compose.yml as .override
          sed "s|version:'2'|version:'3'|" docker-compose.yml > docker-compose.override.yml
-         # and move .rpmnew one in place
-         mv docker-compose.yml.rpmnew docker-compose.yml
+         # disabling a couple of settings, which would break with MongoDB 5.0 and Rocket.Chat 5.4
+         sed -i  docker-compose.override.yml \
+          -e "s|^\( *\)\(- MONGO_.*\)$|\1#\2|" \
+          -e "s|^\( *\)\(image: *mongo:.*\)$|\1#\2|" \
+          -e "s|^\( *\)\(command: *mongod.*\)$|\1#\2|"
+         # and move new .dpgk-dist in place
+         mv docker-compose.yml.dpgk-dist docker-compose.yml
       } || \
       # otherwise create it from latest-docker-compose.override
       cp latest-docker-compose.override.yml docker-compose.override.yml
     }
-    # replace rocketchat/rocket.chat:latest with quay.io/egroupware/rocket.chat:stable, if version not already passed it
-    ./move2stable.sh
+    # if docker-compose.yml.dpgk-dist exists and is newer than docker-compose.yml --> replace it
+    test docker-compose.yml.dpgk-dist -nt docker-compose.yml && {
+      mv docker-compose.yml.dpgk-dist docker-compose.yml
+    } || true
+    # update to MongoDB to 5.0
+    ./update-mongodb.sh 5.0 && {
+      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:latest from docker-compose.yml
+      sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
+      # remove mongo service overwrites, as docker-compose.yml has everything for 5.0
+      sed -e '/^ *mongo:/,+99d' docker-compose.override.yml
+    } || {
+      # on failure: set old "stable" image, as the new one does NOT support MongoDB 4.0
+      sed 's|^\( *\)#*\(image: *.*rocket.chat.*\)$|\1image: quay.io/egroupware/rocket.chat:stable|g' -i docker-compose.override.yml
+    }
 	fi
 
-	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wired state!)
 	docker-compose pull && \
 	echo "y" | docker-compose up -d || true
 

@@ -6,7 +6,7 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatibility version to use.
-export DH_COMPAT=5
+export DH_COMPAT=7
 
 # this is where we install into
 DEST_DIR = /usr/src/packages/BUILD/debian/egroupware-rocketchat
@@ -32,10 +32,10 @@ install: build
 	install -m 644 apache.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
 	install -m 700 install-rocketchat.sh $(DEST_DIR)$(ETC_DIR)
-	install -m 700 move2stable.sh $(DEST_DIR)$(ETC_DIR)
-	install -m 644 mongodump-rocketchat-3.1.gz $(DEST_DIR)$(ETC_DIR)
+	install -m 700 update-mongodb.sh $(DEST_DIR)$(ETC_DIR)
+	install -m 644 mongodump-rocketchat-5.4.gz $(DEST_DIR)$(ETC_DIR)
 
-	mkdir -p $(DEST_DIR)$(DATA_DIR)
+	mkdir -p $(DEST_DIR)$(DATA_DIR)/uploads
 
 # Build architecture-independent files here.
 binary-indep: build install

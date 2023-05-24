@@ -4,8 +4,8 @@
 ###
 ### Place all your modifications in this file, instead of /etc/egroupware-rocketchat/docker-compose.yml.
 ###
-### If you want to make some modification / uncomment eg. some environment variables, you also have to:
-### - uncomment the service eg. "rocketchat:", if not already uncommented like rocketchat
+### If you want to make some modification / uncomment e.g. some environment variables, you also have to:
+### - uncomment the service e.g. "rocketchat:", if not already uncommented like rocketchat
 ### - uncomment the "environment:" section of the service
 ###
 ### services:
@@ -17,15 +17,10 @@
 ###
 ##########################################################################################
 version: '3'
-#volumes:
-  # store MongoDB on an (internal) Volume
-  #mongo:
 
 services:
   rocketchat:
-    #image: rocketchat/rocket.chat:latest
-    #command: bash -c 'for i in `seq 1 30`; do node main.js && s=$$? && break || s=$$?; echo "Tried $$i times. Waiting 5 secs..."; sleep 5; done; (exit $$s)'
-    #restart: unless-stopped
+    #image: quay.io/egroupware/rocket.chat:latest
     #volumes:
     #- /var/lib/egroupware/default/rocketchat/uploads:/app/uploads
     # if EGroupware uses a certificate from a private CA, OAuth authentication will fail, you need to:
@@ -44,9 +39,3 @@ services:
     # can access EGroupware without the need to go over your firewall
     #extra_hosts:
     #- "my.host.name:ip-address"
-
-  mongo:
-    #image: mongo:4.0
-    #restart: unless-stopped
-    #volumes:
-    #- /var/lib/egroupware/default/rocketchat/dump:/dump
