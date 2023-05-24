@@ -138,10 +138,15 @@ case "$1" in
     } || true
     # update to MongoDB to 5.0
     ./update-mongodb.sh 5.0 && {
+      # first start old "stable" image, otherwise some indexes are missing when 5.4 starts
+      echo "y" | docker-compose up -d || true
+      echo "Waiting for old/stable RC to start"
+      for i in `seq 1 45`; do echo -n .; sleep 1; done; echo
+      docker logs rocketchat
       # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:latest from docker-compose.yml
       sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
       # remove mongo service overwrites, as docker-compose.yml has everything for 5.0
-      sed -e '/^ *mongo:/,+99d' docker-compose.override.yml
+      sed -e '/^ *mongo:/,+99d' -i docker-compose.override.yml
     } || {
       # on failure: set old "stable" image, as the new one does NOT support MongoDB 4.0
       sed 's|^\( *\)#*\(image: *.*rocket.chat.*\)$|\1image: quay.io/egroupware/rocket.chat:stable|g' -i docker-compose.override.yml
