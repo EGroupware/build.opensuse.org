@@ -56,19 +56,25 @@ case $current in
   4.0)
     new=4.2
     # update_overwrite always sets --storageEngine=wiredTiger/
+    restore_extra_args="--noIndexRestore"
     ;;
   4.2)
     new=4.4
-    docker exec rocketchat-mongo mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "4.2" } )'
     ;;
   4.4)
-    docker exec rocketchat-mongo mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "4.4" } )'
-    new=5.0
+    new=5.0 # requires RC 4.0
     ;;
+  # MongoDB 6.0 no longer has mongo command, just new mongosh not supported by our mongo-init-replica!
+  #5.0)
+  #  new=6.0 # requires RC 6.x
+  #  ;;
   *)
     echo "Update from MongoDB version '$current' to '$new' is NOT (yet) supported --> aborting";
     exit 1
 esac
+
+# set current version for FeatureCompatibility, as that's required for the update
+docker exec rocketchat-mongo mongo --eval "db.adminCommand( { setFeatureCompatibilityVersion: \"$current\" } )"
 
 # check new MongoDB version by pulling it
 docker pull mongo:$new || {
@@ -129,7 +135,7 @@ update_override() {
 
 # stop RC before dumping MongoDB
 echo "Stopping Rocket.Chat"
-docker stop rocketchat
+docker-compose stop rocketchat
 
 # first try to create a dump, without it we can't do anything
 archive="/dump/rocketchat-$current-$(date '+%Y%m%d%H%I%S').tar.gz"
@@ -150,6 +156,7 @@ update_override $new
 # stop and delete mongo container, remove mongo db volume
 echo "Deleting current MongoDB container and volume"
 docker-compose down
+docker volume rm -f egroupware-rocketchat_mongo
 
 # start new MongoDB version and create new replica set
 echo "Starting new MongoDB version"
@@ -159,7 +166,8 @@ docker logs -f egroupware-rocketchat_mongo-init-replica_1
 
 # restore database dump
 echo "Restoring MongoDB dump"
-docker exec rocketchat-mongo mongorestore --uri mongodb://localhost/rocketchat --gzip --archive=$archive
+docker exec rocketchat-mongo mongorestore --uri mongodb://localhost/rocketchat --drop --gzip --archive=$archive $restore_extra_args
+[ -z "$restore_after_cmd" ] || docker exec rocketchat-mongo $restore_after_cmd
 
 echo "MongoDB successfully updated to version $new"
 
@@ -168,7 +176,3 @@ if [ "$new" != "$final" ]
 then
   exec $0 $final
 fi
-
-# start rocketchat again
-echo "Restarting Rocket.Chat again"
-docker-compose up -d

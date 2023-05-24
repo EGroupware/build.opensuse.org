@@ -53,7 +53,7 @@ $MYSQL $EGW_DB_NAME --execute "SELECT config_value FROM egw_config WHERE config_
 # make sure Rocket.Chat is stopped and MongoDB up and running
 docker-compose stop rocketchat
 docker-compose up -d mongo-init-replica
-docker logs -f mongo-init-replica 2>/dev/null || true
+docker logs -f egroupware-rocketchat_mongo-init-replica_1 #2>/dev/null || true
 # clean uploads dir, but leave dumps intact
 rm -rf /var/lib/egroupware/default/rocketchat/uploads/*
 
@@ -61,8 +61,8 @@ rm -rf /var/lib/egroupware/default/rocketchat/uploads/*
 docker exec rocketchat-mongo mongo mongo/rocketchat --eval "db.dropDatabase()"
 
 # restore empty rocketchat installation with configured OAuth for EGroupware
-cat mongodump-rocketchat-3.1.gz | \
-docker exec -i rocketchat-mongo mongorestore --gzip --archive -v --nsFrom "egw_ralf_egroupw.*" --nsTo "rocketchat.*"
+cat mongodump-rocketchat-5.4.gz | docker exec -i rocketchat-mongo mongorestore --gzip --archive #--noIndexRestore
+#docker exec rocketchat-mongo mongo rocketchat --eval 'db.runCommand({dropIndexes: "users", index: "bio_1"});'
 
 docker exec -i rocketchat-mongo mongo mongo/rocketchat --eval "
 db.meteor_accounts_loginServiceConfiguration.update({service: 'egroupware'}, {
@@ -77,10 +77,11 @@ db.meteor_accounts_loginServiceConfiguration.update({service: 'egroupware'}, {
   identityPath: '/userinfo',
   identityTokenSentVia: 'header',
   loginStyle: 'redirect',
-  mergeRoles: false,  // switching it temp. off, as api logins causing roles to be lost
+  mergeRoles: true,
+  rolesToMerge: 'admin',
   mergeUsers: true,
   rolesClaim: 'roles',
-  scope: 'openid email profile roles',
+  scope: 'openid email profile roles groupes',
   secret: '$SECRET',
   serverURL: '$ENDPOINT',
   tokenPath: '/access_token',
@@ -88,30 +89,39 @@ db.meteor_accounts_loginServiceConfiguration.update({service: 'egroupware'}, {
   usernameField: 'id'
 }, {upsert: true});
 db.rocketchat_settings.update({_id: 'Accounts_OAuth_Custom-Egroupware'},
-  {\$set: {value: true, hidden: true, packageValue: true, section: 'EGroupware'}});
+  {\$set: {value: true, hidden: true, packageValue: true}});
 db.rocketchat_settings.update({_id: 'Accounts_OAuth_Custom-Egroupware-id'},
-  {\$set: {value: '$CLIENT_ID', packageValue: '$CLIENT_ID', section: 'EGroupware', hidden: false}});
+  {\$set: {value: '$CLIENT_ID', packageValue: '$CLIENT_ID', hidden: false}});
 db.rocketchat_settings.update({_id: 'Accounts_OAuth_Custom-Egroupware-secret'},
-  {\$set: {value: '$SECRET', packageValue: '$SECRET', section: 'EGroupware', hidden: false}});
+  {\$set: {value: '$SECRET', packageValue: '$SECRET', hidden: false}});
 db.rocketchat_settings.update({_id: 'Accounts_OAuth_Custom-Egroupware-url'},
-  {\$set: {value: '$ENDPOINT', packageValue: '$ENDPOINT', section: 'EGroupware', hidden: false}});
+  {\$set: {value: '$ENDPOINT', packageValue: '$ENDPOINT', hidden: false}});
 db.rocketchat_settings.update({_id: 'Site_Url'}, {\$set: {value: '$SITE_URL', packageValue: '$SITE_URL'}});
 db.rocketchat_settings.update({_id: 'uniqueID'}, {\$set: {value: '$UNIQUE_ID', installedAt: '$NOW'}});
 db.rocketchat_settings.update({_id: 'FileUpload_json_web_token_secret_for_files'},
   {\$set: {value: '$JWT_SECRET', installedAt: '$NOW'}});
+db.rocketchat_settings.update({_id: 'Jitsi_Enabled'}, {\$set: {value: true}});
 db.rocketchat_settings.update({_id: 'Jitsi_Domain'}, {\$set: {value: 'meet.jit.si'}});
 db.rocketchat_settings.update({_id: 'Jitsi_Enabled_TokenAuth'}, {\$set: {value: false}});
 db.rocketchat_settings.update({_id: 'Jitsi_Application_ID'}, {\$set: {value: ''}});
 db.rocketchat_settings.update({_id: 'Jitsi_Application_Secret'}, {\$set: {value: ''}});
 db.rocketchat_settings.updateMany({_id: /^Organization/}, {\$set: {value: ''}});
 db.rocketchat_settings.update({_id: 'Show_Setup_Wizard'}, {\$set: {value: 'pending'}});
-db.rocketchat_settings.update({_id: 'Cloud_Workspace_Id'}, {\$set: {value: ''}});
-db.rocketchat_settings.update({_id: 'Cloud_Workspace_Name'}, {\$set: {value: ''}});
-db.rocketchat_settings.update({_id: 'Cloud_Workspace_Access_Token'}, {\$set: {value: ''}});
-db.rocketchat_settings.update({_id: 'Cloud_Workspace_Client_Secret'}, {\$set: {value: ''}});
-db.rocketchat_settings.update({_id: 'Cloud_Workspace_Client_Id'}, {\$set: {value: ''}});
-db.rocketchat_settings.update({_id: 'Cloud_Workspace_Client_Secret_Expires_At'}, {\$set: {value: ''}});
+db.rocketchat_settings.updateMany({_id: /^Cloud_Workspace_/}, {\$set: {value: ''}});
+db.rocketchat_settings.updateMany({_id: /^Iframe_Integration_.*_enable/}, {\$set: {value: true }});
+db.rocketchat_settings.update({_id: 'Accounts_TwoFactorAuthentication_Enabled'}, {\$set: {value: false}});
+db.rocketchat_settings.update({_id: 'Accounts_ForgetUserSessionOnWindowClose'}, {\$set: {value: true}});
+db.rocketchat_settings.update({_id: 'Accounts_AllowUsernameChange'}, {\$set: {value: false}});
+db.rocketchat_settings.update({_id: 'Accounts_AllowEmailChange'}, {\$set: {value: false}});
+db.rocketchat_settings.update({_id: 'Accounts_AllowPasswordChange'}, {\$set: {value: false}});
+db.rocketchat_settings.update({_id: 'Accounts_AllowPasswordChangeForOAuthUsers'}, {\$set: {value: false}});
+db.rocketchat_settings.update({_id: 'Accounts_ShowFormLogin'}, {\$set: {value: false}});
+db.rocketchat_settings.update({_id: 'Accounts_RegistrationForm'}, {\$set: {value: 'Public'}}); // was 'Disabled'
+db.rocketchat_settings.update({_id: 'FileUpload_Storage_Type'}, {\$set: {value: 'FileSystem'}});
+db.rocketchat_settings.update({_id: 'FileUpload_FileSystemPath'}, {\$set: {value: '/app/uploads'}});
 db.getCollection('_raix_push_app_tokens').remove({});
+// remove all users, but rocket.cat
+db.users.remove({_id: {\$ne: 'rocket.cat'}});
 "
 
 $MYSQL $EGW_DB_NAME <<EOF
