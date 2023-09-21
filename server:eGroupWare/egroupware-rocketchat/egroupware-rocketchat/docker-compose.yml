@@ -14,7 +14,7 @@ volumes:
 
 services:
   rocketchat:
-    image: quay.io/egroupware/rocket.chat:latest
+    image: quay.io/egroupware/rocket.chat:stable6
     command: >
       bash -c
         "for (( ; ; )); do
@@ -27,7 +27,7 @@ services:
     volumes:
     - /var/lib/egroupware/default/rocketchat/uploads:/app/uploads
     environment:
-      - ROOT_URL=http://localhost/rocketchat
+      - ROOT_URL=http://localhost/
       - PORT=3000
       - MONGO_URL=mongodb://mongo:27017/rocketchat?replicaSet=rs0&directConnection=true
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local?replicaSet=rs0&directConnection=true

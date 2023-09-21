@@ -1,3 +1,9 @@
+egroupware-rocketchat (6.3.20230921) hardy; urgency=low
+
+  * update to Rocket.Chat 6.3 and remove URL prefix /rocketchat
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 21 Sep 2023 10:00:00 +0200
+
 egroupware-rocketchat (5.4.20230524) hardy; urgency=low
 
   * update to Rocket.Chat 5.4.10 and MongoDB 5.0

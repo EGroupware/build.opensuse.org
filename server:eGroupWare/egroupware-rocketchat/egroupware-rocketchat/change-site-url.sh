@@ -3,7 +3,7 @@
 ###
 ### Script to change Rocket.Chat Site_Url
 ###
-# , bfrom /rocketchat/ to / for recent Rocket.Chat versions no longer supporting a prefix
+### from /rocketchat/ to / for recent Rocket.Chat versions no longer supporting a prefix
 ###
 ### Usage: ./change-site-url.sh [https://egw.example.org/]
 ###
@@ -57,12 +57,15 @@ db.rocketchat_settings.update({_id: 'Site_Url'}, {\$set: {value: '$SITE_URL', pa
 "
 
 $MYSQL $EGW_DB_NAME <<EOF
-UPDATE egw_openid_clients SET client_redirect_uri='$SITE_URL/_oauth/egroupware' WHERE client_identifier='Rocket.Chat';
+UPDATE egw_openid_clients SET client_redirect_uri='${SITE_URL}_oauth/egroupware' WHERE client_identifier='Rocket.Chat';
 REPLACE INTO egw_config (config_app,config_name,config_value) VALUES ('rocketchat','server_url','$SITE_URL');
 EOF
 
 # restart EGroupware (php-fpm) to clear the cache
 docker exec -i egroupware kill -s USR2 1
+
+# update ROOT_URL environment variable in docker-compose.override.yml
+sed "s# *- ROOT_URL.*#    - ROOT_URL=$SITE_URL#g" -i docker-compose.override.yml
 
 # start rocketchat (again)
 docker-compose rm -f rocketchat # to get a new / clean log

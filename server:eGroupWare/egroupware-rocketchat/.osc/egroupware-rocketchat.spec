@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 5.4.20230524
+Version: 6.3.20230921
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-5.4.20230524.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-6.3.20230921.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -89,7 +89,6 @@ case "$1" in
 			[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
 			ln -fs ../../egroupware-rocketchat/nginx.conf /etc/nginx/app.d/egroupware-rocketchat.conf
 		fi
-		nginx -s reload
 	fi
 	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
 	then
@@ -100,16 +99,6 @@ case "$1" in
 			sed -i 's|</VirtualHost>|\t# Rocket.Chat proxy needs to be included inside vhost\n\tinclude /etc/egroupware-rocketchat/apache.conf\n\n</VirtualHost>|g' $conf && \
 			echo "Include /etc/egroupware-rocketchat/apache.conf added to site $conf"
 		done
-
-		systemctl enable %{apache_service}
-		# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
-		[ -x /usr/sbin/a2enmod ] && {
-			a2enmod proxy
-			a2enmod proxy_http
-			a2enmod proxy_wstunnel
-			a2enmod rewrite
-		}
-		systemctl restart %{apache_service}
 	fi
 	;;
 
@@ -143,10 +132,12 @@ case "$1" in
       echo "Waiting for old/stable RC to start"
       for i in `seq 1 45`; do echo -n .; sleep 1; done; echo
       docker logs rocketchat
-      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:latest from docker-compose.yml
+      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable6 from docker-compose.yml
       sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
       # remove mongo service overwrites, as docker-compose.yml has everything for 5.0
       sed -e '/^ *mongo:/,+99d' -i docker-compose.override.yml
+      # update site-url to no longer use /rocketchat prefix
+      ./change-site-url.sh
     } || {
       # on failure: set old "stable" image, as the new one does NOT support MongoDB 4.0
       sed 's|^\( *\)#*\(image: *.*rocket.chat.*\)$|\1image: quay.io/egroupware/rocket.chat:stable|g' -i docker-compose.override.yml
@@ -156,6 +147,24 @@ case "$1" in
 	echo "y" | docker-compose up -d || true
 	;;
 esac
+
+# reload the webserver
+if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+then
+	nginx -s reload
+fi
+if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+then
+	systemctl enable %{apache_service}
+	# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
+	[ -x /usr/sbin/a2enmod ] && {
+		a2enmod proxy
+		a2enmod proxy_http
+		a2enmod proxy_wstunnel
+		a2enmod rewrite
+	}
+	systemctl restart %{apache_service}
+fi
 
 %preun
 case "$1" in
@@ -202,6 +211,7 @@ install -m 644 apache.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 install-rocketchat.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 update-mongodb.sh $RPM_BUILD_ROOT%{etc_dir}
+install -m 700 change-site-url.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 mongodump-rocketchat-5.4.gz $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
 

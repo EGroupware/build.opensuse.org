@@ -20,7 +20,7 @@ version: '3'
 
 services:
   rocketchat:
-    #image: quay.io/egroupware/rocket.chat:latest
+    #image: quay.io/egroupware/rocket.chat:stable6
     #volumes:
     #- /var/lib/egroupware/default/rocketchat/uploads:/app/uploads
     # if EGroupware uses a certificate from a private CA, OAuth authentication will fail, you need to:
@@ -30,7 +30,7 @@ services:
     environment:
     # - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/private-ca.crt
     # IMPORTANT: change ROOT_URL to your actual url eg. https://example.org/rocketchat
-    - ROOT_URL=http://localhost/rocketchat
+    - ROOT_URL=http://localhost/
     #- HTTP_PROXY=http://proxy.domain.com
     #- HTTPS_PROXY=http://proxy.domain.com
     #ports:

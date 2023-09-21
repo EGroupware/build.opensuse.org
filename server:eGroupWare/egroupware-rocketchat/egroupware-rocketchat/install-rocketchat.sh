@@ -27,7 +27,7 @@ cd $(dirname $0)
 }
 
 # values to configure Rocket.Chat and EGroupware
-SITE_URL="https://$HTTP_HOST/rocketchat"
+SITE_URL="https://$HTTP_HOST/"
 UNIQUE_ID=$(openssl rand -hex 15 | cut -b1-17)
 JWT_SECRET=$(openssl rand -base64 40 | cut -b1-43)
 ENDPOINT="https://$HTTP_HOST/egroupware/openid/endpoint.php"
@@ -127,7 +127,7 @@ db.users.remove({_id: {\$ne: 'rocket.cat'}});
 $MYSQL $EGW_DB_NAME <<EOF
 DELETE egw_openid_clients,egw_openid_client_grants FROM egw_openid_client_grants INNER JOIN egw_openid_clients USING(client_id) WHERE client_identifier='Rocket.Chat';
 INSERT INTO egw_openid_clients (client_name,client_identifier,client_secret,client_redirect_uri,client_created,client_updated,client_status,app_name) VALUES
-  ('$CLIENT_ID','$CLIENT_ID','$SECRET_HASH','$SITE_URL/_oauth/egroupware','$NOW','$NOW',1,'rocketchat');
+  ('$CLIENT_ID','$CLIENT_ID','$SECRET_HASH','${SITE_URL}_oauth/egroupware','$NOW','$NOW',1,'rocketchat');
 INSERT INTO egw_openid_client_grants (client_id,grant_id)
 (SELECT client_id,3 AS grant_id FROM egw_openid_clients WHERE client_identifier='$CLIENT_ID')
 UNION
