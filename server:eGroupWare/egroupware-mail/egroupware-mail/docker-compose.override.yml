@@ -43,13 +43,15 @@ version: '3'
 #  smtp:
 #    networks:
 #      - egroupwaredocker_default
-#    hostname: egroupware-smtp
 #    extra_hosts:
 #    # pre 20.1 installs run MariaDB on the host
 #      - "db:172.17.0.1"
 #    # to use a recognized (not self-signed) certificate, add it here (certificate.pem is the certificate plus the chain!)
 #    # eg. to use the one created by LetsEncrypt's Certbot for the webserver use the following (replace your domain!)
 #    hostname: <fully-qualified-hostname-as-used-in-certificate>
+#    # Delivery to Dovecot will NOT work, if above name starts with mail e.g. "mail.example.org"!
+#    # You need to uncomment the following entrypoint line, to fix this:
+#    #entrypoint: ["sh", "-c", "sed 's/ mail$$//g' /etc/hosts > /tmp/hosts; cat /tmp/hosts > /etc/hosts; exec /usr/sbin/postfix -c /etc/postfix start-fg"]
 #    volumes:
 #      - /etc/letsencrypt:/etc/letsencrypt
 #      - /etc/letsencrypt/live/egw.example.org/privkey.pem:/etc/postfix/certificate.key
