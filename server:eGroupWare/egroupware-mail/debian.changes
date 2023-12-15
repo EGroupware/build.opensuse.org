@@ -1,8 +1,14 @@
+egroupware-mail (2.3.20231215) hardy; urgency=low
+
+  * make Postfix spool directory a volume to not loose mails whne container is recreated
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 15 Dez 2023 20:00:00 -0200
+
 egroupware-mail (2.3.20220630) hardy; urgency=low
 
   * adding LDAP/ADS configuration files to allow to configure authentication via LDAP
 
- -- Ralf Becker <rb@egroupware.org>  Thu, 30 Jun 2021 08:30:00 -0200
+ -- Ralf Becker <rb@egroupware.org>  Thu, 30 Jun 2022 08:30:00 -0200
 
 egroupware-mail (2.3.20210917) hardy; urgency=low
 

@@ -8,7 +8,7 @@ URL: https://github.com/EGroupware/egroupware/wiki/EGroupwareMail
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-mail-2.3.20210917.tar.gz egroupware-mail
+# create with: tar -czvf egroupware-mail-2.3.20231215.tar.gz egroupware-mail
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro

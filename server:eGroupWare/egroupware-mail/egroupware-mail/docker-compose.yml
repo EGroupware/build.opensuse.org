@@ -13,6 +13,9 @@ version: '3'
 networks:
   egroupware-docker_default:
     external: true
+volumes:
+  # Postfix spool directory, so queued mail is not lost, when container is recreated or updated
+  spool:
 services:
   mail:
     restart: always
@@ -44,6 +47,7 @@ services:
     ports:
       - "25:25"
     volumes:
+      - spool:/var/spool/postfix
       - $PWD/postfix:/etc/postfix
       - $PWD/certificate.pem:/etc/postfix/certificate.pem
       - $PWD/certificate.key:/etc/postfix/certificate.key
