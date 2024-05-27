@@ -1,3 +1,10 @@
+egroupware-rocketchat (6.6.20240527) hardy; urgency=low
+
+  * fix apache.conf causing EGroupware no no longer be accessible
+  * allow to also use Alpine Linux Rocket.Chat containers
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 9 Nov 2023 13:00:00 +0200
+
 egroupware-rocketchat (6.3.20230921) hardy; urgency=low
 
   * update to Rocket.Chat 6.3 and remove URL prefix /rocketchat

@@ -16,8 +16,8 @@ services:
   rocketchat:
     image: quay.io/egroupware/rocket.chat:stable6
     command: >
-      bash -c
-        "for (( ; ; )); do
+      sh -c
+        "while true; do
           node main.js &&
           s=$$? && break || s=$$?;
           echo \"Could not reach MongoDB. Waiting 5 secs ...\";
