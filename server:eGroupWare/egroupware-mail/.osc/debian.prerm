@@ -2,10 +2,16 @@
 
 set -e
 
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
 if [ "$1" = remove ]; then
 	cd /etc/egroupware-mail
-	docker-compose stop
-	docker-compose rm -f
+	$COMPOSE stop
+	$COMPOSE rm -f
 fi
 
 

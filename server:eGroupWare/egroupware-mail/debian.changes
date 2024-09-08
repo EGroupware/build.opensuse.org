@@ -1,3 +1,9 @@
+egroupware-mail (2.3.20240908) hardy; urgency=low
+
+  * prefer docker-compose-(plugin|v2) ("docker compose" command) over docker-compose command to fix Ubuntu 24.04 install
+
+ -- Ralf Becker <rb@egroupware.org>  Sun, 8 Sep 2024 11:10 -0200
+
 egroupware-mail (2.3.20231215) hardy; urgency=low
 
   * make Postfix spool directory a volume to not loose mails whne container is recreated

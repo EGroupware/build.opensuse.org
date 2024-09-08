@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 9)
 
 Package: egroupware-mail
 Architecture: any
-Depends: docker-compose, docker.io | docker-ce, openssl, curl, apache2-utils, egroupware-docker (>= 20.1)
+Depends: docker-compose-v2 | docker-compose-plugin | docker-compose, docker.io | docker-ce, openssl, curl, apache2-utils, egroupware-docker (>= 20.1)
 Description: Containerized mail-server for EGroupware
  This package installs Docker and docker-compose and use it to run Dovecot
  and Postfix in containers as mail-server for an EGroupware installation.
