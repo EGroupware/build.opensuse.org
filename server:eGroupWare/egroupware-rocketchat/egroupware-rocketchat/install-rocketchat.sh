@@ -15,6 +15,12 @@
 # exit on error
 set -e
 
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
 cd $(dirname $0)
 
 [ -z "$HTTP_HOST" ] && {
@@ -51,9 +57,9 @@ $MYSQL $EGW_DB_NAME --execute "SELECT config_value FROM egw_config WHERE config_
 }
 
 # make sure Rocket.Chat is stopped and MongoDB up and running
-docker-compose stop rocketchat
-docker-compose up -d mongo-init-replica
-docker logs -f egroupware-rocketchat_mongo-init-replica_1 #2>/dev/null || true
+$COMPOSE stop rocketchat
+$COMPOSE up -d mongo-init-replica
+$COMPOSE logs -f mongo-init-replica #>/dev/null || true
 # clean uploads dir, but leave dumps intact
 rm -rf /var/lib/egroupware/default/rocketchat/uploads/*
 
@@ -145,8 +151,8 @@ EOF
 docker exec -i egroupware kill -s USR2 1
 
 # start rocketchat (again)
-docker-compose rm -f rocketchat # to get a new / clean log
-docker-compose up -d
+$COMPOSE rm -f rocketchat # to get a new / clean log
+$COMPOSE up -d
 
 echo ""
 echo "Rocket.Chat database and OAuth integration successful"
@@ -156,5 +162,5 @@ echo ""
 [ -t 0 -a -t 1 ] && {
   echo "Please wait until Rocket.Chat reports: SERVER RUNNING (exit with ^C)"
   echo ""
-  docker-compose logs -f rocketchat
+  $COMPOSE logs -f rocketchat
 } || true

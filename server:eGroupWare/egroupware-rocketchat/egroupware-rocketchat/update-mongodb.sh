@@ -26,6 +26,12 @@
 # exit on error
 set -e
 
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
 cd $(dirname $0)
 
 # getting current mongodb major version
@@ -135,7 +141,7 @@ update_override() {
 
 # stop RC before dumping MongoDB
 echo "Stopping Rocket.Chat"
-docker-compose stop rocketchat
+$COMPOSE stop rocketchat
 
 # first try to create a dump, without it we can't do anything
 archive="/dump/rocketchat-$current-$(date '+%Y%m%d%H%I%S').tar.gz"
@@ -155,12 +161,12 @@ update_override $new
 
 # stop and delete mongo container, remove mongo db volume
 echo "Deleting current MongoDB container and volume"
-docker-compose down
+$COMPOSE down
 docker volume rm -f egroupware-rocketchat_mongo
 
 # start new MongoDB version and create new replica set
 echo "Starting new MongoDB version"
-docker-compose up -d mongo-init-replica
+$COMPOSE up -d mongo-init-replica
 # wait for it to finish
 docker logs -f egroupware-rocketchat_mongo-init-replica_1
 

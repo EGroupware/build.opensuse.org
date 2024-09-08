@@ -21,6 +21,12 @@ set -e
 
 cd $(dirname $0)
 
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
 EGW_DB_NAME=egroupware
 
 # mysql can be on host or in 20.1+ in a container ('db_host' => 'db')
@@ -42,8 +48,8 @@ $MYSQL $EGW_DB_NAME --execute "SELECT config_value FROM egw_config WHERE config_
 }
 
 # make sure Rocket.Chat is stopped and MongoDB up and running
-docker-compose stop rocketchat
-docker-compose up -d mongo-init-replica
+$COMPOSE stop rocketchat
+$COMPOSE up -d mongo-init-replica
 docker logs -f mongo-init-replica 2>/dev/null || true
 
 # change Site_Url
@@ -68,8 +74,8 @@ docker exec -i egroupware kill -s USR2 1
 sed "s# *- ROOT_URL.*#    - ROOT_URL=$SITE_URL#g" -i docker-compose.override.yml
 
 # start rocketchat (again)
-docker-compose rm -f rocketchat # to get a new / clean log
-docker-compose up -d
+$COMPOSE rm -f rocketchat # to get a new / clean log
+$COMPOSE up -d
 
 echo ""
 echo "Rocket.Chat URL successful changed to '$SITE_URL"
@@ -78,5 +84,5 @@ echo ""
 [ -t 0 -a -t 1 ] && {
   echo "Please wait until Rocket.Chat reports: SERVER RUNNING (exit with ^C)"
   echo ""
-  docker-compose logs -f rocketchat
+  $COMPOSE logs -f rocketchat
 } || true

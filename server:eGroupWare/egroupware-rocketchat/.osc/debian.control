@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 9)
 
 Package: egroupware-rocketchat
 Architecture: any
-Depends: docker-compose, docker.io | docker-ce, apache2 (>= 2.4) | nginx, net-tools, jq
+Depends: docker-compose-v2 | docker-compose-plugin | docker-compose, docker.io | docker-ce, apache2 (>= 2.4) | nginx, net-tools, jq
 Description: Rocket.Chat container for EGroupware
- This package installs Docker and docker-compose and use it to run Rocket.Chat
- via the container quay.io/egroupware/rocket.chat:stable.
+ This package installs Docker and use it to run Rocket.Chat
+ via the container quay.io/egroupware/rocket.chat:stable6.
