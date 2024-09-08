@@ -1,3 +1,397 @@
+egroupware-docker (23.1.20240905) hardy; urgency=low
+
+  * Admin: allow to show groups by container: e.g. LDAP DN or arbitrary part of name found by a regular expression
+  * Admin: Add bulk changes as a context menu action for user list
+  * Admin/all apps: custom-fields can now specify tabs they are displayed in (instead of one standard tab)
+  * Mail/Filemanager: admin can allow users to store a password to pass to mail- and file-servers in case they use (password-less) SingleSignOn
+  * Mail: new reply with attachments (answer to mail incl. all attachments)
+  * Mail: show s/mime signed/encrypted icons in mail display popup (verification is only shown in preview!)
+  * Mail: make sure to create a valid Message-ID header, even if SERVER_NAME is set to "_"
+  * Mail: fix broken PDF attachments which were quoted-printable encoded
+  * Mail/Calendar: improved display of meeting requests: what's changed, single recurrence or whole series, display and enter comment when accepting/rejecting a request
+  * Calendar: fix conflict check to take into account that whole-day (floating) events start and end by definition in all timezones at midnight
+  * Calendar: ask user to apply changes in series master to already created exceptions
+  * Calendar: allow to create recurring events with explicit recurrences
+  * CalDAV: fixed all-day events from Thunderbird with timezone were one day longer
+  * Calendar/Resources/CalDAV: fix not reported privileges for resources causing resource calendars to appear readonly in CalDAV clients
+  * eSync/Calendar: new preference how many days to sync back, if client specifies no limit / all, default is 365
+  * Notifications: fix wrong condition leading to infinite recursion (causing timeout) and high database load
+  * LDAP/Import: fix not imported memberships of groups in LDAP not using their gidNumber, because it is already used as uidNumber / user
+  * LDAP/ActiveDirectory Sync: permanently store DN+entryUUID and use the latter to detect renamed user or accounts
+  * LDAP/AD: automatic retry, if connection to LDAP server was lost
+  * InfoLog/REST API: attributes "progress" and "percentComplete" were NOT parsed when creating or updating entries
+  * All apps/REST API: fix custom-fields of type "date-time" to be stored timezone aware, if no format is specified
+  * Api/Auth/OpenIDConnect: allow to specify which JWT payload attribute to use and a regular expression to extract username from it
+  * Kanban: Add listen & change for swimlanes
+  * ViDoTeach: push changes to start-page including material list with summery
+  * ViDoTeach: record when disclaimer was agreed to incl. requiring existing participants to agree, if a disclaimer is added later
+  * EPL: fix not working symlinks in merge-stream-wrapper e.g. /templates
+  * All apps: admin can now upload a web-font to use in EGroupware independent of what the user selected for his browser
+  * replaced tree and context menu with Shoelace widgets
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 05 Sep 2024 09:14:05 +0200
+
+egroupware-docker (23.1.20240624) hardy; urgency=low
+
+  * THIS IS A SECURITY UPDATE: thanks to Christian Zaeske from SySS GmbH and Hochschule Magdeburgr-Stendal, please update ASAP
+  * Mail: fix broken PDF attachments which were quoted-printable encoded
+  * Mail: do not stall (quick-)preview on mails without text-part e.g. PDF only
+  * Mail: allow to edit/fix mail account if no session password is available e.g. SAML or OpenIdConnect SSO login
+  * Filemanager: automatic shorten too long filenames and replace 4-byte utf-8 characters, which gave an error when trying to store VFS
+  * Calendar: fix editing recurring events of type RDATE/explicit dates
+  * Calendar: fix generating/importing exceptions on recurring events using explicit RDATEs instead of a RRULE
+  * CalDAV/CardDAV/REST API: fix not working limited result
+  * eSync: fix whole-day events were one day longer (shifted by timezone difference)
+  * eSync/Mail/Calendar: limit request for all mail and events to 1 year back, instead of previous 178 or 100 days
+  * eSyncPro/EPL: fix provisioning loop cause by wrong timezone conversation
+  * Calendar/eSync/EPL: better cope with Android bug reporting always 1st of current month as cutoffdate, if a policy is given: use setting of default policy instead
+  * Resources: fix category-name not shown in edit, if user has no edit rights to the resources
+  * Resources: fix editing on mobile devices gave a template error
+  * ProjectManager: if sorting element-list by start, end, budget, time or quantity: consider both varieties, but prefer the requested one
+  * InfoLog: now fully supported by REST API
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 24 Jun 2024 10:31:40 +0200
+
+egroupware-docker (23.1.20240430) hardy; urgency=low
+
+  * Notifications: fixed deleting and grouping of popup notifications by app-name and -id and show full total independent of max. 100 shown entries
+  * Notifications: if deleting all (visible) messages, directly return the next junk, to ease cleaning them up
+  * Notifications: configurable number of days (default 30), after which older notifications get automatic deleted
+  * Api: Fix list updates while app was hidden were not all shown when switching back to the app
+  * Api: Fix removing email tag did not properly update display
+  * Mail: fix forwarding and reply to mail with just a PDF or image was showing it and not opening a compose window
+  * Mail: fix list of Sieve rules was not scrollable
+  * Mail: configurable limit to exclude attachments from automatic saving as drafts, default is no limit / attachments are always saved in drafts
+  * Mail: revert to use first and second part of full rfc822 mail address outside angle brackets as first and last name
+  * Addressbook/Mail: new value "Hide groups without email" for preference "Hide user groups as distribution list"
+  * Calendar/CalDAV: do not allow to resurrect a deleted meeting by accepting it again via CalDAV or meeting-request from mail app
+  * Tracker: Fix mailhandling for a specific queue did not use correct queue ACL
+  * Tracker: Fix export would fail for certain filter combinations
+  * Registration: allow to customize confirmation mail
+  * InfoLog: config to handle status "archive" as unchangeable (or only changeable by an admin)
+  * eSync: fix for messages with no text body e.g. just a PDF or an image, returns empty body with attachment(s)
+  * eSync: fix syncing forwarded and replied flags to client incl. push using highestmodseq, if supported by IMAP server
+  * eSync: only first to address was shown / send to client
+  * eSync: fix inline forward with attachment(s) and smartForward (e.g. GMail client) was broken
+  * EPL eSyncPro: fix not working buttons in policy add or edit
+  * AD/LDAP Import: import could potentially deactivate or delete users if the connection to LDAP server failed
+  * AD Import: import was not correctly taking into account primaryGroup of users
+  * EPL: backups in S3 could not be renamed or downloaded via WebDAV (direct download from backup worked)
+  * EPL/CTI: fix typo incom(m)ing causing custom configuration to not identify incoming calls correctly
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 30 Apr 2024 09:27:16 +0200
+
+egroupware-docker (23.1.20240304) hardy; urgency=low
+
+  * LDAP: fix error creating a new group without a description
+  * LDAP/ADS: fix periodic import was not converting numeric ID of primary group, in case it is different in SQL
+  * LDAP/ADS: periodic import calls addaccount hook for existing account when email was just set, to activate mail account
+  * Account Import: if deleting or deactivating of deleted accounts is configured, run first import as a non-incremental one to do so
+  * ActiveDirectory: fix import was not detecting members removed from groups
+  * Calendar/eSync: fix events created on the device are added to the server in a wrong timezone / shifted by some hours
+  * Mail: display messages containing just a PDF (and no body part)
+  * Notifications/Async service: fix caching in mail account always used sender from first notification
+  * ImportExport: fix not working scheduled import caused by failure to update (the not existing) UI
+  * ImportExport: fix not working import from http(s)
+  * REST API: fix PATCHing of custom-fields
+  * REST API: new links collection allowing to link application entries with each other or attach files
+  * REST API: also log requests with Content-Type 'application/json' not just 'text/*'
+  * REST API/Mail: respect user preference to compose in HTML and convert plain body from REST Api call to HTML (bodyHtml attribute forces HTML)
+  * REST API/Timesheet: new REST API to query, update and delete timesheets https://github.com/EGroupware/egroupware/blob/master/doc/REST-CalDAV-CardDAV/Timesheet.md
+  * API: show "My Account" in avatar menu on top right, if user has rights to change his contact data
+  * API: no more session based cache for account list or searches for SQL backend (only for LDAP or AD)
+  * Registration: Fix contact fields did not get copied to user account
+  * Admin: fix user timezone not taken into account when displaying admin queue
+  * EPL: add S3 check to FSCK to delete files not in egw_sqlfs table or empty files from S3 buckets
+  * EPL: fix finally deleting files from S3 gave an error leaving the files in S3, s3check.php script to check and fix that
+  * EPL: fix purging old versions also deletes them in S3, if used
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 04 Mar 2024 09:15:17 +0100
+
+egroupware-docker (23.1.20240125) hardy; urgency=low
+
+  * Mail: New option "Name and domain" to show e.g. "John Smith (example.org)" set under "Information to show on email tag"
+  * Mail: fix diverse problems of rich-text editor, if small paragraphs are used
+  * Mail REST Api: added reply to an uploaded eml file (with optional preset body and attachments)
+  * REST Api: allow to create new fields with PATCH for application/json content-type and error on not existing custom fields
+  * Adressbook/Calendar/REST: fix not parsed custom fields
+  * Addressbook: Fix distribution list rename
+  * Api: Fix favorites button in nextmatch header did not work
+  * Calendar/CalDAV: new calendar-config to allow party-crashers with email matching a given regular expression
+  * Calendar: update holidays with new thunderbird.net URLs/data for a lot more countries
+  * Filemanager: fix not working setting "No Access" permission on directories e.g. to hide (unwanted) group-directories
+  * OpenIDConnect: allow to show as button on login page to use together with regular password login
+  * Importexport: Fix import through dialog fails
+  * Tracker: Fix missing assigned users with some access / group configurations
+  * ActiveDirectory: optionally also use/import groups of type distribution-list
+  * EPL S3: fix not working upload of backups
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 25 Jan 2024 10:02:46 +0100
+
+egroupware-docker (23.1.20231220) hardy; urgency=low
+
+  * Mail: fix regressions with new email widget selecting from search result with mouse
+  * all apps: use new email widget in all apps as it fixes problems with iOS version 17.1+
+  * all apps: fix editing email addresses did not take the new value and mouse usage for editing
+  * Filemanager: Fix missing site icon in anonymous file share
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 20 Dec 2023 09:38:04 +0100
+
+egroupware-docker (23.1.20231219) hardy; urgency=low
+
+  * Mail: new fully keyboard navigatable email-address entry, also allowing to sort recipients via drag-n-drop  
+  * Mail: implement Exchange login-type "domain/username" 
+  * Mail: allow to configure an auto-responder, if Sieve supports the vacation-seconds extension 
+  * Importexport: Progress updates pushed to browser when importing 
+  * Calendar/REST API: implement specifying alerts, useDefaultAlerts and priority attributes in POST or PUT requests 
+  * LDAP/Import: fix groups never matched regular expression dn-filter in import 
+  * Infolog: Take group add ACL into account for type on new entries 
+  * OpenIDConnect: implement email_aliases scope&claim to support passing all valid email addresses of a user to a mail archive 
+  * OpenIDConnect: add required "end_session_endpoint" to OID discovery document (/.well-known/openid-configuration) 
+  * EPL/S3: allow to reset/retry failed uploads and specify a bandwidth used to calculate longer timeouts for huge files
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 19 Dec 2023 13:25:42 +0100
+
+egroupware-docker (23.1.20231201) hardy; urgency=low
+
+  * Api: more fixes around select-widgets
+  * Mail: one remainig problem: email-addresses can NOT (yet) again be re-ordered by drag-n-drop
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 01 Dec 2023 07:06:30 +0100
+
+egroupware-docker (23.1.20231129) hardy; urgency=low
+
+  * API: fixed several regressions around updated select and email entry widgets
+  * SmallPART: fixed some problems with new LiveFeedback feature and updated Shoelace widgets
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 29 Nov 2023 07:35:16 +0100
+
+egroupware-docker (23.1.20231122) hardy; urgency=low
+
+  * THIS IS A PRE-RELEASE for testing, you need to explicitly set the tag in your docker-compose.override.yml
+  * SmallPART: new live feedback feature allows to get audience feedback on live recorded sessions 
+  * API: support OpenID Connect for authentication against another OIC IdP 
+  * PHP: updated container to PHP version 8.2.12 as 8.1 reached end of active maintenance 
+  * eTemplate: update webcomponent library Shoelace to version 2.8.0 
+  * Mail/Sieve: fix vacation message with redirect kept mail in INBOX, even if rule moved it to a folder 
+  * REST API/Mail: viewing uploaded EML files, allowing user to answer, forward or download attachments 
+  * REST API/Mail: support an "X-No-Location: true" header to avoid getting a "Location" header when uploading attachments 
+  * Mail/GMail/Microsoft365: store/update received refresh-token and redirect to IdP, if refresh-token is expired 
+  * Tracker: big performance optimisation for huge installations (causing high browser load before)
+  * ProjectManager/Calendar: new option to show projects in calendar by data customfields or notify by date customfields
+  * Registration: fix usage of customfields for registration
+  * EPL: new feature to store files and backups encrypted in multiple S3 buckets and regions
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 22 Nov 2023 10:44:10 +0100
+
+egroupware-docker (23.1.20231110) hardy; urgency=low
+
+  * Collabora: fix inserting images from filemanager
+  * Notifications: aggregate messages by app:id to return only latest one, also added a cut-off date of 30 days and cleaning older messages
+  * Addressbook/REST API: categories were lost, when updating existing contacts
+  * Mail/REST API: always add signature below supplied body (independent of user preference for reply/forward)
+  * Calendar/REST API: adding of participants to events
+  * ActiveDirectory: supporting well-known SIDs not matching the domain-SID e.g. S-1-5-32-544 for BUILDIN\Administrators
+  * AD Import: run full group import for AD, as it does not update modification time of group, when memberships change
+  * AD/LDAP Import: allow setting import frequency < 1h eg. .1: every 5min, .5: every 30min
+  * Api: converted action-system to TypeScript
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 10 Nov 2023 07:03:04 +0100
+
+egroupware-docker (23.1.20230911) hardy; urgency=low
+
+  * Mail: equal sign followed by numbers is mangled in plain-text mails (e.g. =22 becomes a ")
+  * Calendar: fix at certain times calendar showed Tuesday-Monday instead of Monday-Sunday (depending on timezone)
+  * Api: Store recoverable password (encrypted) for shares so you don't have to change it when you forget
+  * Api: fixed date&time display on mobile devices
+  * ActiveDirectory: fix regression causing password change to fail with error "no SSL connection", even if one was used
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 11 Sep 2023 08:25:38 +0200
+
+egroupware-docker (23.1.20230824) hardy; urgency=low
+
+  * Api: Store recoverable password (encrypted) for shares so you don't have to change it when you forget
+  * Mail: new modus for vacation notice to not save message to INBOX and REST API to set vacation handling
+  * Mail: Add attachment action "Forward to" that adds file directly to compose window
+  * Mail/ActiveSync: fix wrong mime-type / broken mail when AS smart-forward is used e.g. by gmail app
+  * Calendar/CalDAV: Thunderbird and CalDAVSynchronizer: update only participant data, instead of failing when the event was changed
+  * Calendar/CalDAV: do NOT limit number of returned events for GET requests with download parameter
+  * Calendar/CalDAV: download of whole calendar as ics with a GET request on the collection and download GET parameter gave an empty file
+  * Calendar: Change how participant emails are shown
+  * PostgreSQL/Mail: fix SQL error querying email avatars
+  * smallPART: automatic subscribe everyone (including teachers) only as student on LTI launch, course owner must grant higher rights
+  * Status: add rocketchat group preference in order to be able to show selective RC groups in status app
+  * Tracker: Add ability to set due date through mailhandling and escalations
+  * Tracker: Add configuration option to set ticket start date from email
+  * AD/LDAP: added a DN filter to the periodic import to e.g. use 2 OU with a shared base
+  * AD/LDAP: fix periodic incremental import was loosing memberships to local groups for modified users
+  * AD/LDAP: fix duplicate key account_lid error on import caused by mixed case in account-names not treated equal
+  * AD/LDAP: fix local uploaded pictures are lost when automatic import is used
+  * ActiveDirectory: fix not working ldaps connection on a non-standard port
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 24 Aug 2023 12:20:58 +0200
+
+egroupware-docker (23.1.20230728) hardy; urgency=low
+
+  * fix some regressions introduced in last maintenance release, [see](https://github.com/EGroupware/egroupware/compare/23.1.20230726...23.1.20230728)
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 28 Jul 2023 14:32:55 +0200
+
+egroupware-docker (23.1.20230726) hardy; urgency=low
+
+  * Api/Login: application passwords / token to use instead of regular user credentials, optional with limited rights
+  * Mail: REST API to send mails including attachments / sharing links, or open interactive compose windows, [see](https://github.com/EGroupware/egroupware/blob/master/doc/REST-CalDAV-CardDAV/Mail.md)
+  * Mail: improve performace by skiping search for avatar images in contacts in favor of loading them when they become visible
+  * Calendar: new REST API to read, create, modify and delete events, [see](https://github.com/EGroupware/egroupware/blob/master/doc/REST-CalDAV-CardDAV/Calendar.md)
+  * Calendar: fix empty calendar on mobile devices
+  * Calendar: Added category filter for events without a category set
+  * Api: When clicking an email address, ask if user wants to add email to existing compose window or start a new mail
+  * Api: Customfield selectboxes can read options from a JSON file in the VFS using @[path] ex: @/home/Default/options.json
+  * Adressbook/CardDAV: unconditionally start output-buffering to fix problems with huge multiget reports from TB110 AB
+  * mailto: fix wrong URL registered for on premise installation (you need to delete it in the browser first!)
+  * Wiki: allow German umlauts and other non-ascii chars in page names
+  * Infolog / Tracker: Change timesheet total columns to ignore timesheet ACL
+  * Tracker: Add configuration setting for default tracker queue for new tickets instead of just the first one
+  * Tracker: Add read / unread filter to tracker list
+  * ActiveDirectory: implement fail over for multiple AD controllers (failed controllers are blacklisted for 5min)
+  * Setup/Authentication: added an authentication log and fallback authentication for all backends
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 26 Jul 2023 12:28:35 +0200
+
+egroupware-docker (23.1.20230620) hardy; urgency=low
+
+  * Mail: Add new pane option for showing all columns in vertical 3-pane view
+  * Mail: fix mixed up inline images and attachments in smime signed messages
+  * Calendar: fix external organizer was not notified by mail (and other missing notifications of non-users)
+  * Calendar: Fix clicking a day in a different month in sidemenu jumped to wrong date
+  * Calendar: Deleting an event sometimes left other user's alarms
+  * Calendar: Adding alarms sometimes gave incorrect "can't add alarms in the past" error
+  * Calendar: History tab showed start / end times in server time, not user time
+  * Home: Fix birthdays were not visible
+  * Infolog / Tracker: Change timesheet total columns to ignore timesheet ACL
+  * Infolog: History tab showed start / due / completed dates in server time, not user time
+  * Timesheet: When changing duration, update quantity if it's not been set to something different
+  * Api: Fix custom etemplates were still used after deletion
+  * eSync: fix meeting requests confirmed via ActiveSync protocol got wrong time
+  * EPL: fixed/completed Wildix PBX implementation
+  * full list of changes https://github.com/EGroupware/egroupware/compare/23.1.20230524...23.1.20230620
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 20 Jun 2023 11:26:40 +0200
+
+egroupware-docker (23.1.20230524) hardy; urgency=low
+
+  * Mail: performance improvements for huge addressbooks by caching avatars
+  * Mail: searching in compose now ignores custom fields as they might lead to unexpected results
+  * Mail: fix preview and display no longer can decrypt an encrypted pgp message
+  * Mail: fix date filter is no longer working in mail's list
+  * Mail: work around Firefox not offering an option to not ask again installing EGroupware as mail-handler
+  * eSync/Mail: fix wrong timezone conversation if user-timezone is different from server-timezone
+  * CalDAV/Calendar: fix group invitations were not shown on devices unless explicit accepted
+  * Filemanager/All apps: Fix drag out files to desktop (Chrome only!) and file drag in (all browsers)
+  * Mobile theme: Fix calendar header toolbars are no more visible
+  * smallPART: Added Commentstoptime to Comment-CSV-Export
+  * Status: fix call popup shows empty white screen (happens in FF only)
+  * All apps: fix / improve several widgets specially selectbox and tags
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 24 May 2023 11:58:49 +0200
+
+egroupware-docker (23.1.20230503) hardy; urgency=low
+
+  * fix some critical errors/regressions in the not published 23.1.20230428 release
+  * InfoLog: can not set project (caused double submit, stalled saving by redirecting to list)
+  * Calendar: Allow to select multiple categories in sidemenu
+  * Calendar: Put email address after user or contact
+  * ProjectManager: fix entries opened in elements list have wrong project linked (after project is changed)
+  * full list of changes https://github.com/EGroupware/egroupware/compare/23.1.20230428...23.1.20230503
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 03 May 2023 11:51:46 +0200
+
+egroupware-docker (23.1.20230428) hardy; urgency=low
+
+  * CalDAV/InfoLog: fix infinit loop causing high database load, if sync-collection report did not query calendar-data
+  * CalDAV/Calendar: fix recurring events with users only added to an exception and have been deleted or rejected after
+  * CardDAV/Addressbook: show and allow to sync for default and forced preferences all ABs of the admin user
+  * Calendar: fix not displayed events of resources when a resource category was selected
+  * Mail: fix resize of compose window in plain-text mode to display everything
+  * Mail: fix showing of calendar invitations in s/mime
+  * Rocketchat: fix rocketchat's status sometimes is not showing up in Status app for bigger installations
+  * Status: add new config setting in  order to be able to open BigBlueButton calls in separate window with no iframe
+  * Status: fix top header (invite button, end call button, ...) in call dialogs no longer is visible
+  * Status: fix ringing tone never ends after a call being answered
+  * Status: fix somehow not found user in contacts stalls whole display of status column
+  * ProjectManager: fix display of icons in project- and element-list
+  * EPL/ProjectManager: fix moving tasks and projects
+  * EPL/Firewall: fix test gave an "Illegal offset type" error
+  * EPL/Tracker: fix reports not being displayed and giving errors
+  * AD/LDAP/Import: for AD always do a full import of groups, as AD seems not to update the modification date, if only members change
+  * All apps: various fixes in the new web-component based widgets
+  * full list of changes https://github.com/EGroupware/egroupware/compare/23.1.20230412...23.1.20230428
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 28 Apr 2023 08:44:31 +0200
+
+egroupware-docker (23.1.20230412) hardy; urgency=low
+
+  * Docker images are available now for architektures: amd64 (as before), arm/v7, arm64/v8 and ppc64le
+  * Mail: Make list refresh option available in 3pane-view through column selector
+  * Mail: allow placeholders in compose instead of email-addresses to be able to create mail templates
+  * Mail/Calendar: show scrollbar, if meeting request does not fit into preview area
+  * Filemanager: fix broken expose view for filename click&open action
+  * Filemanager: fix after opening and closing the gallery in filemanager the list is no longer accessible
+  * Calendar/CalDAV: set current user as owner for events created in resource calendar
+  * Rocketchat: fix rocketchat's status sometimes is not showing up in Status app for bigger installations
+  * Status: add new config setting in  order to be able to open BigBlueButton calls in separate window with no iframe
+  * Status: fix top header (invite button, end call button, ...) in call dialogs no longer is visible
+  * Status: fix ringing tone never ends after a call being answered
+  * Status: fix somehow not found user in contacts stalls whole display of status column
+  * Projectmanager: fix missing application and status icon in element list
+  * LDAP/AD: if only users get imported, set their primary group and memberships as configured for auto-created accounts (Default group by default)
+  * LDAP/AD/Setup: periodic import disables (add|edit)account hooks, if account-repository is not SQL and further performance improvements
+  * LDAP/ADS: fix memberships of local groups were lost in periodic account-import
+  * EPL/CTI/Addressbook: phone numbers written with unusual separator like pipe symbol where not found
+  * full list of changes https://github.com/EGroupware/egroupware/compare/23.1.20230328...23.1.20230412
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 12 Apr 2023 11:21:00 +0200
+
+egroupware-docker (23.1.20230328) hardy; urgency=low
+
+  * Safari/iOS: support Safari/iOS 14.x via transpiling of JavaScript
+  * Home: get home mostly working again
+  * All apps: multi-selections eg. searching and entering mail addresses close now automatic on selecting a result
+  * Infolog: Remove height restriction on start/due/completed dates in list
+  * Mail: fix mail preview don't get set correctly when running in expand pane view
+  * Mail: fix mail preview can not show attachments for smime encrypted messages
+  * NewsAdmin: fix creating of new categories
+  * WebAuthN: fix not working registration of new authentication devices or browsers
+  * Notifications: deal with "Lock timeout exceeded" error on too many undeleted notifications
+  * Rocketchat: fix rocketchat's status sometimes is not showing up in Status app for bigger installations
+  * Status: add new config setting in  order to be able to open BigBlueButton calls in separate window with no iframe
+  * Status: fix top header (invite button, end call button, ...) in call dialogs no longer is visible
+  * Status: fix ringing tone never ends after a call being answered
+  * Status: fix somehow not found user in contacts stalls whole display of status column
+  * Api/MariaDB/MySQL: fix SQL error handling in PHP 8.1
+  * Admin/Setup: logging all DB backup operations to a text file db_backup.log in backup-directory
+  * LDAP/Univention: periodic account-import for Univention (mailPrimaryAddress), use LDAP account-filter for reading accounts too
+  * full list of changes https://github.com/EGroupware/egroupware/compare/23.1.20230314...23.1.20230328
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 28 Mar 2023 10:17:13 +0200
+
+egroupware-docker (23.1.20230314) hardy; urgency=low
+
+  * 23.1 final release with the following major features:
+  * Modernization through technology change to Web Components and Lit
+  * Working time recording and timer for projects
+  * New features in the mail app including OAuth support for Office365 and Gmail
+  * Optimizations in the file manager: user quota and push notifications
+  * New functionalities in various applications e.g. with regard to Kanban integration
+  * Improvement of user selection and performance for large installations
+  * New features for administrators: PUSH notifications and synchronization users to LDAP/AD
+  * Changes since 5th RC: https://github.com/EGroupware/egroupware/compare/23.1.20230228...23.1.20230314
+  * Home: fix not working home app caused by new JS loading and transformed it to use webcomponents
+  * Admin/Setup: logging all DB backup operations to a text file db_backup.log in backup-directory
+  * Rocketchat: fix rocketchat's status sometimes is not showing up in Status app for bigger installations
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 14 Mar 2023 10:49:04 +0100
+
 egroupware-docker (23.1.20230228) hardy; urgency=low
 
   * 5th release and hopefully last candidate for upcoming 23.1

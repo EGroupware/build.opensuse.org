@@ -1,14 +1,14 @@
-<directory name="egroupware-docker-23.1" rev="2" srcmd5="edba91c5d1834a100b6f0455af0f66ac" vrev="2">
-  <entry md5="b7df65944210dfda8f1ed403f2aed6e4" mtime="1678864888" name="debian.changes" size="354183" />
+<directory name="egroupware-docker-23.1" rev="4" srcmd5="f96f649bc5a2c351f890b3014976a66a" vrev="2">
+  <entry md5="dc1409fa392e68b34d4a2d3eeeb0ed27" mtime="1725784641" name="debian.changes" size="383693" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
-  <entry md5="d2e68ae28a1d6f73d4c6d582a476e695" mtime="1678954055" name="debian.control" size="3449" />
+  <entry md5="4d06e901b136a93d9174d92129a373c2" mtime="1725786103" name="debian.control" size="3493" />
   <entry md5="860e252fae24180bc1c0fb135d0056ab" mtime="1562767761" name="debian.egroupware-docker.conffiles" size="191" />
-  <entry md5="604dfb4d2d0f0d26e7abea466fe8b846" mtime="1674720618" name="debian.postinst" size="2925" />
+  <entry md5="e37879f6da131996276bcf61bff4ec9f" mtime="1725784642" name="debian.postinst" size="3076" />
   <entry md5="334636c7b570f085340198f7bd35596c" mtime="1674723500" name="debian.postrm" size="209" />
-  <entry md5="f4805ace849508de5cfd4b8097af9e32" mtime="1674723501" name="debian.prerm" size="925" />
+  <entry md5="9880e311f15334855d804afd7cb4a618" mtime="1725784642" name="debian.prerm" size="1083" />
   <entry md5="6dbe61759c9187739a3910d57bc40111" mtime="1652206442" name="debian.rules" size="2951" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
-  <entry md5="9dd3f3cd579326fe2853a9f6fb06d0c8" mtime="1678864889" name="egroupware-docker-23.1.20230314.tar.gz" size="10521" />
-  <entry md5="228ed832d73042c5325bd2629cc2bb10" mtime="1678864889" name="egroupware-docker.dsc" size="372" />
-  <entry md5="6997e20231c75d90a72a7e3abcf4d388" mtime="1678954056" name="egroupware-docker.spec" size="12787" />
+  <entry md5="605fd210a6a54b5adf3f7661d3e15a49" mtime="1725784642" name="egroupware-docker-23.1.20240905.tar.gz" size="10658" />
+  <entry md5="591e8138e4c595b20442edd9f5de2207" mtime="1725784643" name="egroupware-docker.dsc" size="371" />
+  <entry md5="40a5a710c34c3a00e0d68ddbcbd31208" mtime="1725784643" name="egroupware-docker.spec" size="12787" />
 </directory>

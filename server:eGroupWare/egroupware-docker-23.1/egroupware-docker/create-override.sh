@@ -8,6 +8,12 @@
 
 cd /etc/egroupware-docker
 
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
 # for an upgrade check that the EPL image was not accidentally removed by agreeing on taking the packages version
 if [ -n "$2" -a -f docker-compose.yml.dpkg-old ] && \
   grep -q "^\s*image:\s*download.egroupware.org/egroupware/epl:" docker-compose.yml.dpkg-old
@@ -124,13 +130,15 @@ grep -q "required for push" apache.conf || \
 test -f .env || echo -e "# MariaDB root password\nEGW_DB_ROOT_PW=$(openssl rand -hex 16)\n" > .env
 
 # remove egroupware container, in case 20.1+ update was run by watchtower and container lacks sessions volume
-docker-compose stop
-docker-compose rm -f egroupware
+$COMPOSE stop
+$COMPOSE rm -f egroupware
 
 # check and fix path of sources volume: /var/lib/docker/volumes/egroupware-docker_sources
 # Ubuntu 18.04 and openSUSE 15.1 skips the dash: /var/lib/docker/volumes/egroupwaredocker_sources
-ls -1d /var/lib/docker/volumes/egroupware*docker_sources/_data/swoolepush || \
-  docker-compose up -d egroupware
+ls -1d /var/lib/docker/volumes/egroupware*docker_sources/_data/swoolepush 2>/dev/null || {
+	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
+  echo "y" | $COMPOSE up -d egroupware && sleep 5
+}
 ls -1d /var/lib/docker/volumes/egroupware*docker_sources && \
 test "$(ls -1d /var/lib/docker/volumes/egroupware*docker_sources)" = /var/lib/docker/volumes/egroupware-docker_sources || {
   grep "^volumes:" docker-compose.override.yml ||

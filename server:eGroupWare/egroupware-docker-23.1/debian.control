@@ -7,7 +7,7 @@ Homepage: https://www.egroupware.org/
 
 Package: egroupware-docker
 Architecture: any
-Depends: docker-compose (>= 1.10.0), docker.io | docker-ce, nginx | apache2 (>= 2.4), patch
+Depends: docker-compose-v2 | docker-compose-plugin | docker-compose (>= 1.10.0), docker.io | docker-ce, nginx | apache2 (>= 2.4), patch
 Recommends: egroupware-collabora-key
 Description: web-based groupware suite
  This package installs Docker and docker-compose and use it to run EGroupware via the

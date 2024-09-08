@@ -18,6 +18,17 @@
     <enable arch="x86_64" repository="openSUSE_Leap_15.3"/>
     <enable arch="x86_64" repository="openSUSE_Leap_15.4"/>
     <enable arch="x86_64" repository="xUbuntu_22.04"/>
+    <enable arch="x86_64" repository="Debian_12"/>
+    <enable arch="x86_64" repository="Rocky_9"/>
+    <enable arch="x86_64" repository="RockyLinux_9"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.5"/>
+    <enable arch="aarch64" repository="xUbuntu_22.04"/>
+    <enable arch="aarch64" repository="Debian_12"/>
+    <enable arch="armv7l" repository="Debian_12"/>
+    <enable arch="armv7l" repository="xUbuntu_22.04"/>
+    <enable arch="aarch64" repository="xUbuntu_24.04"/>
+    <enable arch="armv7l" repository="xUbuntu_24.04"/>
+    <enable arch="x86_64" repository="xUbuntu_24.04"/>
   </build>
   <publish>
     <disable arch="i586"/>
