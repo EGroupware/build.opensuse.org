@@ -1,3 +1,14 @@
+egroupware-guacamole (1.5.5.20240908) hardy; urgency=low
+
+  * Update Guacamole to upstream version 1.5.5 see:
+  * 1.5.2 changelog: https://guacamole.apache.org/releases/1.5.2/#changelog
+  * 1.5.3 changelog: https://guacamole.apache.org/releases/1.5.3/#changelog
+  * 1.5.4 changelog: https://guacamole.apache.org/releases/1.5.4/#changelog
+  * 1.5.5 changelog: https://guacamole.apache.org/releases/1.5.5/#changelog
+  * prefer docker-compose-(plugin|v2) ("docker compose" command) over docker-compose command to fix Ubuntu 24.04 install
+
+ -- Ralf Becker <rb@egroupware.org>  Sun, 8 Sep 2024 11:10 -0200
+
 egroupware-guacamole (1.5.1.20230414) hardy; urgency=low
 
   * Update Guacamole to upstream version 1.5.1 see:

@@ -1,12 +1,12 @@
-<directory name="egroupware-guacamole" rev="44" srcmd5="3d6eb5fefae57b42a47368bf02fc4551" vrev="3">
-  <entry md5="ac1aedb319c2bbc46c87857cf3d991a8" mtime="1681465784" name="build.sh" size="635" />
-  <entry md5="30cb143692dd54219898922a962fb8d7" mtime="1681472901" name="debian.changes" size="2990" />
+<directory name="egroupware-guacamole" rev="49" srcmd5="202ef4d02c0d13e27603037a0af030d2" vrev="5">
+  <entry md5="bd90dcd2b2de993f4ad45a41c5980510" mtime="1725790454" name="build.sh" size="635" />
+  <entry md5="bfc0d7e33b3a3d0346f7ec53a5ea5b89" mtime="1725790455" name="debian.changes" size="3592" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1586979810" name="debian.compat" size="3" />
-  <entry md5="da4492d72f1a55a340b129c761894ede" mtime="1681472902" name="debian.control" size="682" />
-  <entry md5="4b805c796265d0849da042e9d80dbe8d" mtime="1681465784" name="debian.postinst" size="10383" />
-  <entry md5="843ccd358399fd95d811deb54f555ae9" mtime="1586979810" name="debian.prerm" size="991" />
-  <entry md5="c934279765120f30d3b5465651f02219" mtime="1652206676" name="debian.rules" size="2028" />
+  <entry md5="76f91957bddd45cbfbc54f4e9282bdb6" mtime="1725790455" name="debian.control" size="710" />
+  <entry md5="8230e210fb8c52b99129abccc391fb06" mtime="1725790455" name="debian.postinst" size="10540" />
+  <entry md5="3aeef03d2f39c6fc2bbb0dbed65b2fb2" mtime="1725790455" name="debian.prerm" size="1147" />
+  <entry md5="b45293bd25cfb59914f11428353593ff" mtime="1725795231" name="debian.rules" size="2453" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1586979811" name="debian.tar.gz" size="120" />
-  <entry md5="ecd345705687c6eeae434d8b6f4d5c8c" mtime="1681465785" name="egroupware-guacamole-1.5.1.20230414.tar.gz" size="120080" />
-  <entry md5="dc603011172d705888d04161e27264e1" mtime="1681465785" name="egroupware-guacamole.dsc" size="382" />
+  <entry md5="ebc51d42e22559026996fd2c4e0f403e" mtime="1725790456" name="egroupware-guacamole-1.5.5.20240908.tar.gz" size="143361" />
+  <entry md5="f551425759b7381eaeede55e2cf4d75d" mtime="1725790456" name="egroupware-guacamole.dsc" size="382" />
 </directory>

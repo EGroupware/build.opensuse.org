@@ -36,12 +36,21 @@ install: build
 	$(INSTALL) doc/nginx.conf $(DEST_DIR)$(ETC_DIR)
 	$(INSTALL) doc/guacamole.properties $(DEST_DIR)$(ETC_DIR)/guacamole-home
 
-	mkdir -p $(DEST_DIR)$(SRC_DIR)
-	find $(FINDOPT) -exec $(INSTALL) {} $(DEST_DIR)$(SRC_DIR)/{} \;
+	mkdir -p $(DEST_DIR)$(SRC_DIR)/js
+	mkdir -p $(DEST_DIR)$(SRC_DIR)/lang
+	mkdir -p $(DEST_DIR)$(SRC_DIR)/src
+	mkdir -p $(DEST_DIR)$(SRC_DIR)/setup
+	mkdir -p $(DEST_DIR)$(SRC_DIR)/templates/default/images
+	$(INSTALL) js/* $(DEST_DIR)$(SRC_DIR)/js/
+	$(INSTALL) lang/* $(DEST_DIR)$(SRC_DIR)/lang/
+	$(INSTALL) src/* $(DEST_DIR)$(SRC_DIR)/src/
+	$(INSTALL) setup/* $(DEST_DIR)$(SRC_DIR)/setup/
+	$(INSTALL) templates/default/*.xet $(DEST_DIR)$(SRC_DIR)/templates/default/
+	$(INSTALL) templates/default/images/* $(DEST_DIR)$(SRC_DIR)/templates/default/images/
 
 	mkdir -p $(DEST_DIR)$(DOC_DIR)
 	install README.md $(DEST_DIR)$(DOC_DIR)
-	find doc $(FINDOPT) -exec $(INSTALL) {} $(DEST_DIR)$(DOC_DIR)/{} \;
+	$(INSTALL) doc/* $(DEST_DIR)$(DOC_DIR)/
 
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/drive
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/record
