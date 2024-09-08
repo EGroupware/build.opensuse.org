@@ -1,3 +1,9 @@
+egroupware-collabora-key (24.04.20240908) hardy; urgency=low
+
+  * prefer docker-compose-(plugin|v2) ("docker compose" command) over docker-compose command to fix Ubuntu 24.04 install
+
+ -- Ralf Becker <rb@egroupware.org>  Sun, 8 Sep 2024 11:10 -0200
+
 egroupware-collabora-key (22.05.20220815) hardy; urgency=low
 
   * use separate coolwsd.xml and coolkitconfig.xcu from now on to eg. allow enabling LanguageTool

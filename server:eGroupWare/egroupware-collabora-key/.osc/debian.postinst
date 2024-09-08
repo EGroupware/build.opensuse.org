@@ -15,6 +15,11 @@ webserver_soft_reload() {
 	fi
 }
 
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
 
 if [ "$1" = configure -o "$1" = upgrade ]
 then
@@ -28,8 +33,8 @@ then
 	  # if we have no separate coolwsd.xml created it now, but patch in termination and support_key from loolwsd.xml
 	  test ! -s /var/lib/egroupware/default/loolwsd/coolwsd.xml -a -f /var/lib/egroupware/default/loolwsd/coolwsd.xml.dpkg-dist && {
 	    cd /etc/egroupware-collabora-key
-	    docker-compose stop
-	    docker-compose rm -f
+	    $COMPOSE stop
+	    $COMPOSE rm -f
 	    # if we are not using the current docker-compose.yml, mv it in place, but keep extra_hosts
 	    test -f docker-compose.yml.dpkg-dist && {
         (echo; grep -A2 '^ *extra_hosts:' docker-compose.yml | grep -v '^ *#') >> docker-compose.yml.dpkg-dist
@@ -48,8 +53,8 @@ then
 
 	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd /etc/egroupware-collabora-key
-	docker-compose pull && \
-	echo "y" | docker-compose up -d || true
+	$COMPOSE pull && \
+	echo "y" | $COMPOSE up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
