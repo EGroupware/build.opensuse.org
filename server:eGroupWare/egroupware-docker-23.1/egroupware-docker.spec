@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 23.1.20240930
+Version: 23.1.20250307
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: tar -czvf egroupware-docker-23.1.20240930.tar.gz egroupware-docker
+# create with: tar -czvf egroupware-docker-23.1.20250113.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro

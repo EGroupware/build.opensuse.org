@@ -1,3 +1,100 @@
+egroupware-docker (23.1.20250307) hardy; urgency=low
+
+  * set header.inc.php permissions so only www-data:www-data and read&write it
+  * Api: diverse security hardening following up a pentest through SySS GmbH contracted by one of our customers
+  * Api: allow to check passwords e.g. for application secrets via OpenID Connect authentication (requires "password" grant!)
+  * Addressbook: hide account-name column for non-admins, unless otherwise configured in app-configuration of addressbook
+  * CalDAV/CardDAV: only show own user and memberships on automatic index page (or PROPFIND) for privacy and security reasons
+  * Admin/Api: allow to hide groups from non-admins
+  * Admin/Preferences: allow to use templates for creating application-passwords (and optionally limit groups to just use pre-existing templates)
+  * Calendar: Stop constant flickering in planner view
+  * Addressbook: use a hierarchical list to show distribution lists incl. groups (if groups are enabled)
+  * Filemanager: tile view show filename and comment on hover
+  * Mail: allow to search for Bcc addresses (works only in Sent folder!)
+  * Mail: allow to select (multiple) mail addresses from addressbook directly in compose window
+  * Mail: Deleting emails from the list is faster
+  * Mail: added an option in mail preferences to hide the 'From' address header in the compose window
+  * Collabora: white icons for new notebookbar in new Collabora version 24.04.11
+  * Tracker: Update Times column as timesheets are added to tickets
+  * Tracker: new filter "Not closed or pending"
+  * Resources: new setting what to show in title beside name: short description (default), location or inventory number
+  * Addressbook/REST-API: changed NameComponent names to match final RFC 9553 (old names are parsed, but no longer returned, see the docu)
+  * InfoLog/REST-API: allow to set primary link via relatedTo object, see updated REST API docu for InfoLog
+  * LDAP/Univention: fix not imported or read group mail address
+  * LDAP/ADS/Import: invalidating accounts-cache during import for groups, accounts and memberships
+  * EPL/eSyncProvisioning: allow to NOT set the optional MaxDevicePasswordFailedAttempts policy
+  * Invoices (EPL): new invoice-types "Corrected invoice" (384) to cancel invoices and "Credit note" (381)
+  * Invoices (EPL): allow to configure a full and reduced tax rate, to reduce errors by manual repeated entry
+  * Invoices (EPL): schema update to fit "cancelled" status and prefer matching business email over other matches on import
+  * Invoices (EPL): translation of unit-codes and {{*/en}} placeholders for untranslated content (without it's translated to users language)
+  * Invoices (EPL): fix (regular) PDFs on mobile device are opened in invoices viewer and give an error it's no invoice
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 07 Mar 2025 16:16:16 +0100
+
+egroupware-docker (23.1.20250113) hardy; urgency=low
+
+  * update push-server to phpswoole/swoole:5.1-php8.3-alpine
+  * Mail: use account of selected From address to send mails, not the current open mailbox
+  * Mail: prefer identity email over SMTP username for Return-Path header, if both are from the same domain
+  * Addressbook: fix non-active accounts where visible for non-admins, if hidden accounts exist
+  * All apps: merge-print of OpenDocument files now also replaces in header- and footer-lines or text-frames (styles.xml part of the document)
+  * Tracker: Add 'View linked Time Sheet entries' action
+  * Invoices (EPL): allow to use Invoices app as viewer for e-invoices in Mail (without rights for Invoices app itself)
+  * Invoices (EPL): allow to select a mail template and directly mail invoice to buyer
+  * Invoices (EPL): attach imported invoice pdf/xml to the imported invoice and link it with the seller
+  * Invoices (EPL): allow to set and import product characteristics and country of origin
+  * Invoices (EPL): display/import invoices in UBL XML syntax too (generated invoices use CII syntax)
+  * Invoices (EPL): allow to download multiple invoices as PDF, XML or ZIP-archive
+  * Invoices (EPL): allow to select "XML invoice", even if Collabora is available, e.g. for customers requesting XML over PDF
+  * Invoices (EPL): additonally support UBL syntax for import or display, beside the already used CII syntax, used for creating invoices
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 13 Jan 2025 10:21:12 +0100
+
+egroupware-docker (23.1.20241214) hardy; urgency=low
+
+  * LDAP/AD: bugfixes introduced by last maintenance release
+  * Mail: new microsoft app for oauth authentication for mail
+  * ViDoTeach: display videos from swivl.com
+  * API: removed not working themes, Standard and Fancy are the only ones now plus mobile device support
+  * Import/Export: fix not working CSV import wizard
+  * All apps: many fixes around new Bootstrap icons and the updated UI
+  * Invoices: preview of new EPL app to write and import e-invoices (ZUGFeRD or XRechnung)
+
+ -- Ralf Becker <rb@egroupware.org>  Sat, 14 Dec 2024 11:17:20 +0100
+
+egroupware-docker (23.1.20241128) hardy; urgency=low
+
+  * PHP: security update to 8.3.14
+  * All apps: many fixes in Fancy theme and new Bootstrap icons (see 23.1.20241111 pre-release)
+  * Tracker: desktop version uses now a nextmatch list for comments
+  * Calendar: new preference for changing resource status when event is moved
+  * Calendar: when opening calendar as infolog, event participants (user accounts) are copied to infolog responsible
+  * Projectmanager: Add a config setting to choose which project statuses we include for link search
+  * Mail: if Sieve editheader extension is available forward with a From header matching the recipient to avoid SPF and DKIM problems/misalignment (need to be enabled in Dovecot)
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 28 Nov 2024 10:59:43 +0100
+
+egroupware-docker (23.1.20241111) hardy; urgency=low
+
+  * All apps: new icons based on Bootstrap icons
+  * All apps: new "fancy" theme, which can be enabled in user general preferences
+  * Admin: allow to mark users as hidden, to show them only to admins e.g. to hide functional users from regular users
+  * Status, Addressbook: preference to use first letters of username for avatar instead of initials
+  * Addressbook: show username for accounts as a column in the list too
+  * Addressbook: change title and role to 128 characters
+  * Mail: explicitly allow data-uris of arbitrary length for images (were shown as red questionmark, when longer then 800 chars)
+  * Mail: fix Sieve editor considers mail body rules wrongly as unconditional, if there are more than one rule
+  * All apps: fix private custom-fields were shown independent of entry type-filter, if user was allowed to see the field
+  * EPL/Mail/SpamTitan: allow admins to white- or blacklist for all users / whole domain
+
+ -- Ralf Becker <rb@egroupware.org>  Mon, 11 Nov 2024 08:56:59 +0100
+
+egroupware-docker (23.1.20241008) hardy; urgency=low
+
+  * Mail: fix not working drag-n-drop and context menu und lazy-loaded 2nd mail account
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 08 Oct 2024 09:09:27 +0200
+
 egroupware-docker (23.1.20240930) hardy; urgency=low
 
   * PHP Security Update to 8.3.12

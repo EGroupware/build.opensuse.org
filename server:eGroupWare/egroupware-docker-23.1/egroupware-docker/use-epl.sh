@@ -58,4 +58,4 @@ sed -e 's|image: egroupware/egroupware:|image: download.egroupware.org/egroupwar
 echo "Updated $(dirname $0)/docker-compose.override.yml with following changes:"
 grep '    image:.*egroupware' docker-compose.override.yml
 
-docker-compose up -d
+docker-compose up -d --force-recreate
