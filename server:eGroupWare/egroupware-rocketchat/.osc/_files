@@ -1,13 +1,13 @@
-<directory name="egroupware-rocketchat" rev="38" srcmd5="d790315d15ea5bdf998b06bd7e3ee252" vrev="1">
+<directory name="egroupware-rocketchat" rev="40" srcmd5="5fbbcc612bd7020d63856575cc90de18" vrev="3">
   <entry md5="0ad69f5554751d5ee15a8fce183b7702" mtime="1725787981" name="debian.changes" size="4633" />
   <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1553521611" name="debian.compat" size="3" />
   <entry md5="b80cae690d334403119fde3e4d128a24" mtime="1725787982" name="debian.control" size="488" />
   <entry md5="02023eca2e844d66ec2c3b87541e3092" mtime="1562833149" name="debian.egroupware-rocketchat.conffiles" size="123" />
-  <entry md5="285ae83d3f4ba429217c9c63b188ed4d" mtime="1725787982" name="debian.postinst" size="5163" />
+  <entry md5="a5be1662319efa6306f8a8e9895c9875" mtime="1741423883" name="debian.postinst" size="5143" />
   <entry md5="6a6fdd4d75a9c93e7ccb5ab95082a9ab" mtime="1725787982" name="debian.prerm" size="1156" />
   <entry md5="e44c1842c3c4088c23fa92b86d237054" mtime="1695288333" name="debian.rules" size="1856" />
   <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1553521613" name="debian.tar.gz" size="120" />
   <entry md5="c5dd397a4296c0ddd3387194424e55f0" mtime="1725787983" name="egroupware-rocketchat-6.10.20240908.tar.gz" size="148700" />
   <entry md5="92ebbbebfc423ad5037c9ac960c7c50f" mtime="1725787983" name="egroupware-rocketchat.dsc" size="383" />
-  <entry md5="eb33135d001969a1c6e5c509d274d765" mtime="1725787983" name="egroupware-rocketchat.spec" size="8726" />
+  <entry md5="b888cda7c7bdff54ee19850293f111e8" mtime="1741423951" name="egroupware-rocketchat.spec" size="8706" />
 </directory>

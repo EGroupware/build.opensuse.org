@@ -11,7 +11,7 @@
 ### services:
 ###   rocketchat:
 ###      environment:
-###      - ROOT_URL=https://example.org/rocketchat
+###      - ROOT_URL=https://example.org/
 ###
 ### Please note: indention with space (NOT tabs!) matter in .yml files!
 ###
@@ -29,7 +29,7 @@ services:
     # - /etc/egroupware-docker/private-ca.crt:/usr/local/share/ca-certificates/private-ca.crt:ro
     environment:
     # - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/private-ca.crt
-    # IMPORTANT: change ROOT_URL to your actual url eg. https://example.org/rocketchat
+    # IMPORTANT: change ROOT_URL to your actual url e.g. https://example.org/
     - ROOT_URL=http://localhost/
     #- HTTP_PROXY=http://proxy.domain.com
     #- HTTPS_PROXY=http://proxy.domain.com
