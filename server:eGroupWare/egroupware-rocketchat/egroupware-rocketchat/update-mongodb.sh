@@ -167,8 +167,8 @@ docker volume rm -f egroupware-rocketchat_mongo
 # start new MongoDB version and create new replica set
 echo "Starting new MongoDB version"
 $COMPOSE up -d mongo-init-replica
-# wait for it to finish, thought it might already be finished and therefore don't fail (|| true)
-docker logs -f egroupware-rocketchat_mongo-init-replica_1 || true
+# wait for it to finish, thought it might already be finished, or not yet started, and therefore don't fail but wait 10s
+docker logs -f egroupware-rocketchat_mongo-init-replica_1 || sleep 10
 
 # restore database dump
 echo "Restoring MongoDB dump"
@@ -182,3 +182,7 @@ if [ "$new" != "$final" ]
 then
   exec $0 $final
 fi
+
+# make sure Show_Setup_Wizard.value has the right case 'Completed' (and not 'completed')
+docker exec rocketchat-mongo mongosh mongo/rocketchat \
+  --eval "db.rocketchat_settings.updateOne({_id: 'Show_Setup_Wizard', value: 'completed'}, {$set: {value: 'Completed'}});"
