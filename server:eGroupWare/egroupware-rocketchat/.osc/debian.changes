@@ -1,3 +1,9 @@
+egroupware-rocketchat (7.4.20250319) hardy; urgency=low
+
+  * update to Rocket.Chat 7.4 and MongoDB 7.0
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 19 Mar 2025 15:00 -0100
+
 egroupware-rocketchat (6.10.20240908) hardy; urgency=low
 
   * prefer docker-compose-(plugin|v2) ("docker compose" command) over docker-compose command to fix Ubuntu 24.04 install

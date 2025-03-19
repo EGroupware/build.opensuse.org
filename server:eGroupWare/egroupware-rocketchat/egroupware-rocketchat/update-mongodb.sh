@@ -20,7 +20,7 @@
 ### 4.0 can only upgrade to 4.2, but requires --smallfiles --storageEngine=mmapv1 to be removed from command
 ### 4.2 can only upgrade to 4.4, AFTER setting FeatureCompatibilityVersion to "4.2": db.adminCommand( { setFeatureCompatibilityVersion: "4.2" } )
 ### 4.4 can only upgrade to 5.0, AFTER setting FeatureCompatibilityVersion to "4.4": db.adminCommand( { setFeatureCompatibilityVersion: "4.4" } )
-###
+### 5.0 can directly upgrade to 7.0
 ############################################################################################################
 
 # exit on error
@@ -35,13 +35,13 @@ docker help compose >/dev/null || {
 cd $(dirname $0)
 
 # getting current mongodb major version
-current=$(docker ps|grep mongo:|sed 's/^[0-9a-f]\{12,\} \{1,\}mongo:\([45]\.[0246]\).*$/\1/g')
-echo $current | grep -qe '^[456]\.[0246]$' || {
+current=$(docker ps|grep mongo:|sed 's/^[0-9a-f]\{12,\} \{1,\}mongo:\([457]\.[0246]\).*$/\1/g')
+echo $current | grep -qe '^[457]\.[0246]$' || {
   echo "$(basename $0): Could NOT determine current version of MongoDB, maybe MongoDB container is not running!"
   exit 1
 }
 echo "Currently running MongoDB version $current"
-test $# -eq 1 && echo $1 | grep -qe '^[456]\.[0246]$' || {
+test $# -eq 1 && echo $1 | grep -qe '^[457]\.[0246]$' || {
   echo "Usage: $(basename $0) <version>"
   echo "  <version> MongoDB major version eg. 5.0, must be bigger then current version $current"
   exit 1
@@ -70,17 +70,17 @@ case $current in
   4.4)
     new=5.0 # requires RC 4.0
     ;;
-  # MongoDB 6.0 no longer has mongo command, just new mongosh not supported by our mongo-init-replica!
-  #5.0)
-  #  new=6.0 # requires RC 6.x
-  #  ;;
+  # direct update 5.0 -> 7.0 seems ok
+  5.0)
+    new=7.0 # requires RC 6.x
+    ;;
   *)
     echo "Update from MongoDB version '$current' to '$new' is NOT (yet) supported --> aborting";
     exit 1
 esac
 
 # set current version for FeatureCompatibility, as that's required for the update
-docker exec rocketchat-mongo mongo --eval "db.adminCommand( { setFeatureCompatibilityVersion: \"$current\" } )"
+docker exec rocketchat-mongo mongosh --eval "db.adminCommand( { setFeatureCompatibilityVersion: \"$current\" } )"
 
 # check new MongoDB version by pulling it
 docker pull mongo:$new || {
@@ -167,8 +167,8 @@ docker volume rm -f egroupware-rocketchat_mongo
 # start new MongoDB version and create new replica set
 echo "Starting new MongoDB version"
 $COMPOSE up -d mongo-init-replica
-# wait for it to finish
-docker logs -f egroupware-rocketchat_mongo-init-replica_1
+# wait for it to finish, thought it might already be finished and therefore don't fail (|| true)
+docker logs -f egroupware-rocketchat_mongo-init-replica_1 || true
 
 # restore database dump
 echo "Restoring MongoDB dump"

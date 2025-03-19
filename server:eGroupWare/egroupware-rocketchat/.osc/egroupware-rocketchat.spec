@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 6.10.20240908
+Version: 7.4.20250319
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-6.10.20240908.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-7.4.20250319.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -125,22 +125,19 @@ case "$1" in
     test docker-compose.yml.rpmnew -nt docker-compose.yml && {
       mv docker-compose.yml.rpmnew docker-compose.yml
     } || true
-    # update to MongoDB to 5.0
-    ./update-mongodb.sh 5.0 && {
+    # update to MongoDB to 7.0
+    ./update-mongodb.sh 7.0 && {
       # first start old "stable" image, otherwise some indexes are missing when 5.4 starts
       echo "y" | docker-compose up -d || true
       echo "Waiting for old/stable RC to start"
       for i in `seq 1 45`; do echo -n .; sleep 1; done; echo
       docker logs rocketchat
-      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable6 from docker-compose.yml
+      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable7 from docker-compose.yml
       sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
-      # remove mongo service overwrites, as docker-compose.yml has everything for 5.0
+      # remove mongo service overwrites, as docker-compose.yml has everything for 7.0
       sed -e '/^ *mongo:/,+99d' -i docker-compose.override.yml
-      # update site-url to no longer use /rocketchat prefix
-      ./change-site-url.sh
     } || {
-      # on failure: set old "stable" image, as the new one does NOT support MongoDB 4.0
-      sed 's|^\( *\)#*\(image: *.*rocket.chat.*\)$|\1image: quay.io/egroupware/rocket.chat:stable|g' -i docker-compose.override.yml
+      true # do nothing as RC 7.x still supports MongoDB 5.0, it's only deprecated
     }
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wired state!)
 	docker-compose pull && \
