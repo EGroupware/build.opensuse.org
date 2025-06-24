@@ -1,12 +1,13 @@
-<directory name="egroupware-guacamole" rev="49" srcmd5="202ef4d02c0d13e27603037a0af030d2" vrev="5">
-  <entry md5="bd90dcd2b2de993f4ad45a41c5980510" mtime="1725790454" name="build.sh" size="635" />
-  <entry md5="bfc0d7e33b3a3d0346f7ec53a5ea5b89" mtime="1725790455" name="debian.changes" size="3592" />
-  <entry md5="31d30eea8d0968d6458e0ad0027c9f80" mtime="1586979810" name="debian.compat" size="3" />
-  <entry md5="76f91957bddd45cbfbc54f4e9282bdb6" mtime="1725790455" name="debian.control" size="710" />
-  <entry md5="8230e210fb8c52b99129abccc391fb06" mtime="1725790455" name="debian.postinst" size="10540" />
-  <entry md5="3aeef03d2f39c6fc2bbb0dbed65b2fb2" mtime="1725790455" name="debian.prerm" size="1147" />
-  <entry md5="b45293bd25cfb59914f11428353593ff" mtime="1725795231" name="debian.rules" size="2453" />
-  <entry md5="2c4328f6e6a68e37f0f77b95b2d8752c" mtime="1586979811" name="debian.tar.gz" size="120" />
-  <entry md5="ebc51d42e22559026996fd2c4e0f403e" mtime="1725790456" name="egroupware-guacamole-1.5.5.20240908.tar.gz" size="143361" />
-  <entry md5="f551425759b7381eaeede55e2cf4d75d" mtime="1725790456" name="egroupware-guacamole.dsc" size="382" />
+<directory name="egroupware-guacamole" rev="51" vrev="2" srcmd5="8efc772fab44ee040b8b259a15b5ed3d">
+  <entry name="build.sh" md5="7997968986b451cbbc6f30901789ecc9" size="635" mtime="1750765558" />
+  <entry name="debian.changes" md5="e2f09e405d5c7882239e187961668098" size="3967" mtime="1750765558" />
+  <entry name="debian.compat" md5="31d30eea8d0968d6458e0ad0027c9f80" size="3" mtime="1586979810" />
+  <entry name="debian.control" md5="76f91957bddd45cbfbc54f4e9282bdb6" size="710" mtime="1725790455" />
+  <entry name="debian.postinst" md5="27459588fe1481b72a73735d70ab089d" size="10540" mtime="1750765558" />
+  <entry name="debian.prerm" md5="3aeef03d2f39c6fc2bbb0dbed65b2fb2" size="1147" mtime="1725790455" />
+  <entry name="debian.rules" md5="b45293bd25cfb59914f11428353593ff" size="2453" mtime="1725795231" />
+  <entry name="debian.tar.gz" md5="2c4328f6e6a68e37f0f77b95b2d8752c" size="120" mtime="1586979811" />
+  <entry name="egroupware-guacamole-1.6.0.20250624.tar.gz" md5="91b5c510e2b647c7f8e1ce28f800b567" size="170779" mtime="1750765905" />
+  <entry name="egroupware-guacamole.dsc" md5="586d41eab765cedf24a162100da16bd4" size="382" mtime="1750765559" />
 </directory>
+

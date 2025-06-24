@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=${1:-1.5.5.$(date +%Y%m%d)}
+VERSION=${1:-1.6.0.$(date +%Y%m%d)}
 PACKAGE=egroupware-guacamole
 GITURL=https://github.com/EGroupware/guacamole.git
 BUILD=/tmp/$PACKAGE-build-root
