@@ -58,4 +58,9 @@ sed -e 's|image: egroupware/egroupware:|image: download.egroupware.org/egroupwar
 echo "Updated $(dirname $0)/docker-compose.override.yml with following changes:"
 grep '    image:.*egroupware' docker-compose.override.yml
 
-docker-compose up -d --force-recreate
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+$COMPOSE up -d --force-recreate
