@@ -1,3 +1,56 @@
+egroupware-docker (23.1.20250715) hardy; urgency=low
+
+  * Api/All Apps: improved account widget searching to work with +/- and quotes
+  * Api: New common merge placeholder {{links/[appname]/[fieldname]}} for the field from the first link from that application
+  * Mail/InfoLog/Tracker: fix mail-integration gives error, if mail contains no text-body, but just a PDF or image
+  * Timesheet/InfoLog: allow making individual timesheets readable to certain users or the InfoLog responsible
+  * Admin/Setup: speed up backup and get it working again for huge installations
+  * VIDOTEACH: full UI redesign with cleaner layouts, improved spacing, icons & dropdowns
+  * VIDOTEACH: video bar & comments upgraded – new time/duration picker, “since last visit” filter, better attachment handling
+  * VIDOTEACH: course & preference updates – parent course inheritance, new “no free comments” option, improved sync
+  * VIDOTEACH: stability fixes – resolved SQL/permission errors, notify/preference bugs, removed unused uploads
+  * Invoices: add actions to Addressbook to create an empty invoice or generate one from a template for the selected contact(s) as buyer
+  * Invoices: support for other payment means beside transfer e.g. direct debit or credit card
+  * Invoices: fix (sometimes) not imported tax rate and code
+  * Invoices: adding a custom-field for the seller-ID assigned by the buyer
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 15 Jul 2025 12:38:45 +0200
+
+egroupware-docker (23.1.20250506) hardy; urgency=low
+
+  * Calendar: switching all subscribed calendars quickly on or off via an icon in the calendar toolbar
+  * Calendar: allow setting events in subscribed calendars to private and/or non-blocking
+  * Calendar: fix scrolling up when clicking into search for displayed calendars
+  * Calendar: fix not working click on event in planner-view
+  * Addressbook: new preference how to generate full name to not use prefix or prefer it over firstname or vice versa
+  * Mail: remember and reopen last used folder in implicit preference and always autoload deeper folder-hierarchies for better performance
+  * Mail: if attachment does not have a filename plus extension, fall back to the description and add extension matching the mime-type
+  * Mail: fix after tab-/application-change not working context menu on tree
+  * Mail/InfoLog (EPL): fix not working Mailvelope install dialog and usage in InfoLog for PGP encryption of description
+  * VIDOTEACH: add video status that makes one video dependent on others
+  * PHP: Docker images use PHP 8.4 now
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 06 May 2025 11:09:42 +0200
+
+egroupware-docker (23.1.20250416) hardy; urgency=low
+
+  * API/eTemplate: fix performance degradation over time due to memory-leaks in client-side JavaScript code
+  * API/eTemplate: new webcomponents for file upload and templates
+  * Calendar: allow to subscribe to / show external calendars (ics files or CalDAV collections)
+  * Calendar: fix drag-n-drop for Safari browser
+  * Calendar: fix notifications contained all recurrences as exceptions
+  * Calendar: fix flickering/looping of planner in various situations
+  * InfoLog: new config to give responsible user access to linked contacts
+  * VIDOTEACH: allow to upload and annotate mp3 audio files
+  * Addressbook/REST Api: fix error unsetting birthday / anniversary type="birth"
+  * Addressbook: hide account-name column for non-admins, unless otherwise configured in app-configuration of addressbook
+  * WebDAV: improve performance by not returning all extra properties, if they are not requested
+  * Setup/Preferences: allow to override authentication for Password & Security e.g. for OAuth to check LDAP
+  * API/Mail/Collabora: fix some cases of not available session password since storing it encrypted in the session
+  * Login page: replace Twitter with BlueSky and Mastodon in our social media links
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 16 Apr 2025 08:48:16 +0200
+
 egroupware-docker (23.1.20250307) hardy; urgency=low
 
   * set header.inc.php permissions so only www-data:www-data and read&write it

@@ -76,7 +76,7 @@ services:
 
   # push server using phpswoole
   push:
-    image: phpswoole/swoole:5.1-php8.3-alpine
+    image: phpswoole/swoole:php8.4-alpine
     command:
       - /var/www/server.php
     volumes:

@@ -55,7 +55,7 @@ install: build
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/files/sqlfs
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/files/smallpart
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/backup
-	install -m 644 --owner=www-data --group=www-data header.inc.php $(DEST_DIR)/$(DATA_DIR)
+	install -m 600 --owner=www-data --group=www-data header.inc.php $(DEST_DIR)/$(DATA_DIR)
 	chown -R www-data:www-data $(DEST_DIR)$(DATA_DIR)
 
 # Build architecture-independent files here.
