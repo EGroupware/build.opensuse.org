@@ -30,10 +30,14 @@
     <enable arch="armv7l" repository="xUbuntu_24.04"/>
     <enable arch="x86_64" repository="xUbuntu_24.04"/>
     <enable arch="x86_64" repository="openSUSE_Leap_15.6"/>
+    <enable arch="aarch64" repository="Debian_13"/>
+    <enable arch="armv7l" repository="Debian_13"/>
+    <enable arch="x86_64" repository="Debian_13"/>
   </build>
   <publish>
     <disable arch="i586"/>
     <enable/>
   </publish>
 </package>
+
 

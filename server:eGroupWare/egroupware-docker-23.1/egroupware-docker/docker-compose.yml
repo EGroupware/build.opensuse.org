@@ -62,12 +62,13 @@ services:
     - db
     container_name: egroupware
 
-  # run an own MariaDB:10.4 (you can use EGroupware's database backup and restore to add your existing database)
+  # run an own MariaDB:10.6 (you can use EGroupware's database backup and restore to add your existing database)
   db:
     image: mariadb:10.6
     environment:
       - MYSQL_ROOT=root
       - MYSQL_ROOT_PASSWORD=${EGW_DB_ROOT_PW}
+      - MARIADB_AUTO_UPGRADE=true
     volumes:
       - db:/var/lib/mysql
       - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/egroupware.cnf
@@ -106,7 +107,7 @@ services:
   # automatic updates of all containers daily at 4am
   # see https://containrrr.github.io/watchtower for more information
   watchtower:
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - /root/.docker/config.json:/config.json:ro

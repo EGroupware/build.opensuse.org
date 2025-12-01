@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Ralf Becker <rb@egroupware.org>
 Build-Depends: debhelper (>= 9)
 Homepage: https://www.egroupware.org/
+Rules-Requires-Root: binary-targets
 
 Package: egroupware-docker
 Architecture: any
