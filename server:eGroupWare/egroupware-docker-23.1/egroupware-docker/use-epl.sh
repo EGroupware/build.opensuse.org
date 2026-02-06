@@ -9,7 +9,7 @@ read -s PASSWORD
 echo " "
 
 # Debian 10 has curl not installed by default
-$(which curl) || apt install -y curl
+test -x "$(which curl)" || (apt update && apt install -y curl) >/dev/null 2>&1
 
 # test authentication first (if we have curl available)
 [ -x "$(which curl)" -a $(curl -i --user "$USER:$PASSWORD" https://download.egroupware.org/repos/stylite-epl/ 2>/dev/null|head -1|cut -d" " -f2) -eq 401 ] && {

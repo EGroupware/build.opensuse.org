@@ -3,11 +3,8 @@
   <description>Current stable EGroupware release 23.1</description>
   <build>
     <disable/>
-    <enable arch="x86_64" repository="CentOS_7"/>
     <enable arch="x86_64" repository="Debian_11"/>
     <enable arch="x86_64" repository="Debian_10"/>
-    <enable arch="x86_64" repository="RHEL_7"/>
-    <enable arch="x86_64" repository="SLE_12"/>
     <enable arch="x86_64" repository="SLE_15"/>
     <enable arch="x86_64" repository="xUbuntu_16.04"/>
     <enable arch="x86_64" repository="xUbuntu_18.04"/>
@@ -21,6 +18,7 @@
     <enable arch="x86_64" repository="Debian_12"/>
     <enable arch="x86_64" repository="Rocky_9"/>
     <enable arch="x86_64" repository="RockyLinux_9"/>
+    <enable arch="x86_64" repository="RockyLinux_10"/>
     <enable arch="x86_64" repository="openSUSE_Leap_15.5"/>
     <enable arch="aarch64" repository="xUbuntu_22.04"/>
     <enable arch="aarch64" repository="Debian_12"/>
@@ -39,5 +37,4 @@
     <enable/>
   </publish>
 </package>
-
 

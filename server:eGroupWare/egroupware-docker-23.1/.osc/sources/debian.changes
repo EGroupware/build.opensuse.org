@@ -1,3 +1,9 @@
+egroupware-docker (23.1.20251219) hardy; urgency=low
+
+  * Nginx: enable gzip compression of text files
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 19 Dec 2025 12:30:00 +0100
+
 egroupware-docker (23.1.20251119) hardy; urgency=low
 
   * Watchtower: use now nickfedor/watchtower to fix error with minimum Docker API version
