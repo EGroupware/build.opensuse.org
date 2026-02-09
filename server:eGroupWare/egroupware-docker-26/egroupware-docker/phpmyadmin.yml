@@ -1,0 +1,48 @@
+#########################################################################################
+###
+### phpMyAdmin to access EGroupware database
+###
+### To enable phpMyAdmin (requires Nginx as proxy on the host!):
+###
+### cd /etc/egroupware-docker
+### ln -s /etc/egroupware-docker/nginx-phpmyadmin.conf /etc/nginx/app.d/egroupware-phpmyadmin.conf
+### nginx -s reload
+###
+### Change domain in PMA_ABSOLUTE_URI to match the one you use eg. to https://egw.my-domain.com/phpmyadmin/
+### IF you have a pre 20.1 installation with MariaDB running on the host: uncomment volumes: and change PMA_HOST=localhost
+###
+### To start phpMyAdmin run:
+### docker-compose -f phpmyadmin.yml up -d
+###
+### Use egroupware and db_pass from /var/lib/egroupware/header.inc.php to login.
+###
+### To stop/disable phpMyAdmin again run:
+### docker-compose -f phpmyadmin.yml stop
+###
+### PLEASE NOTE: that allows logging in with any database user, so it's strongly recommended stop it, if no longer needed!
+###
+##########################################################################################
+
+# To enable phpMyAdmin (Nginx only!):
+version: '3'
+# we need access to networks of egroupware to be able to access the db, if running in a container
+networks:
+  egroupware-docker_default:
+    external: true
+services:
+  phpmyadmin:
+    restart: unless-stopped
+    networks:
+      - egroupware-docker_default
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    hostname: phpmyadmin
+    ports:
+      - "127.0.0.1:8000:80"
+    # pre 20.1 installs run MariaDB on the host and need to pass the socket (to use egroupware user and it's password only valid on localhost)
+    #volumes:
+    #  - /var/run/mysqld/mysqld.sock:/tmp/mysql.sock
+    environment:
+      # PMA_HOST: use localhost, if you use a socket (pre 20.1 install) or db for 20.1+ installations
+      - PMA_HOST=db
+      - PMA_ABSOLUTE_URI=https://example.org/phpmyadmin/

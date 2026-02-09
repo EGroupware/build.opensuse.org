@@ -1,0 +1,5 @@
+# Place your MariaDB configuration changes here
+
+[mysqld]
+# most important optimization for bigger installation is to allow the use of more memory here
+innodb_buffer_pool_size	= 256M
