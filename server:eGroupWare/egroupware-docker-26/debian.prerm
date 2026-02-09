@@ -1,0 +1,43 @@
+#! /bin/sh
+
+set -e
+
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
+webserver_soft_reload() {
+	if command -v invoke-rc.d >/dev/null 2>&1; then
+		invoke-rc.d "$1" force-reload || :
+	else
+		[ -x /etc/init.d/"$1" ] && /etc/init.d/"$1" force-reload || :
+	fi
+}
+
+
+if [ "$1" = remove ]; then
+	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+	then
+		cd /etc/apache2/sites-available
+		for conf in $(grep -li 'include /etc/egroupware-docker/apache.conf' *.conf)
+		do
+			sed -i 's|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf||g' $conf && \
+				echo "Include /etc/egroupware-docker/apache.conf removed from site $conf"
+		done
+		webserver_soft_reload apache2
+	fi
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		rm -f /etc/nginx/app.d/egroupware-docker.conf
+		rm -f /etc/nginx/sites-{available,enabled}/egroupware.conf
+		nginx -s reload
+	fi
+
+	cd /etc/egroupware-docker
+	$COMPOSE stop
+	$COMPOSE rm -f
+fi
+
+#DEBHELPER#

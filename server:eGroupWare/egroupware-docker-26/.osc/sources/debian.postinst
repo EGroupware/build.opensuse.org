@@ -1,0 +1,102 @@
+#! /bin/sh
+
+#export DEBCONF_DEBUG=developer
+set -e
+# das hier muss ganz oben stehen (man debconf-devel)
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+# check if docker compose is available (Ubuntu 24.04 stalls on docker-compose!)
+COMPOSE="docker compose"
+docker help compose >/dev/null || {
+	COMPOSE="docker-compose"
+}
+
+webserver_soft_reload() {
+	if command -v invoke-rc.d >/dev/null 2>&1; then
+		invoke-rc.d "$1" force-reload || :
+	else
+		[ -x /etc/init.d/"$1" ] && /etc/init.d/"$1" force-reload || :
+	fi
+}
+
+
+if [ "$1" = configure -o "$1" = upgrade ]
+then
+	# If upgrading, $2 contains the release currently installed, otherwise it's empty
+	#if [ -z "$2" ]
+	#then
+	#	# new install
+	#
+	#fi
+
+	# enable and start docker, in case docker package did not
+	systemctl enable docker
+	systemctl is-active --quiet  docker || systemctl start docker
+
+	# fix or create empty /root/.docker/config.json
+	mkdir -p /root/.docker
+	test -d /root/.docker/config.json && rm -rf /root/.docker/config.json
+	test -f /root/.docker/config.json || echo "{}" > /root/.docker/config.json
+
+	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wired state!)
+	cd /etc/egroupware-docker
+	test -f docker-compose.override.yml && {
+	  case "$2" in
+	  21.1.*|23.1.*)
+	    sed -i docker-compose.override.yml -e 's/^\( *image\):\(.*\):2[13].1$/\1:\2:26/g' || true
+	    ;;
+	  esac
+	} || /bin/bash create-override.sh
+	$COMPOSE pull && \
+	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
+	echo "y" | $COMPOSE up -d egroupware && sleep 5 && \
+	echo "y" | $COMPOSE up -d || true
+
+	# Set up web server and reload it.
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		# initial install: enable egroupware and disable default site
+		ln -fs ../../egroupware-docker/nginx.conf /etc/nginx/sites-available/egroupware.conf
+		if [ -z "$2" ]
+		then
+			[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+			ln -fs /etc/nginx/sites-available/egroupware.conf /etc/nginx/sites-enabled/
+			rm -f /etc/nginx/sites-enabled/default
+		fi
+		nginx -s reload
+	fi
+	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
+	then
+		# initial install: add Include /etc/egroupware-docker/apache.conf to all vhosts
+		if [ -z "$2" ]
+		then
+			cd /etc/apache2/sites-available
+			for conf in $(grep -il '<VirtualHost ' *.conf)
+			do
+				[ -z "$(grep '/etc/egroupware-docker/apache.conf' $conf)" ] && \
+					sed -i 's|</VirtualHost>|\t# EGroupware proxy needs to be included inside vhost\n\tinclude /etc/egroupware-docker/apache.conf\n\n</VirtualHost>|g' $conf && \
+					echo "Include /etc/egroupware-docker/apache.conf added to site $conf"
+			done
+		fi
+		a2enmod proxy
+		a2enmod proxy_http
+		a2enmod proxy_wstunnel
+		a2enmod headers
+		a2enmod rewrite
+		webserver_soft_reload apache2
+	fi
+
+	# rm old crontab entry, which does not get removed when 17.1 egroupware-epl package get deinstalled
+	rm -f /etc/cron.d/egroupware
+
+	# get our addition to docker unit working in case MariaDB/MySQL runs an update
+	systemctl daemon-reload
+fi
+# make header.inc.php only read- and writable by webserver-user
+chown www-data:www-data /var/lib/egroupware/header.inc.php
+chmod 600 /var/lib/egroupware/header.inc.php
+
+#DEBHELPER#
+
+db_stop

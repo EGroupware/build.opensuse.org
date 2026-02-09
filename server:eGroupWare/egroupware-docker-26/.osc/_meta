@@ -1,0 +1,41 @@
+<package name="egroupware-docker-26" project="server:eGroupWare">
+  <title>EGroupware 23.1</title>
+  <description>Current stable EGroupware release 23.1</description>
+  <build>
+    <disable/>
+    <enable arch="x86_64" repository="Debian_11"/>
+    <enable arch="x86_64" repository="Debian_10"/>
+    <enable arch="x86_64" repository="SLE_15"/>
+    <enable arch="x86_64" repository="xUbuntu_16.04"/>
+    <enable arch="x86_64" repository="xUbuntu_18.04"/>
+    <enable arch="x86_64" repository="Debian_9.0"/>
+    <enable arch="x86_64" repository="CentOS_8"/>
+    <enable arch="x86_64" repository="xUbuntu_20.04"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.2"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.3"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.4"/>
+    <enable arch="x86_64" repository="xUbuntu_22.04"/>
+    <enable arch="x86_64" repository="Debian_12"/>
+    <enable arch="x86_64" repository="Rocky_9"/>
+    <enable arch="x86_64" repository="RockyLinux_9"/>
+    <enable arch="x86_64" repository="RockyLinux_10"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.5"/>
+    <enable arch="aarch64" repository="xUbuntu_22.04"/>
+    <enable arch="aarch64" repository="Debian_12"/>
+    <enable arch="armv7l" repository="Debian_12"/>
+    <enable arch="armv7l" repository="xUbuntu_22.04"/>
+    <enable arch="aarch64" repository="xUbuntu_24.04"/>
+    <enable arch="armv7l" repository="xUbuntu_24.04"/>
+    <enable arch="x86_64" repository="xUbuntu_24.04"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_15.6"/>
+    <enable arch="aarch64" repository="Debian_13"/>
+    <enable arch="armv7l" repository="Debian_13"/>
+    <enable arch="x86_64" repository="Debian_13"/>
+  </build>
+  <publish>
+    <disable arch="i586"/>
+    <enable/>
+  </publish>
+</package>
+
+

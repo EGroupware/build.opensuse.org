@@ -1,0 +1,11 @@
+#! /bin/sh
+
+set -e
+
+if [ "$1" = purge ]; then
+  docker volume rm -f $(docker volume ls | grep egroupware-docker | sed 's/^local *//g')
+	rm -rf /var/lib/egroupware
+	rm -rf /etc/egroupware-docker
+fi
+
+#DEBHELPER#
