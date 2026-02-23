@@ -12,7 +12,7 @@ dbname = egroupware
 user = egroupware
 password = secret
 
-query = SELECT CONCAT(account_lid,'@',config_value)
+query = SELECT CAST(CONCAT(account_lid,'@',config_value) AS CHAR CHARACTER SET utf8 COLLATE utf8_general_ci)
     FROM egw_accounts
     JOIN egw_config ON config_app='phpgwapi' AND config_name='mail_suffix'
     JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active'
@@ -24,7 +24,7 @@ query = SELECT CONCAT(account_lid,'@',config_value)
         (contact_email='%s' OR alias.mail_value='%s')
     UNION
     # (external) forwards
-    SELECT forward.mail_value
+    SELECT CAST(forward.mail_value AS CHAR CHARACTER SET utf8 COLLATE utf8_general_ci)
     	FROM egw_accounts
         JOIN egw_mailaccounts active ON egw_accounts.account_id=active.account_id AND active.mail_type=0 AND active.mail_value='active'
         JOIN egw_mailaccounts forward ON egw_accounts.account_id=forward.account_id AND forward.mail_type=4
@@ -34,7 +34,7 @@ query = SELECT CONCAT(account_lid,'@',config_value)
     		(contact_email='%s' OR alias.mail_value='%s')
     	UNION
     # group email addresses resolving to email addresses of all members
-    SELECT contact_email
+    SELECT CAST(contact_email AS CHAR CHARACTER SET utf8 COLLATE utf8_general_ci)
     FROM egw_mailaccounts
     JOIN egw_acl ON acl_appname='phpgw_group' AND acl_location=egw_mailaccounts.account_id
     JOIN egw_addressbook ON egw_addressbook.account_id=acl_account

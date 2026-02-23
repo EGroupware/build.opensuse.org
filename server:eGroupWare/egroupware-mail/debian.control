@@ -3,6 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Ralf Becker <rb@egroupware.org>
 Build-Depends: debhelper (>= 9)
+Rules-Requires-Root: binary-targets
 
 Package: egroupware-mail
 Architecture: any

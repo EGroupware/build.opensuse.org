@@ -13,9 +13,13 @@
     <enable arch="x86_64" repository="Debian_9.0"/>
     <enable arch="x86_64" repository="Debian_11"/>
     <enable arch="x86_64" repository="xUbuntu_22.04"/>
+    <enable arch="x86_64" repository="Debian_12"/>
+    <enable arch="x86_64" repository="xUbuntu_24.04"/>
+    <enable arch="x86_64" repository="Debian_13"/>
   </build>
   <publish>
     <enable/>
   </publish>
 </package>
+
 
