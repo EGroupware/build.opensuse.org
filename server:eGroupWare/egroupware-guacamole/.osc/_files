@@ -1,6 +1,6 @@
-<directory name="egroupware-guacamole" rev="55" vrev="1" srcmd5="9b448869fc2d2480294bd5434837c14f">
+<directory name="egroupware-guacamole" rev="56" vrev="2" srcmd5="7c3eb3e33aad7397b2551769d72aaa03">
   <entry name="build.sh" md5="89c4b7fa9f9e435a4bd02bff87571a79" size="663" mtime="1750766982" />
-  <entry name="debian.changes" md5="8c27d86d56c35309e408baeddc4df73b" size="4199" mtime="1772094230" />
+  <entry name="debian.changes" md5="372688223b5559d0fe5a76051c4e710c" size="4199" mtime="1772096157" />
   <entry name="debian.compat" md5="31d30eea8d0968d6458e0ad0027c9f80" size="3" mtime="1586979810" />
   <entry name="debian.control" md5="76f91957bddd45cbfbc54f4e9282bdb6" size="710" mtime="1725790455" />
   <entry name="debian.postinst" md5="9c484168a7ac4352e98d835032d9791e" size="10542" mtime="1772094231" />
