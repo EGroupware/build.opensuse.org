@@ -56,7 +56,7 @@ EOF
     test -f /etc/egroupware-docker/.env &&
     grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
       . /etc/egroupware-docker/.env
-      MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
+      MYSQL="docker exec -i egroupware-db mariadb -uroot -p$EGW_DB_ROOT_PW"
       # add EGroupware's network to allow to access db container
       egw_network=$(docker network ls|grep -E 'egroupware-?docker_default'|sed 's/ \+/ /g'|cut -d' ' -f2)
       cat <<EOF >> /etc/egroupware-guacamole/docker-compose.override.yml
