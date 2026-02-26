@@ -40,7 +40,7 @@ then
     test -f /etc/egroupware-docker/.env &&
     grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
       . /etc/egroupware-docker/.env
-      MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
+      MYSQL="docker exec -i egroupware-db mariadb -uroot -p$EGW_DB_ROOT_PW"
     } || {
       # change MariaDB or MySQL to bind on docker0 address
       [ -f /etc/mysql/mariadb.conf.d/50-server.cnf ] && {
