@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 7.4.20250319
+Version: 7.4.20260226
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-7.4.20250319.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-7.4.20260226.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -211,6 +211,7 @@ install -m 700 update-mongodb.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 change-site-url.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 644 mongodump-rocketchat-5.4.gz $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
+chown -R 65533:65533 $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-rocketchat.conf
@@ -229,4 +230,4 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"
 %{apache_vhosts_d}
 %endif
-/var/lib/egroupware/default/rocketchat/uploads
+%attr(755,65533:65533) /var/lib/egroupware/default/rocketchat/uploads

@@ -52,7 +52,7 @@ MYSQL=mysql
 test -f /etc/egroupware-docker/.env &&
 grep "'db_host' => 'db'" /var/lib/egroupware/header.inc.php && {
   source /etc/egroupware-docker/.env
-  MYSQL="docker exec -i egroupware-db mysql -uroot -p$EGW_DB_ROOT_PW"
+  MYSQL="docker exec -i egroupware-db mariadb -uroot -p$EGW_DB_ROOT_PW"
 }
 # check EGroupware database is accessible
 $MYSQL $EGW_DB_NAME --execute "SELECT config_value FROM egw_config WHERE config_name='install_id'" || {

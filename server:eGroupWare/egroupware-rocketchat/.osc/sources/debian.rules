@@ -37,6 +37,7 @@ install: build
 	install -m 644 mongodump-rocketchat-5.4.gz $(DEST_DIR)$(ETC_DIR)
 
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/uploads
+	chown -R 65533:65533 $(DEST_DIR)$(DATA_DIR)/uploads
 
 # Build architecture-independent files here.
 binary-indep: build install
