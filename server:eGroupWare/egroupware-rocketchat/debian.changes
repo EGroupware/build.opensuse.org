@@ -2,7 +2,7 @@ egroupware-rocketchat (7.4.20260226) hardy; urgency=low
 
   * use mariadb binary when accessing the DB in egroupware-db container, as of 11.8 no more mysql symlink
 
- -- Ralf Becker <rb@egroupware.org>  Thu, 26 Feb 2025 08:30 -0000
+ -- Ralf Becker <rb@egroupware.org>  Thu, 26 Feb 2026 08:30 -0000
 
 egroupware-rocketchat (7.4.20250319) hardy; urgency=low
 

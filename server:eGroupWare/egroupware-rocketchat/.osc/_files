@@ -1,5 +1,5 @@
-<directory name="egroupware-rocketchat" rev="44" vrev="1" srcmd5="27c3b1167988c89dafd2df0ed72d159d">
-  <entry name="debian.changes" md5="b367f54bb32f29bc839ac92da93eb515" size="5035" mtime="1772094674" />
+<directory name="egroupware-rocketchat" rev="45" vrev="2" srcmd5="23dda1774da41f9706375ec3c6f9806e">
+  <entry name="debian.changes" md5="813a6b8b5451e2c7049954d3736b50a1" size="5035" mtime="1772096135" />
   <entry name="debian.compat" md5="31d30eea8d0968d6458e0ad0027c9f80" size="3" mtime="1553521611" />
   <entry name="debian.control" md5="b80cae690d334403119fde3e4d128a24" size="488" mtime="1725787982" />
   <entry name="debian.egroupware-rocketchat.conffiles" md5="02023eca2e844d66ec2c3b87541e3092" size="123" mtime="1562833149" />
