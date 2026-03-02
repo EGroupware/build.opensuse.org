@@ -61,6 +61,8 @@ services:
     depends_on:
     - db
     container_name: egroupware
+    labels:
+    - "com.centurylinklabs.watchtower.enable=true"
 
   # run an own MariaDB:11.8 (you can use EGroupware's database backup and restore to add your existing database)
   db:
@@ -74,6 +76,8 @@ services:
       - ./mariadb.cnf:/etc/mysql/mariadb.conf.d/egroupware.cnf
     restart: always
     container_name: egroupware-db
+    labels:
+    - "com.centurylinklabs.watchtower.enable=true"
 
   # push server using phpswoole
   push:
@@ -89,6 +93,8 @@ services:
     # as we get our sources from there
     depends_on:
       - egroupware
+    labels:
+    - "com.centurylinklabs.watchtower.enable=true"
 
   nginx:
     image: nginx:stable-alpine
@@ -103,6 +109,8 @@ services:
     - push
     container_name: egroupware-nginx
     restart: always
+    labels:
+    - "com.centurylinklabs.watchtower.enable=true"
 
   # automatic updates of all containers daily at 4am
   # see https://watchtower.nickfedor.com/ for more information
@@ -113,6 +121,7 @@ services:
     - /root/.docker/config.json:/config.json:ro
     environment:
     - WATCHTOWER_CLEANUP=true # delete old image after update to not fill up the disk
+    - WATCHTOWER_LABEL_ENABLE=true
     command: --schedule "0 0 4 * * *"
     container_name: egroupware-watchtower
     restart: always
