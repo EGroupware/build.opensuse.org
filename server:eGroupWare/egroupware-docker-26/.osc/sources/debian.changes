@@ -1,6 +1,6 @@
 egroupware-docker (26.4.20260430) hardy; urgency=low
 
-  * update phpswoole tag to alpine-latest as currently broken php8.5-alpine is a nightly image
+  * update phpswoole tag to latest-alpine as currently broken php8.5-alpine is a nightly image
 
  -- Ralf Becker <rb@egroupware.org>  Thu, 30 Apr 2026 15:30:00 +0200
 
