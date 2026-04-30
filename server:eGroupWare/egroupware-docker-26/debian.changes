@@ -1,3 +1,9 @@
+egroupware-docker (26.4.20260430) hardy; urgency=low
+
+  * update phpswoole tag to alpine-latest as currently broken php8.5-alpine is a nightly image
+
+ -- Ralf Becker <rb@egroupware.org>  Thu, 30 Apr 2026 15:30:00 +0200
+
 egroupware-docker (26.2.20260207) hardy; urgency=low
 
   * final 26.x release, switching to docker-images to tag 26
