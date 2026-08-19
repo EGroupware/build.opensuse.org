@@ -33,6 +33,10 @@ services:
     - ROOT_URL=http://localhost/
     #- HTTP_PROXY=http://proxy.domain.com
     #- HTTPS_PROXY=http://proxy.domain.com
+    # EGroupware custom OAuth:
+    #- Accounts_OAuth_Custom-Egroupware-url=https://example.org/egroupware/openid/endpoint.php
+    #- Accounts_OAuth_Custom-Egroupware-id=Rocket.Chat
+    #- Accounts_OAuth_Custom-Egroupware-secret=secret
     #ports:
     #- 127.0.0.1:3000:3000
     # set the ip-address of your docker host AND your official DNS name so Rocket.Chat

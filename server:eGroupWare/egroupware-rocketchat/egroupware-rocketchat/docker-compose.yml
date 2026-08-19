@@ -14,7 +14,7 @@ volumes:
 
 services:
   rocketchat:
-    image: quay.io/egroupware/rocket.chat:stable7
+    image: quay.io/egroupware/rocket.chat:stable8
     command: >
       sh -c
         "while true; do
@@ -31,6 +31,52 @@ services:
       - PORT=3000
       - MONGO_URL=mongodb://mongo:27017/rocketchat?replicaSet=rs0&directConnection=true
       - MONGO_OPLOG_URL=mongodb://mongo:27017/local?replicaSet=rs0&directConnection=true
+      # EGroupware custom OAuth / OpenIDConnect
+      - Accounts_OAuth_Custom-Egroupware=true
+      - Accounts_OAuth_Custom-Egroupware-url=https://example.org/egroupware/openid/endpoint.php
+      - Accounts_OAuth_Custom-Egroupware-token_path=/access_token
+      - Accounts_OAuth_Custom-Egroupware-token_send_via=Payload
+      - Accounts_OAuth_Custom-Egroupware-identity_token_send_via=Header
+      - Accounts_OAuth_Custom-Egroupware-identity_path=/userinfo
+      - Accounts_OAuth_Custom-Egroupware-authorize_path=/authorize
+      - Accounts_OAuth_Custom-Egroupware-scope=openid email profile roles groups
+      - Accounts_OAuth_Custom-Egroupware-access_token_param=access_token
+      - Accounts_OAuth_Custom-Egroupware-id=Rocket.Chat
+      - Accounts_OAuth_Custom-Egroupware-secret=secret
+      - Accounts_OAuth_Custom-Egroupware-login_style=redirect
+      - Accounts_OAuth_Custom-Egroupware-button_label_text=EGroupware users click here
+      - Accounts_OAuth_Custom-Egroupware-button_label_color=#FFFFFF
+      - Accounts_OAuth_Custom-Egroupware-button_color=#1d74f5
+      - Accounts_OAuth_Custom-Egroupware-key_field=username
+      - Accounts_OAuth_Custom-Egroupware-username_field=id
+      - Accounts_OAuth_Custom-Egroupware-email_field=email
+      - Accounts_OAuth_Custom-Egroupware-name_field=name
+      - Accounts_OAuth_Custom-Egroupware-avatar_field=picture
+      - Accounts_OAuth_Custom-Egroupware-roles_claim=roles
+      - Accounts_OAuth_Custom-Egroupware-groups_claim=groups
+      - Accounts_OAuth_Custom-Egroupware-map_channels=false
+      - Accounts_OAuth_Custom-Egroupware-merge_roles=true
+      - Accounts_OAuth_Custom-Egroupware-roles_to_sync=admin
+      - Accounts_OAuth_Custom-Egroupware-merge_users=true
+      - Accounts_OAuth_Custom-Egroupware-merge_users_distinct_services=false
+      - Accounts_OAuth_Custom-Egroupware-show_button=true
+      # other settings
+      - Enable_CSP=true
+      - Iframe_Restrict_Access=false
+      - Show_Setup_Wizard=pending
+      - Iframe_Integration_send_enable=true
+      - Iframe_Integration_receive_enable=true
+      - Iframe_Integration_receive_origin=*
+      - Accounts_TwoFactorAuthentication_Enabled=false
+      - Accounts_ForgetUserSessionOnWindowClose=true
+      - Accounts_AllowUsernameChange=false
+      - Accounts_AllowEmailChange=false
+      - Accounts_AllowPasswordChange=false
+      - Accounts_AllowPasswordChangeForOAuthUsers=false
+      #- Accounts_ShowFormLogin=false
+      - Accounts_RegistrationForm=Public
+      - FileUpload_Storage_Type=FileSystem
+      - FileUpload_FileSystemPath=/app/uploads
     depends_on:
       - mongo
     ports:
@@ -38,7 +84,7 @@ services:
     container_name: rocketchat
 
   mongo:
-    image: mongo:7.0
+    image: mongo:8.0
     restart: unless-stopped
     volumes:
      - mongo:/data/db
@@ -49,7 +95,7 @@ services:
   # this container's job is just run the command to initialize the replica set.
   # it will run the command and remove himself (it will not stay running)
   mongo-init-replica:
-    image: mongo:7.0
+    image: mongo:8.0
     command: >
       bash -c
         "for (( ; ; )); do

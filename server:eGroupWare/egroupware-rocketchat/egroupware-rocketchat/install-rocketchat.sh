@@ -25,6 +25,14 @@ docker help compose >/dev/null || {
 	COMPOSE="docker-compose"
 }
 
+# sed inplace for Linux and MacOS
+if uname -a | grep -q Darwin
+then
+  sed_inplace="sed -i ''"
+else
+  sed_inplace="sed -i"
+fi
+
 cd $(dirname $0)
 
 [ -z "$HTTP_HOST" ] && {
@@ -70,70 +78,7 @@ rm -rf /var/lib/egroupware/default/rocketchat/uploads/*
 # drop database if it exists
 docker exec rocketchat-mongo mongosh mongo/rocketchat --eval "db.dropDatabase()"
 
-# restore empty rocketchat installation with configured OAuth for EGroupware
-cat mongodump-rocketchat-5.4.gz | docker exec -i rocketchat-mongo mongorestore --gzip --archive #--noIndexRestore
-#docker exec rocketchat-mongo mongosh rocketchat --eval 'db.runCommand({dropIndexes: "users", index: "bio_1"});'
-
-docker exec -i rocketchat-mongo mongosh mongo/rocketchat --eval "
-db.meteor_accounts_loginServiceConfiguration.replaceOne({service: 'egroupware'}, {
-  service : 'egroupware',
-  accessTokenParam: 'access_token',
-  authorizePath: '/authorize',
-  buttonColor: '#1d74f5',
-  buttonLabelColor: '#FFFFFF',
-  buttonLabelText: 'EGroupware users click here',
-  clientId: '$CLIENT_ID',
-  custom: true,
-  identityPath: '/userinfo',
-  identityTokenSentVia: 'header',
-  loginStyle: 'redirect',
-  mergeRoles: true,
-  rolesToMerge: 'admin',
-  mergeUsers: true,
-  rolesClaim: 'roles',
-  scope: 'openid email profile roles groups',
-  secret: '$SECRET',
-  serverURL: '$ENDPOINT',
-  tokenPath: '/access_token',
-  tokenSentVia: 'payload',
-  usernameField: 'id'
-}, {upsert: true});
-db.rocketchat_settings.updateOne({_id: 'Accounts_OAuth_Custom-Egroupware'},
-  {\$set: {value: true, hidden: true, packageValue: true}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_OAuth_Custom-Egroupware-id'},
-  {\$set: {value: '$CLIENT_ID', packageValue: '$CLIENT_ID', hidden: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_OAuth_Custom-Egroupware-secret'},
-  {\$set: {value: '$SECRET', packageValue: '$SECRET', hidden: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_OAuth_Custom-Egroupware-url'},
-  {\$set: {value: '$ENDPOINT', packageValue: '$ENDPOINT', hidden: false}});
-db.rocketchat_settings.updateOne({_id: 'Site_Url'}, {\$set: {value: '$SITE_URL', packageValue: '$SITE_URL'}});
-db.rocketchat_settings.updateOne({_id: 'uniqueID'}, {\$set: {value: '$UNIQUE_ID', installedAt: '$NOW'}});
-db.rocketchat_settings.updateOne({_id: 'FileUpload_json_web_token_secret_for_files'},
-  {\$set: {value: '$JWT_SECRET', installedAt: '$NOW'}});
-db.rocketchat_settings.updateOne({_id: 'Jitsi_Enabled'}, {\$set: {value: true}});
-db.rocketchat_settings.updateOne({_id: 'Jitsi_Domain'}, {\$set: {value: 'meet.jit.si'}});
-db.rocketchat_settings.updateOne({_id: 'Jitsi_Enabled_TokenAuth'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Jitsi_Application_ID'}, {\$set: {value: ''}});
-db.rocketchat_settings.updateOne({_id: 'Jitsi_Application_Secret'}, {\$set: {value: ''}});
-db.rocketchat_settings.updateMany({_id: /^Organization/}, {\$set: {value: ''}});
-db.rocketchat_settings.updateOne({_id: 'Show_Setup_Wizard'}, {\$set: {value: 'pending'}});
-db.rocketchat_settings.updateMany({_id: /^Cloud_Workspace_/}, {\$set: {value: ''}});
-db.rocketchat_settings.updateMany({_id: /^Iframe_Integration_.*_enable/}, {\$set: {value: true }});
-db.rocketchat_settings.updateOne({_id: 'Accounts_TwoFactorAuthentication_Enabled'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_ForgetUserSessionOnWindowClose'}, {\$set: {value: true}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_AllowUsernameChange'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_AllowEmailChange'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_AllowPasswordChange'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_AllowPasswordChangeForOAuthUsers'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_ShowFormLogin'}, {\$set: {value: false}});
-db.rocketchat_settings.updateOne({_id: 'Accounts_RegistrationForm'}, {\$set: {value: 'Public'}}); // was 'Disabled'
-db.rocketchat_settings.updateOne({_id: 'FileUpload_Storage_Type'}, {\$set: {value: 'FileSystem'}});
-db.rocketchat_settings.updateOne({_id: 'FileUpload_FileSystemPath'}, {\$set: {value: '/app/uploads'}});
-db.getCollection('_raix_push_app_tokens').remove({});
-// remove all users, but rocket.cat
-db.users.remove({_id: {\$ne: 'rocket.cat'}});
-"
-
+# create OAuth client in EGroupware
 $MYSQL $EGW_DB_NAME <<EOF
 DELETE egw_openid_clients,egw_openid_client_grants FROM egw_openid_client_grants INNER JOIN egw_openid_clients USING(client_id) WHERE client_identifier='Rocket.Chat';
 INSERT INTO egw_openid_clients (client_name,client_identifier,client_secret,client_redirect_uri,client_created,client_updated,client_status,app_name) VALUES
@@ -154,14 +99,21 @@ EOF
 # restart EGroupware (php-fpm) to clear the cache
 docker exec -i egroupware kill -s USR2 1
 
-# start rocketchat (again) with stable6 image
-$COMPOSE rm -f rocketchat # to get a new / clean log
-sed -i "s/^\( *\)#*image: *.*rocket.chat:.*/\\1image: quay.io\/egroupware\/rocket.chat:stable6/g" docker-compose.override.yml
-$COMPOSE up -d
-echo "Waiting 60 seconds for stable6 RC to start"
-for i in `seq 1 60`; do echo -n .; sleep 1; done; echo
-# replace stable6 with stable7 image and start it
-sed -i "s/^\( *\)#*image: *.*rocket.chat:.*/\\1image: quay.io\/egroupware\/rocket.chat:stable7/g" docker-compose.override.yml
+# patch OAuth URL, client-ID and secret into docker-compose.override.yml
+grep Accounts_OAuth_Custom-Egroupware-url docker-compose.override.yml >/dev/null || {
+  cat <<EOF | $sed_inplace '/^    environment:/r /dev/stdin' docker-compose.override.yml
+    # EGroupware custom OAuth:
+    #- Accounts_OAuth_Custom-Egroupware-url=https://example.org/egroupware/openid/endpoint.php
+    #- Accounts_OAuth_Custom-Egroupware-id=Rocket.Chat
+    #- Accounts_OAuth_Custom-Egroupware-secret=secret
+EOF
+}
+$sed_inplace \
+  -e "s|#*- Accounts_OAuth_Custom-Egroupware-url=.*|- Accounts_OAuth_Custom-Egroupware-url=$ENDPOINT|g" \
+  -e "s|#*- Accounts_OAuth_Custom-Egroupware-id=.*|- Accounts_OAuth_Custom-Egroupware-id=$CLIENT_ID|g" \
+  -e "s|#*- Accounts_OAuth_Custom-Egroupware-secret=.*|- Accounts_OAuth_Custom-Egroupware-secret=$SECRET|g" \
+  docker-compose.override.yml
+
 $COMPOSE up -d
 
 echo ""

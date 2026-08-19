@@ -35,13 +35,13 @@ docker help compose >/dev/null || {
 cd $(dirname $0)
 
 # getting current mongodb major version
-current=$(docker ps|grep mongo:|sed 's/^[0-9a-f]\{12,\} \{1,\}mongo:\([457]\.[0246]\).*$/\1/g')
-echo $current | grep -qe '^[457]\.[0246]$' || {
+current=$(docker ps|grep mongo:|sed 's/^[0-9a-f]\{12,\} \{1,\}mongo:\([45789]\.[02346]\).*$/\1/g')
+echo $current | grep -qe '^[45789]\.[02346]$' || {
   echo "$(basename $0): Could NOT determine current version of MongoDB, maybe MongoDB container is not running!"
   exit 1
 }
 echo "Currently running MongoDB version $current"
-test $# -eq 1 && echo $1 | grep -qe '^[457]\.[0246]$' || {
+test $# -eq 1 && echo $1 | grep -qe '^[45789]\.[02346]$' || {
   echo "Usage: $(basename $0) <version>"
   echo "  <version> MongoDB major version eg. 5.0, must be bigger then current version $current"
   exit 1
@@ -73,6 +73,9 @@ case $current in
   # direct update 5.0 -> 7.0 seems ok
   5.0)
     new=7.0 # requires RC 6.x
+    ;;
+  7.0)
+    new=8.0 # requires RC 7.9
     ;;
   *)
     echo "Update from MongoDB version '$current' to '$new' is NOT (yet) supported --> aborting";

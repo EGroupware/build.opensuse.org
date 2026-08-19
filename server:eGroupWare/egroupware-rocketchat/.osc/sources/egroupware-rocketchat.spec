@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 7.4.20260226
+Version: 8.4.20260630
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-7.4.20260226.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-8.4.20260630.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -125,16 +125,16 @@ case "$1" in
     test docker-compose.yml.rpmnew -nt docker-compose.yml && {
       mv docker-compose.yml.rpmnew docker-compose.yml
     } || true
-    # update to MongoDB to 7.0
-    ./update-mongodb.sh 7.0 && {
+    # update to MongoDB to 8.0
+    ./update-mongodb.sh 8.0 && {
       # first start old "stable" image, otherwise some indexes are missing when 5.4 starts
       echo "y" | docker-compose up -d || true
       echo "Waiting for old/stable RC to start"
       for i in `seq 1 45`; do echo -n .; sleep 1; done; echo
       docker logs rocketchat
-      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable7 from docker-compose.yml
+      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable8 from docker-compose.yml
       sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
-      # remove mongo service overwrites, as docker-compose.yml has everything for 7.0
+      # remove mongo service overwrites, as docker-compose.yml has everything for 8.0
       sed -e '/^ *mongo:/,+99d' -i docker-compose.override.yml
     } || {
       true # do nothing as RC 7.x still supports MongoDB 5.0, it's only deprecated
@@ -209,9 +209,7 @@ install -m 644 nginx.conf $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 install-rocketchat.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 update-mongodb.sh $RPM_BUILD_ROOT%{etc_dir}
 install -m 700 change-site-url.sh $RPM_BUILD_ROOT%{etc_dir}
-install -m 644 mongodump-rocketchat-5.4.gz $RPM_BUILD_ROOT%{etc_dir}
 mkdir -p $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
-chown -R 65533:65533 $RPM_BUILD_ROOT/var/lib/egroupware/default/rocketchat/uploads
 
 mkdir -p $RPM_BUILD_ROOT%{apache_conf_d}
 ln -s %{etc_dir}/apache.conf $RPM_BUILD_ROOT%{apache_conf_d}/egroupware-rocketchat.conf
@@ -230,4 +228,4 @@ mkdir -p $RPM_BUILD_ROOT%{apache_vhosts_d}
 %if "%{apache_conf_d}" != "%{apache_vhost_d}"
 %{apache_vhosts_d}
 %endif
-%attr(755,65533:65533) /var/lib/egroupware/default/rocketchat/uploads
+%attr(755,65533,65533) /var/lib/egroupware/default/rocketchat/uploads

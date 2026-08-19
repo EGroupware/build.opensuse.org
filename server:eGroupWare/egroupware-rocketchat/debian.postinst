@@ -66,16 +66,16 @@ then
     test docker-compose.yml.dpgk-dist -nt docker-compose.yml && {
       mv docker-compose.yml.dpgk-dist docker-compose.yml
     } || true
-    # update to MongoDB to 7.0
-    ./update-mongodb.sh 7.0 && {
+    # update to MongoDB to 8.0
+    ./update-mongodb.sh 8.0 && {
       # first start old "stable6" image, otherwise some indexes might be missing
       echo "y" | $COMPOSE up -d || true
       echo "Waiting for stable6 RC to start"
       for i in `seq 1 45`; do echo -n .; sleep 1; done; echo
       docker logs rocketchat
-      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable7 from docker-compose.yml
+      # on success: disable image overwrite, to get quay.io/egroupware/rocket.chat:stable8 from docker-compose.yml
       sed 's/^\( *\)\(image: *.*rocket.chat.*\)$/\1#\2/g' -i docker-compose.override.yml
-      # remove mongo service overwrites, as docker-compose.yml has everything for 7.0
+      # remove mongo service overwrites, as docker-compose.yml has everything for 8.0
       sed -e '/^ *mongo:/,+99d' -i docker-compose.override.yml
     } || {
       true # do nothing as RC 7.x still supports MongoDB 5.0, it's only deprecated

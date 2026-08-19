@@ -1,15 +1,14 @@
-<directory name="egroupware-rocketchat" rev="45" vrev="2" srcmd5="23dda1774da41f9706375ec3c6f9806e">
-  <entry name="debian.changes" md5="813a6b8b5451e2c7049954d3736b50a1" size="5035" mtime="1772096135" />
+<directory name="egroupware-rocketchat" rev="55" vrev="7" srcmd5="befcee0edf9e80885d1eb3210cba4c18">
+  <entry name="debian.changes" md5="49158532636c4ca0051fd9f805c1fa80" size="5212" mtime="1787122832" />
   <entry name="debian.compat" md5="31d30eea8d0968d6458e0ad0027c9f80" size="3" mtime="1553521611" />
-  <entry name="debian.control" md5="b80cae690d334403119fde3e4d128a24" size="488" mtime="1725787982" />
+  <entry name="debian.control" md5="73bdc7cebcfb82bf85881861ea45db19" size="524" mtime="1787122640" />
   <entry name="debian.egroupware-rocketchat.conffiles" md5="02023eca2e844d66ec2c3b87541e3092" size="123" mtime="1562833149" />
-  <entry name="debian.postinst" md5="1b490fb295f31531b1560cc2f1e4ad83" size="4906" mtime="1742391717" />
+  <entry name="debian.postinst" md5="5d27404c8e687d7dce1bd6b952a38d1e" size="4906" mtime="1782813375" />
   <entry name="debian.prerm" md5="6a6fdd4d75a9c93e7ccb5ab95082a9ab" size="1156" mtime="1725787982" />
-  <entry name="debian.rules" md5="5825b3b6c34c597ba562706bfb9b22f2" size="1909" mtime="1772094674" />
+  <entry name="debian.rules" md5="de57778faa0250078d77c68445619253" size="1844" mtime="1782815535" />
   <entry name="debian.tar.gz" md5="2c4328f6e6a68e37f0f77b95b2d8752c" size="120" mtime="1553521613" />
-  <entry name="egroupware-rocketchat-7.4.20250319.tar.gz" md5="c81c140918b20c50bbb4fe0810fe5b83" size="149132" mtime="1742412684" />
-  <entry name="egroupware-rocketchat-7.4.20260226.tar.gz" md5="29efa00c0cac45baf9b9471d4c0337d3" size="149141" mtime="1772094674" />
-  <entry name="egroupware-rocketchat.dsc" md5="2b3bfbc09083cd50c398d98c68315fc6" size="381" mtime="1772094675" />
-  <entry name="egroupware-rocketchat.spec" md5="cc9611aa29d42a473d8fd0731b2c4ca5" size="8586" mtime="1772094675" />
+  <entry name="egroupware-rocketchat-8.4.20260630.tar.gz" md5="2e0c24166ff6e49fee1f69075d167026" size="7955" mtime="1782826285" />
+  <entry name="egroupware-rocketchat.dsc" md5="f1b467bb23e81560e0377529df8404a3" size="381" mtime="1782813376" />
+  <entry name="egroupware-rocketchat.spec" md5="816be348d7f9d2039e2701cf336da225" size="8434" mtime="1782815591" />
 </directory>
 
