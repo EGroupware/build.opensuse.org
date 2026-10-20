@@ -1,0 +1,16 @@
+# systemd-enabled Debian/Ubuntu "VM-like" container, the egroupware-docker package installs docker itself (as per wiki)
+ARG BASE=ubuntu:24.04
+FROM ${BASE}
+ENV container=docker DEBIAN_FRONTEND=noninteractive
+RUN rm -f /usr/sbin/policy-rc.d /etc/dpkg/dpkg.cfg.d/docker* \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends systemd systemd-sysv dbus ca-certificates wget curl gnupg \
+      iproute2 iptables kmod procps \
+ && rm -rf /var/lib/apt/lists/* \
+ && systemctl mask systemd-udevd.service systemd-udev-trigger.service getty.target console-getty.service
+# send systemd status and journal to the container console, so they show up in `docker logs`
+RUN mkdir -p /etc/systemd/journald.conf.d /etc/systemd/system.conf.d \
+ && printf '[Journal]\nForwardToConsole=yes\nTTYPath=/dev/console\nMaxLevelConsole=info\n' > /etc/systemd/journald.conf.d/console.conf \
+ && printf '[Manager]\nShowStatus=yes\n' > /etc/systemd/system.conf.d/console.conf
+STOPSIGNAL SIGRTMIN+3
+CMD ["/sbin/init"]

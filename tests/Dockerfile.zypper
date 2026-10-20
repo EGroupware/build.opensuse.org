@@ -1,0 +1,13 @@
+# systemd-enabled openSUSE Leap "VM-like" container, docker and the rest come with the package dependencies
+ARG BASE=opensuse/leap:16.0
+FROM ${BASE}
+ENV container=docker
+RUN zypper -n install --no-recommends systemd iproute2 kmod hostname procps curl ca-certificates \
+ && zypper clean -a \
+ && systemctl mask systemd-udevd.service systemd-udev-trigger.service getty.target console-getty.service
+# send systemd status and journal to the container console, so they show up in `docker logs`
+RUN mkdir -p /etc/systemd/journald.conf.d /etc/systemd/system.conf.d \
+ && printf '[Journal]\nForwardToConsole=yes\nTTYPath=/dev/console\nMaxLevelConsole=info\n' > /etc/systemd/journald.conf.d/console.conf \
+ && printf '[Manager]\nShowStatus=yes\n' > /etc/systemd/system.conf.d/console.conf
+STOPSIGNAL SIGRTMIN+3
+CMD ["/usr/lib/systemd/systemd"]

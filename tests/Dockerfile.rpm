@@ -1,0 +1,13 @@
+# systemd-enabled Rocky/RHEL "VM-like" container, the docker repo and docker itself are added by guest/install-rpm.sh as per wiki
+ARG BASE=rockylinux/rockylinux:10
+FROM ${BASE}
+ENV container=docker
+RUN dnf -y install systemd procps-ng iproute kmod hostname \
+ && dnf clean all \
+ && systemctl mask systemd-udevd.service systemd-udev-trigger.service getty.target console-getty.service
+# send systemd status and journal to the container console, so they show up in `docker logs`
+RUN mkdir -p /etc/systemd/journald.conf.d /etc/systemd/system.conf.d \
+ && printf '[Journal]\nForwardToConsole=yes\nTTYPath=/dev/console\nMaxLevelConsole=info\n' > /etc/systemd/journald.conf.d/console.conf \
+ && printf '[Manager]\nShowStatus=yes\n' > /etc/systemd/system.conf.d/console.conf
+STOPSIGNAL SIGRTMIN+3
+CMD ["/usr/sbin/init"]
