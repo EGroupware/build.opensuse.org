@@ -100,6 +100,19 @@ case $test in
 	install) docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/install-$family.sh 2>&1 | tee /dev/console" ;;
 	*) echo "unknown test $test" >&2; exit 2 ;;
 esac
+# MongoDB 8 refuses to start on Linux 6.19 to 7.0.13 (bug in its TCMalloc, fixed with kernel 7.0.14), the containers share the kernel of the host,
+# which varies on CI runners and is 7.0.x on Ubuntu 26.04: Rocket.Chat can not run then, that is no package problem
+if [ -n "$rc" ]; then
+	kernel=$(docker exec $name uname -r | sed 's/[^0-9.].*//')
+	if [ "$(printf '6.19\n%s\n' "$kernel" | sort -V | head -1)" = 6.19 ] && [ "$(printf '7.0.14\n%s\n' "$kernel" | sort -V | head -1)" != 7.0.14 ]; then
+		echo "SKIP: Rocket.Chat, MongoDB 8 can not start on this kernel ($(docker exec $name uname -r)), it needs < 6.19 or >= 7.0.14 (https://jira.mongodb.org/browse/SERVER-121912)"
+		rc=""
+		# the checks of the plain installation: no own CA, http://localhost
+		env_args=("${env_args[@]/EXPECT_ROCKETCHAT=1/EXPECT_ROCKETCHAT=0}")
+		env_args=("${env_args[@]/WEB_BASE=https:\/\/egw.test/WEB_BASE=$([ $family = rpm -a $web = apache ] && echo https://localhost || echo http://localhost)}")
+		env_args=("${env_args[@]/TLS_TRUSTED=1/TLS_TRUSTED=}")
+	fi
+fi
 if [ -n "$rc" ]; then
 	rc_env=()
 	if [ -n "${RC_OVERLAY:-}" ]; then
