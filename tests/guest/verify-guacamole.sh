@@ -40,13 +40,15 @@ AUTHURL=$(echo "$EXPECTED" | sed -n 's/.*"redirectUrl":"\([^"]*\)".*/\1/p' | sed
 case "$AUTHURL" in "https://$HOST/egroupware/openid/endpoint.php/authorize?"*) ok "oauth: Guacamole asks for authentication at EGroupware's OpenID endpoint" ;;
 	*) bad "oauth: Guacamole did not return an authorization URL: ${EXPECTED:0:200}" ;; esac
 # log in as sysop and authorize, retried a while: right after the app installation EGroupware's session handling may not be ready yet
-for i in 1 2 3 4 5 6; do
-	rm -f $J; LOGIN=$(curl -s -c $J -b $J -o /tmp/guac-login.html -w '%{http_code} %{redirect_url}' -d "login=sysop&passwd=$SYSOP_PW&passwd_type=text&account_type=u&submitit=1" $BASE/egroupware/login.php)
+ATTEMPTS=""
+for i in 1 2 3; do
+	rm -f $J; LOGIN=$(curl -s -c $J -b $J -o /tmp/guac-login.html -w '%{http_code} %{redirect_url}' --data-urlencode "login=sysop" --data-urlencode "passwd=$SYSOP_PW" -d "passwd_type=text&account_type=u&submitit=1" $BASE/egroupware/login.php)
+	ATTEMPTS="$ATTEMPTS [$i: ${LOGIN:0:90}]"
 	LOC=$(curl -s -b $J -c $J -o /dev/null -w '%{redirect_url}' "$AUTHURL")
 	JWT=$(echo "$LOC" | sed -n 's/.*[#&?]id_token=\([^&]*\).*/\1/p')
 	[ -n "$JWT" ] && break; sleep 10
 done
-[ -n "$JWT" ] && ok "oauth: EGroupware issues an id_token for client guacamole (no consent screen)" || bad "oauth: no id_token from EGroupware: '${LOC:0:150}' | login.php answered: $LOGIN, cookies: $(grep -c . $J) | message: $(sed -n 's/.*class="[^"]*\(error\|message\|blocked\)[^"]*"[^>]*>\([^<]*\).*/\2/p' /tmp/guac-login.html | head -2 | tr '\n' ' ')"
+[ -n "$JWT" ] && ok "oauth: EGroupware issues an id_token for client guacamole (no consent screen)" || bad "oauth: no id_token from EGroupware: '${LOC:0:150}' | login.php answered:$ATTEMPTS, cookies: $(grep -c . $J) | message: $(sed -n 's/.*class="[^"]*\(error\|message\|blocked\)[^"]*"[^>]*>\([^<]*\).*/\2/p' /tmp/guac-login.html | head -2 | tr '\n' ' ')"
 RES=$(curl -s -X POST $BASE/guacamole/api/tokens -d "id_token=$JWT")
 if echo "$RES" | grep -q '"authToken"' && echo "$RES" | grep -q '"username":"sysop"'; then
 	ok "oauth: Guacamole accepts the id_token and logs in user sysop"

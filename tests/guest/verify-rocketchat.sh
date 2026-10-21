@@ -38,7 +38,7 @@ done
 # 3. Rocket.Chat exchanges the code with EGroupware and fetches the identity via https (needs the private CA), 4. login via DDP with the credential
 SYSOP_PW=$(awk '/^EGroupware username: *sysop/{f=1;next} f&&/password:/{print $2;exit}' /var/lib/egroupware/egroupware-docker-install.log)
 J=/tmp/rc-oauth.cookies; rm -f $J
-curl -s -c $J -b $J -o /dev/null -d "login=sysop&passwd=$SYSOP_PW&passwd_type=text&account_type=u&submitit=1" $BASE/egroupware/login.php
+curl -s -c $J -b $J -o /dev/null --data-urlencode "login=sysop" --data-urlencode "passwd=$SYSOP_PW" -d "passwd_type=text&account_type=u&submitit=1" $BASE/egroupware/login.php
 TOKEN=oauthtest$(date +%s)$RANDOM
 STATE=$(printf '%s' "{\"loginStyle\":\"redirect\",\"credentialToken\":\"$TOKEN\",\"redirectUrl\":\"https://$HOST/home\",\"isCordova\":false}" | base64 | tr -d '\n=' | tr '+/' '-_')
 LOC=$(curl -s -b $J -c $J -o /dev/null -w '%{redirect_url}' "$BASE/egroupware/openid/endpoint.php/authorize?response_type=code&client_id=Rocket.Chat&redirect_uri=https%3A%2F%2F$HOST%2F_oauth%2Fegroupware&scope=openid%20email%20profile%20roles%20groups&state=$STATE")
