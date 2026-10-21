@@ -27,6 +27,29 @@ esac
 # every machine has its own docker+containerd volumes with all images (several GB): do not fill up the disk of the host (happened once)
 avail_gb=$(df -k /System/Volumes/Data 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')
 [ -z "$avail_gb" ] || [ "$avail_gb" -ge ${MIN_FREE_GB:-20} ] || { echo "only ${avail_gb}GB free on the host disk, need ${MIN_FREE_GB:-20}GB (MIN_FREE_GB=...), aborting" >&2; exit 3; }
+# ROCKETCHAT=1: also install egroupware-rocketchat with its OAuth integration into EGroupware, using an own CA for the hostname egw.test (guest/tls.sh), needs Nginx
+# RC_OVERLAY=dir: files of a not yet released version of the package (docker-compose.yml, install-rocketchat.sh, ...) to test instead of the published ones
+rc=${ROCKETCHAT:-}
+if [ -n "$rc" ]; then
+	[ $web = nginx ] || { echo "ROCKETCHAT=1 needs the default WEBSERVER=nginx" >&2; exit 2; }
+	suffix="$suffix-rocketchat"
+fi
+# GUACAMOLE=1: also install egroupware-guacamole, which logs in via OpenID Connect against EGroupware, using an own CA like ROCKETCHAT=1, needs Nginx
+gc=${GUACAMOLE:-}
+if [ -n "$gc" ]; then
+	[ $web = nginx ] || { echo "GUACAMOLE=1 needs the default WEBSERVER=nginx" >&2; exit 2; }
+	[ -z "$rc" ] || { echo "ROCKETCHAT=1 and GUACAMOLE=1 can not be combined" >&2; exit 2; }
+	suffix="$suffix-guacamole"
+fi
+# MAIL=1: also install egroupware-mail (Dovecot and Postfix containers), plain http is enough, no own CA needed
+ml=${MAIL:-}
+if [ -n "$ml" ]; then
+	[ -z "$rc$gc" ] || { echo "MAIL=1 can not be combined with ROCKETCHAT=1 or GUACAMOLE=1" >&2; exit 2; }
+	suffix="$suffix-mail"
+fi
+# MAIL_PKG=file: install this (noarch .rpm) package file instead of the published egroupware-mail
+mail_pkg=${MAIL_PKG:-}
+[ -z "$mail_pkg" ] || [ -n "$ml" ] || { echo "MAIL_PKG needs MAIL=1" >&2; exit 2; }
 name=egw-test-$distro$suffix
 image=egw-test-base:$distro
 cleanup() { [ -n "${KEEP:-}" ] && { echo "kept: docker exec -it $name bash"; return; }; docker rm -f $name >/dev/null 2>&1; docker volume rm -f $name-docker $name-containerd >/dev/null 2>&1; }
@@ -56,9 +79,27 @@ echo "systemd: $s"
 docker cp guest $name:/opt/guest
 # tell the docker, the package will install, about the mirror (daemon.json is not owned by the docker packages)
 [ -z "$net" ] || docker exec $name bash -c 'mkdir -p /etc/docker && echo "{\"registry-mirrors\":[\"http://egw-registry-mirror:5000\"],\"insecure-registries\":[\"egw-registry-mirror:5000\"]}" > /etc/docker/daemon.json'
-env_args=(-e OBS_DIST=$obs -e NO_RECOMMENDS=${NO_RECOMMENDS:-} -e EXTRA_PKGS=${EXTRA_PKGS:-} -e TIMEOUT=${TIMEOUT:-1800} -e WEB_BASE=$([ $family = rpm -a $web = apache ] && echo https://localhost || echo http://localhost) -e EXPECT_WEBSERVER=$web -e EXPECT_COLLABORA=$([ -n "${NO_RECOMMENDS:-}" ] && echo 0 || echo 1))
+web_base=http://localhost
+[ $family = rpm -a $web = apache ] && web_base=https://localhost
+[ -z "$rc$gc" ] || web_base=https://egw.test
+env_args=(-e OBS_DIST=$obs -e NO_RECOMMENDS=${NO_RECOMMENDS:-} -e EXTRA_PKGS=${EXTRA_PKGS:-} -e TIMEOUT=${TIMEOUT:-1800} -e WEB_BASE=$web_base -e EXPECT_WEBSERVER=$web -e EXPECT_COLLABORA=$([ -n "${NO_RECOMMENDS:-}" ] && echo 0 || echo 1) -e TLS_HOST=egw.test -e TLS_TRUSTED=$rc$gc -e EXPECT_ROCKETCHAT=$([ -n "$rc" ] && echo 1 || echo 0) -e EXPECT_GUACAMOLE=$([ -n "$gc" ] && echo 1 || echo 0) -e EXPECT_MAIL=$([ -n "$ml" ] && echo 1 || echo 0))
 case $test in
 	install) docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/install-$family.sh 2>&1 | tee /dev/console" ;;
 	*) echo "unknown test $test" >&2; exit 2 ;;
 esac
+if [ -n "$rc" ]; then
+	rc_env=()
+	if [ -n "${RC_OVERLAY:-}" ]; then
+		tmp=$(mktemp -d); cp -R "$RC_OVERLAY"/. "$tmp"/; docker cp "$tmp"/. $name:/opt/rc-overlay; rm -rf "$tmp"
+		rc_env=(-e RC_OVERLAY=/opt/rc-overlay)
+	fi
+	docker exec "${env_args[@]}" ${rc_env[@]+"${rc_env[@]}"} $name bash -c "set -o pipefail; bash /opt/guest/rocketchat.sh 2>&1 | tee /dev/console" || echo "WARNING: the Rocket.Chat setup failed, the checks will tell more"
+fi
+if [ -n "$gc" ]; then
+	docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/guacamole.sh 2>&1 | tee /dev/console" || echo "WARNING: the Guacamole setup failed, the checks will tell more"
+fi
+if [ -n "$ml" ]; then
+	[ -z "$mail_pkg" ] || { docker exec $name mkdir -p /opt/mail-pkg; docker cp "$mail_pkg" $name:/opt/mail-pkg/; }
+	docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/mail.sh 2>&1 | tee /dev/console" || echo "WARNING: the mail setup failed, the checks will tell more"
+fi
 docker exec "${env_args[@]}" $name bash -c "bash /opt/guest/verify.sh 2>&1 | tee /dev/console; exit \${PIPESTATUS[0]}"

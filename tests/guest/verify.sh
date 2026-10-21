@@ -4,7 +4,7 @@
 TIMEOUT=${TIMEOUT:-1800}
 # with Apache the RHEL/Rocky packages only have an https vhost with a self-signed certificate: WEB_BASE=https://localhost, curl then needs -k
 BASE=${WEB_BASE:-http://localhost}
-case $BASE in https:*) echo insecure > /root/.curlrc ;; esac
+case $BASE in https:*) [ -n "${TLS_TRUSTED:-}" ] || echo insecure > /root/.curlrc ;; esac   # TLS_TRUSTED: own CA is trusted, certificate is checked
 fail=0
 ok()  { echo "PASS: $*"; }
 bad() { echo "FAIL: $*"; fail=1; }
@@ -77,6 +77,8 @@ out=$(EGW_CLI_PASSWORD="wrong-$ADMIN_PW" $SETUP_CLI --config default,admin 2>&1)
 
 # exactly the default accounts exist (REST only shows what sysop can see, so ask the database via the package's mysql.sh)
 EXPECTED_ACCOUNTS="g:Admins g:Default g:NoGroup g:Teachers u:anonymous u:sysop"
+# egroupware-mail adds the master user dovecot
+[ "${EXPECT_MAIL:-0}" != 1 ] || EXPECTED_ACCOUNTS="g:Admins g:Default g:NoGroup g:Teachers u:anonymous u:dovecot u:sysop"
 ACTUAL_ACCOUNTS=$(/etc/egroupware-docker/mysql.sh -N -e "SELECT CONCAT(account_type,':',account_lid) FROM egw_accounts" 2>/dev/null | sort | tr '\n' ' ' | sed 's/ $//')
 if [ "$ACTUAL_ACCOUNTS" = "$EXPECTED_ACCOUNTS" ]; then
 	ok "accounts are exactly users sysop, anonymous and groups Admins, Default, NoGroup, Teachers"
@@ -111,6 +113,15 @@ elif [ "${EXPECT_COLLABORA:-0}" = 1 ]; then
 else
 	echo "SKIP: egroupware-collabora-key not installed (--no-install-recommends)"
 fi
+
+# --- egroupware-rocketchat with OAuth integration into EGroupware (ROCKETCHAT=1 of run-test.sh) ---
+if [ "${EXPECT_ROCKETCHAT:-0}" = 1 ]; then . "$(dirname "$0")/verify-rocketchat.sh"; fi
+
+# --- egroupware-guacamole with OpenID login via EGroupware (GUACAMOLE=1 of run-test.sh) ---
+if [ "${EXPECT_GUACAMOLE:-0}" = 1 ]; then . "$(dirname "$0")/verify-guacamole.sh"; fi
+
+# --- egroupware-mail: Dovecot and Postfix integrated into EGroupware (MAIL=1 of run-test.sh) ---
+if [ "${EXPECT_MAIL:-0}" = 1 ]; then . "$(dirname "$0")/verify-mail.sh"; fi
 
 [ $fail = 0 ] && echo "ALL CRITERIA PASSED" || { echo "SOME CRITERIA FAILED"; docker ps -a; }
 exit $fail

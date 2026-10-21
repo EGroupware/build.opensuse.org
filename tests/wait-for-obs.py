@@ -67,7 +67,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--project', default='server:eGroupWare')
     p.add_argument('--arch', default='x86_64')
-    p.add_argument('--pkg', action='append', required=True, metavar='PACKAGE=SRCMD5', help='package and source md5 of the expected build, can be repeated')
+    p.add_argument('--pkg', action='append', required=True, metavar='PACKAGE=SRCMD5[:REPO,REPO]', help='package and source md5 of the expected build, can be repeated, with :REPO,... only these of the --repo are waited for (package not built for all of them)')
     p.add_argument('--repo', action='append', required=True, help='OBS repository, can be repeated')
     p.add_argument('--timeout', type=int, default=3 * 3600, help='seconds to wait in total (default 3h)')
     p.add_argument('--interval', type=int, default=60, help='seconds between checks (default 60)')
@@ -77,10 +77,12 @@ def main():
     pkgs = []
     for spec in a.pkg:
         name, _, md5 = spec.partition('=')
+        md5, _, only = md5.partition(':')
         if not md5:
-            p.error('--pkg needs PACKAGE=SRCMD5, got %r' % spec)
-        pkgs.append((name, md5))
-    pending = {(pkg, md5, repo) for pkg, md5 in pkgs for repo in a.repo}
+            p.error('--pkg needs PACKAGE=SRCMD5[:REPO,REPO], got %r' % spec)
+        pkgs.append((name, md5, [r for r in only.split(',') if r in a.repo] if only else a.repo))
+    pending = {(pkg, md5, repo) for pkg, md5, repos in pkgs for repo in repos}
+    total = len(pending)
     started = time.time()
     last_msg = {}
     while True:
@@ -101,7 +103,7 @@ def main():
             print('TIMEOUT after %ds, still waiting for: %s' % (a.timeout, ', '.join('%s/%s' % (i[0], i[2]) for i in sorted(pending))), file=sys.stderr, flush=True)
             return 2
         time.sleep(a.interval)
-    print('%s all %d package/repository combinations published, waiting %ds for the mirrors' % (time.strftime('%H:%M:%S'), len(pkgs) * len(a.repo), a.settle), flush=True)
+    print('%s all %d package/repository combinations published, waiting %ds for the mirrors' % (time.strftime('%H:%M:%S'), total, a.settle), flush=True)
     time.sleep(a.settle)
     return 0
 

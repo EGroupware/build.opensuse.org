@@ -4,6 +4,9 @@
 # the "plan" job waits for the OBS build of the commit (tests/wait-for-obs.py), then the "install" jobs run.
 # Every install job installs the packages in a systemd container with docker-in-docker, see tests/README.md,
 # and checks the criteria in tests/guest/verify.sh (containers running, REST API, accounts, web server, Collabora, ...).
+# Commits to egroupware-rocketchat run the Rocket.Chat tests: install with an own CA and test the OAuth integration with EGroupware.
+# Commits to egroupware-guacamole run the same for Guacamole (OpenID login via EGroupware), commits to egroupware-mail the mail tests
+# (Dovecot and Postfix integrated into EGroupware, Debian and Ubuntu only until the RPM is published). Which jobs: tests/plan.sh.
 name: Package install tests
 
 on:
@@ -14,9 +17,17 @@ on:
       # (egroupware-docker-26: older docker packages are not tested, add them here, when we have upgrade tests)
       - 'server:eGroupWare/egroupware-docker-26/**'
       - 'server:eGroupWare/egroupware-collabora-key/**'
+      - 'server:eGroupWare/egroupware-rocketchat/**'
+      - 'server:eGroupWare/egroupware-guacamole/**'
+      - 'server:eGroupWare/egroupware-mail/**'
       - '!**/.osc/**'
   workflow_dispatch:
     inputs:
+      test:
+        description: 'What to test: install (egroupware-docker and Collabora, with Nginx and Apache), rocketchat (with OAuth integration), guacamole (with OpenID login), mail or all'
+        type: choice
+        default: install
+        options: [install, rocketchat, guacamole, mail, all]
       distro:
         description: 'Distros to test: default (as on commits), all or a single one. A manual run tests what is currently published'
         type: choice
@@ -37,17 +48,18 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     outputs:
-      distros: ${{ steps.plan.outputs.distros }}
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Which distros, which packages
+      - name: Which jobs, which packages
         id: plan
         env:
           EVENT: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}
           SHA: ${{ github.sha }}
           INPUT_DISTRO: ${{ inputs.distro }}
+          INPUT_TEST: ${{ inputs.test }}
           GH_TOKEN: ${{ github.token }}
         run: tests/plan.sh | tee -a "$GITHUB_OUTPUT"
 
@@ -56,16 +68,17 @@ jobs:
         run: tests/wait-for-obs.py ${{ steps.plan.outputs.pkgargs }} ${{ steps.plan.outputs.repos }}
 
   install:
-    name: ${{ matrix.distro }} (${{ matrix.webserver }})
+    name: ${{ matrix.distro }} (${{ matrix.kind == 'base' && matrix.webserver || matrix.kind }})
     needs: plan
+    # nothing to test, eg. a commit to egroupware-mail with only RPM distros selected (an empty matrix is an error)
+    if: ${{ needs.plan.outputs.matrix != '{"include":[]}' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
-      matrix:
-        # permanently: the 2 latest Debian and Ubuntu releases, only the latest of everything else, see tests/plan.sh
-        distro: ${{ fromJSON(needs.plan.outputs.distros) }}
-        webserver: [nginx, apache]
+      # permanently: the 2 latest Debian and Ubuntu releases, only the latest of everything else, each with Nginx and Apache,
+      # plus the same distros with Nginx for Rocket.Chat, Guacamole and mail, if they changed, see tests/plan.sh
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -74,14 +87,17 @@ jobs:
         shell: bash                          # adds pipefail, so a failing test is not hidden by | tee
         env:
           WEBSERVER: ${{ matrix.webserver }}
+          ROCKETCHAT: ${{ matrix.kind == 'rocketchat' && '1' || '' }}
+          GUACAMOLE: ${{ matrix.kind == 'guacamole' && '1' || '' }}
+          MAIL: ${{ matrix.kind == 'mail' && '1' || '' }}
           PLATFORM: linux/amd64
           NO_MIRROR: '1'                    # fresh VM for every job, a registry mirror would not help
           TIMEOUT: '900'
-        run: ./run-test.sh ${{ matrix.distro }} install 2>&1 | tee "../test-${{ matrix.distro }}-${{ matrix.webserver }}.log"
+        run: ./run-test.sh ${{ matrix.distro }} install 2>&1 | tee "../test-${{ matrix.distro }}-${{ matrix.kind == 'base' && matrix.webserver || matrix.kind }}.log"
 
       - name: Upload log
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: log-${{ matrix.distro }}-${{ matrix.webserver }}
-          path: test-${{ matrix.distro }}-${{ matrix.webserver }}.log
+          name: log-${{ matrix.distro }}-${{ matrix.kind == 'base' && matrix.webserver || matrix.kind }}
+          path: test-${{ matrix.distro }}-${{ matrix.kind == 'base' && matrix.webserver || matrix.kind }}.log
