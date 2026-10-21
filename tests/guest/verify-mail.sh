@@ -22,6 +22,12 @@ check "mail: DB user mail can log in and read egroupware"     sh -c "docker exec
 DOMAIN=$(dbroot "SELECT config_value FROM egw_config WHERE config_app='phpgwapi' AND config_name='mail_suffix'")
 [ -n "$DOMAIN" ] && ok "mail: mail_suffix set to '$DOMAIN'" || bad "mail: mail_suffix not set"
 
+# a user is only a mail user, if mail is enabled for the account: rows in egw_mailaccounts (Api\Mail\Smtp\Sql: type 0 = enabled, 5 = mailbox name, used as home by Dovecot),
+# which EGroupware writes, when mail is enabled in the account in Admin, a new installation has them for nobody; and the email address is in the contact
+SYSOP_ID=$(dbroot "SELECT account_id FROM egw_accounts WHERE account_lid='sysop'")
+dbroot "INSERT INTO egw_mailaccounts (account_id,mail_type,mail_value) VALUES ($SYSOP_ID,0,'active'),($SYSOP_ID,5,'sysop')" >/dev/null
+dbroot "UPDATE egw_addressbook SET contact_email='sysop@$DOMAIN' WHERE account_id=$SYSOP_ID" >/dev/null
+
 # Postfix asks the EGroupware database via its mysql maps (TLS to MariaDB: postfix 3.10 with connector 3.4 verifies the server certificate)
 deadline=$((SECONDS+TIMEOUT))
 until [ "$(docker exec egroupware-smtp postmap -q "$DOMAIN" mysql:/etc/postfix/sql-domains.cf 2>/dev/null)" = "$DOMAIN" ] || [ $SECONDS -ge $deadline ]; do sleep 10; done
@@ -32,6 +38,14 @@ for m in aliases mailboxes; do
 	# an unknown address is an empty answer with exit 1, an error is a warning/fatal in the output
 	case "$out" in *warning*|*fatal*|*rror*) bad "mail: postfix sql-$m.cf lookup is broken: ${out:0:200}" ;; *) ok "mail: postfix sql-$m.cf lookup works (unknown address gives no result)" ;; esac
 done
+# positive lookups of the now mail enabled user sysop
+out=$(docker exec egroupware-smtp postmap -q "sysop@$DOMAIN" mysql:/etc/postfix/sql-mailboxes.cf 2>&1)
+[ "$out" = "sysop@$DOMAIN" ] && ok "mail: postfix sql-mailboxes.cf finds mailbox of sysop@$DOMAIN" || bad "mail: postfix sql-mailboxes.cf lookup of sysop@$DOMAIN: ${out:0:200}"
+out=$(docker exec egroupware-smtp postmap -q "sysop@$DOMAIN" mysql:/etc/postfix/sql-aliases.cf 2>&1)
+[ "$out" = "sysop@$DOMAIN" ] && ok "mail: postfix sql-aliases.cf finds sysop@$DOMAIN" || bad "mail: postfix sql-aliases.cf lookup of sysop@$DOMAIN: ${out:0:200}"
+# lmdb maps (alias_maps) need the dynamic map entry from the image, as /etc/postfix is replaced by the one of the package
+out=$(docker exec egroupware-smtp postmap -q root lmdb:/etc/postfix/aliases 2>&1)
+case "$out" in *unsupported*|*fatal*|*error*) bad "mail: postfix can not use lmdb maps: ${out:0:200}" ;; *) ok "mail: postfix can use lmdb maps (alias_maps)" ;; esac
 check "mail: no database or TLS errors in postfix log" sh -c "! docker logs egroupware-smtp 2>&1 | grep -iE 'mysql.*(error|fatal|warning)|TLS/SSL error|Access denied'"
 
 # Dovecot is amd64 only: under Rosetta on Apple Silicon it dies at startup ("rosetta error: mmap_anonymous_rw mmap failed"), that is not a package problem
@@ -42,7 +56,7 @@ fi
 # Dovecot: IMAP login of sysop with EGroupware's password (auth against the EGroupware DB), via TLS with the self-signed certificate
 out=$(curl -sSk -m 20 --user "sysop:$SYSOP_PW" imaps://127.0.0.1:993/ 2>&1)
 echo "$out" | grep -q INBOX && ok "mail: IMAPS login of sysop works and lists INBOX" \
-	|| bad "mail: IMAPS login of sysop failed: ${out:0:200} | dovecot: $(docker logs --tail 8 egroupware-mail 2>&1 | tr '\n' ' ' | cut -c1-600)"
+	|| bad "mail: IMAPS login of sysop failed: ${out:0:200} | doveadm: $(docker exec egroupware-mail doveadm auth test sysop "$SYSOP_PW" 2>&1 | tr '\n' ' ' | cut -c1-300) | password scheme: $(dbroot "SELECT LEFT(account_pwd,12) FROM egw_accounts WHERE account_lid='sysop'") | dovecot: $(docker logs --tail 6 egroupware-mail 2>&1 | tr '\n' ' ' | cut -c1-500)"
 code=$(curl -sk -m 20 --user "sysop:wrong-$SYSOP_PW" imaps://127.0.0.1:993/ -o /dev/null -w '%{http_code}' 2>&1)
 curl -sk -m 20 --user "sysop:wrong-$SYSOP_PW" imaps://127.0.0.1:993/ >/dev/null 2>&1 && bad "mail: IMAPS login with wrong password was accepted" || ok "mail: IMAPS login with wrong password is rejected"
 
