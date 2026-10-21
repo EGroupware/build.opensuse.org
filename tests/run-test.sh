@@ -25,7 +25,9 @@ case $web in
 	*) echo "unknown WEBSERVER $web (nginx or apache)" >&2; exit 2 ;;
 esac
 # every machine has its own docker+containerd volumes with all images (several GB): do not fill up the disk of the host (happened once)
-avail_gb=$(df -k /System/Volumes/Data 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')
+# (macOS: the data volume, elsewhere eg. the CI runner: the filesystem of /var/lib/docker or /)
+disk=/System/Volumes/Data; [ -d $disk ] || { disk=/var/lib/docker; [ -d $disk ] || disk=/; }
+avail_gb=$(df -Pk $disk 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}' || true)
 [ -z "$avail_gb" ] || [ "$avail_gb" -ge ${MIN_FREE_GB:-20} ] || { echo "only ${avail_gb}GB free on the host disk, need ${MIN_FREE_GB:-20}GB (MIN_FREE_GB=...), aborting" >&2; exit 3; }
 # ROCKETCHAT=1: also install egroupware-rocketchat with its OAuth integration into EGroupware, using an own CA for the hostname egw.test (guest/tls.sh), needs Nginx
 # RC_OVERLAY=dir: files of a not yet released version of the package (docker-compose.yml, install-rocketchat.sh, ...) to test instead of the published ones

@@ -92,6 +92,7 @@ jobs:
           MAIL: ${{ matrix.kind == 'mail' && '1' || '' }}
           PLATFORM: linux/amd64
           NO_MIRROR: '1'                    # fresh VM for every job, a registry mirror would not help
+          MIN_FREE_GB: '0'                  # fresh VM for every job, no leftovers of earlier tests to guard against
           TIMEOUT: '900'
         run: ./run-test.sh ${{ matrix.distro }} install 2>&1 | tee "../test-${{ matrix.distro }}-${{ matrix.kind == 'base' && matrix.webserver || matrix.kind }}.log"
 
