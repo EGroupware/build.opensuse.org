@@ -27,18 +27,13 @@ cp /etc/egroupware-docker/private-ca.crt $GC/ca/
 docker run --rm --user root --entrypoint keytool -v $GC/ca:/ca $IMG -importcert -noprompt -alias private-ca \
 	-file /ca/private-ca.crt -keystore /ca/truststore.jks -storepass changeit
 chmod 644 $GC/ca/truststore.jks
-python3 - $GC/docker-compose.override.yml $H <<'PYEOF2'
-import re, sys
-f, host = sys.argv[1:3]
-s = open(f).read()
-# uncomment extra_hosts, pointing to the docker host
-s = re.sub(r'(?m)^#( *)extra_hosts:', r' \1extra_hosts:', s)
-s = re.sub(r'(?m)^#( *)- "[^"]*"', r' \1- "%s:host-gateway"' % host, s)
-# truststore for the guacamole service (after its image line, the guacd service has its own image line)
-s = s.replace('    image: guacamole/guacamole:', '    volumes:\n      - /etc/egroupware-guacamole/ca/truststore.jks:/ca/truststore.jks:ro\n    image: guacamole/guacamole:', 1)
-s = s.replace('      OPENID_CLIENT_ID:', '      JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/ca/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit\n      OPENID_CLIENT_ID:', 1)
-open(f, 'w').write(s)
-PYEOF2
+# uncomment extra_hosts pointing to the docker host (the commented lines in the override have a "#" in place of the first space),
+# mount the truststore into the guacamole service (before its image line, guacd has its own) and tell Java to use it
+sed -i -e 's|^#\( *\)extra_hosts:| \1extra_hosts:|' \
+	-e "s|^#\( *\)- \"[^\"]*\"| \1- \"$H:host-gateway\"|" \
+	-e 's|^    image: guacamole/guacamole:|    volumes:\n      - /etc/egroupware-guacamole/ca/truststore.jks:/ca/truststore.jks:ro\n&|' \
+	-e 's|^      OPENID_CLIENT_ID:|      JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStore=/ca/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit\n&|' \
+	$GC/docker-compose.override.yml
 cd $GC
 if docker compose version >/dev/null 2>&1; then docker compose up -d; else docker-compose up -d; fi
 

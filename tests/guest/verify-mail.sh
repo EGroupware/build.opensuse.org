@@ -40,8 +40,9 @@ if [ "$(uname -m)" != x86_64 ] && docker logs egroupware-mail 2>&1 | grep -q 'ro
 	return 0 2>/dev/null || exit 0
 fi
 # Dovecot: IMAP login of sysop with EGroupware's password (auth against the EGroupware DB), via TLS with the self-signed certificate
-out=$(curl -sk -m 20 --user "sysop:$SYSOP_PW" imaps://127.0.0.1:993/ 2>&1)
-echo "$out" | grep -q INBOX && ok "mail: IMAPS login of sysop works and lists INBOX" || bad "mail: IMAPS login of sysop failed: ${out:0:200}"
+out=$(curl -sSk -m 20 --user "sysop:$SYSOP_PW" imaps://127.0.0.1:993/ 2>&1)
+echo "$out" | grep -q INBOX && ok "mail: IMAPS login of sysop works and lists INBOX" \
+	|| bad "mail: IMAPS login of sysop failed: ${out:0:200} | dovecot: $(docker logs --tail 8 egroupware-mail 2>&1 | tr '\n' ' ' | cut -c1-600)"
 code=$(curl -sk -m 20 --user "sysop:wrong-$SYSOP_PW" imaps://127.0.0.1:993/ -o /dev/null -w '%{http_code}' 2>&1)
 curl -sk -m 20 --user "sysop:wrong-$SYSOP_PW" imaps://127.0.0.1:993/ >/dev/null 2>&1 && bad "mail: IMAPS login with wrong password was accepted" || ok "mail: IMAPS login with wrong password is rejected"
 
@@ -51,7 +52,7 @@ ADDR=$(dbroot "SELECT contact_email FROM egw_addressbook WHERE account_id=(SELEC
 echo "INFO: sysop's address is $ADDR"
 SUBJ="egw-test-$RANDOM"
 printf 'From: tester@example.net\r\nTo: %s\r\nSubject: %s\r\n\r\nhello\r\n' "$ADDR" "$SUBJ" > /tmp/msg.txt
-out=$(curl -s -m 30 --mail-from tester@example.net --mail-rcpt "$ADDR" -T /tmp/msg.txt smtp://127.0.0.1:25 2>&1); rc=$?
+out=$(curl -sS -m 30 --mail-from tester@example.net --mail-rcpt "$ADDR" -T /tmp/msg.txt smtp://127.0.0.1:25 2>&1); rc=$?
 [ $rc = 0 ] && ok "mail: postfix accepts a mail for $ADDR on port 25" || bad "mail: postfix rejected mail for $ADDR (curl rc=$rc): ${out:0:200}"
 found=""; for i in $(seq 30); do
 	curl -sk -m 20 --user "sysop:$SYSOP_PW" "imaps://127.0.0.1:993/INBOX?SUBJECT%20$SUBJ" 2>/dev/null | grep -q SEARCH.*[0-9] && { found=1; break; }

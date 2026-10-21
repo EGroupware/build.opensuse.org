@@ -42,7 +42,12 @@ check "install log contains password of setup user admin"      test -n "$ADMIN_P
 check "install log contains password of EGroupware user sysop" test -n "$SYSOP_PW"
 REST=$BASE/egroupware/groupdav.php
 code=$(curl -s -o /tmp/accounts.json -w '%{http_code}' -u "sysop:$SYSOP_PW" -H 'Accept: application/json' $REST/addressbook-accounts/)
-[ "$code" = 200 ] && ok "REST: sysop lists accounts-addressbook (200)" || bad "REST: accounts-addressbook returned $code"
+if [ "$code" = 200 ]; then ok "REST: sysop lists accounts-addressbook (200)"
+else
+	bad "REST: accounts-addressbook returned $code: $(head -c 300 /tmp/accounts.json | tr '\n' ' ')"
+	# is it permanent or only the first request after the setup, eg. after the egroupware container reloaded its config?
+	sleep 10; echo "INFO: second try: $(curl -s -o /dev/null -w '%{http_code}' -u "sysop:$SYSOP_PW" -H 'Accept: application/json' $REST/addressbook-accounts/)"
+fi
 check "REST: accounts list is JSON with responses"             grep -q '"responses"' /tmp/accounts.json
 # sysop's account contact is "Admin User", the login name itself is not part of the contact
 check "REST: accounts list contains sysop's contact 'Admin User'" grep -q '"fullName":"Admin User"' /tmp/accounts.json
@@ -123,5 +128,5 @@ if [ "${EXPECT_GUACAMOLE:-0}" = 1 ]; then . "$(dirname "$0")/verify-guacamole.sh
 # --- egroupware-mail: Dovecot and Postfix integrated into EGroupware (MAIL=1 of run-test.sh) ---
 if [ "${EXPECT_MAIL:-0}" = 1 ]; then . "$(dirname "$0")/verify-mail.sh"; fi
 
-[ $fail = 0 ] && echo "ALL CRITERIA PASSED" || { echo "SOME CRITERIA FAILED"; docker ps -a; }
+[ $fail = 0 ] && echo "ALL CRITERIA PASSED" || { echo "SOME CRITERIA FAILED"; bash "$(dirname "$0")/diag.sh"; }
 exit $fail

@@ -85,6 +85,17 @@ web_base=http://localhost
 [ $family = rpm -a $web = apache ] && web_base=https://localhost
 [ -z "$rc$gc" ] || web_base=https://egw.test
 env_args=(-e OBS_DIST=$obs -e NO_RECOMMENDS=${NO_RECOMMENDS:-} -e EXTRA_PKGS=${EXTRA_PKGS:-} -e TIMEOUT=${TIMEOUT:-1800} -e WEB_BASE=$web_base -e EXPECT_WEBSERVER=$web -e EXPECT_COLLABORA=$([ -n "${NO_RECOMMENDS:-}" ] && echo 0 || echo 1) -e TLS_HOST=egw.test -e TLS_TRUSTED=$rc$gc -e EXPECT_ROCKETCHAT=$([ -n "$rc" ] && echo 1 || echo 0) -e EXPECT_GUACAMOLE=$([ -n "$gc" ] && echo 1 || echo 0) -e EXPECT_MAIL=$([ -n "$ml" ] && echo 1 || echo 0))
+# run a setup step of the guest in its own process group, killed with all its children after SETUP_TIMEOUT seconds (a hanging "docker compose logs -f" would
+# otherwise keep the job running until the CI timeout), diagnostics (containers and their logs) on failure
+guest_step() {   # label script [docker exec options]
+	local label=$1 script=$2; shift 2
+	docker exec "${env_args[@]}" "$@" $name bash -c "
+		set -o pipefail
+		setsid bash /opt/guest/$script > >(tee /dev/console) 2>&1 & p=\$!
+		( sleep ${SETUP_TIMEOUT:-1500}; echo 'TIMEOUT: killing the setup step' >/dev/console; kill -KILL -- -\$p 2>/dev/null ) & wd=\$!
+		wait \$p; rc=\$?; kill \$wd 2>/dev/null; exit \$rc" \
+		|| { echo "WARNING: the $label setup failed or timed out, the checks will tell more"; docker exec $name bash /opt/guest/diag.sh 2>&1 | tee /dev/console; }
+}
 case $test in
 	install) docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/install-$family.sh 2>&1 | tee /dev/console" ;;
 	*) echo "unknown test $test" >&2; exit 2 ;;
@@ -95,13 +106,13 @@ if [ -n "$rc" ]; then
 		tmp=$(mktemp -d); cp -R "$RC_OVERLAY"/. "$tmp"/; docker cp "$tmp"/. $name:/opt/rc-overlay; rm -rf "$tmp"
 		rc_env=(-e RC_OVERLAY=/opt/rc-overlay)
 	fi
-	docker exec "${env_args[@]}" ${rc_env[@]+"${rc_env[@]}"} $name bash -c "set -o pipefail; bash /opt/guest/rocketchat.sh 2>&1 | tee /dev/console" || echo "WARNING: the Rocket.Chat setup failed, the checks will tell more"
+	guest_step Rocket.Chat rocketchat.sh ${rc_env[@]+"${rc_env[@]}"}
 fi
 if [ -n "$gc" ]; then
-	docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/guacamole.sh 2>&1 | tee /dev/console" || echo "WARNING: the Guacamole setup failed, the checks will tell more"
+	guest_step Guacamole guacamole.sh
 fi
 if [ -n "$ml" ]; then
 	[ -z "$mail_pkg" ] || { docker exec $name mkdir -p /opt/mail-pkg; docker cp "$mail_pkg" $name:/opt/mail-pkg/; }
-	docker exec "${env_args[@]}" $name bash -c "set -o pipefail; bash /opt/guest/mail.sh 2>&1 | tee /dev/console" || echo "WARNING: the mail setup failed, the checks will tell more"
+	guest_step mail mail.sh
 fi
 docker exec "${env_args[@]}" $name bash -c "bash /opt/guest/verify.sh 2>&1 | tee /dev/console; exit \${PIPESTATUS[0]}"
