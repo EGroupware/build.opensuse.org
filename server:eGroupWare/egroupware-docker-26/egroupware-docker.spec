@@ -29,8 +29,8 @@ Source: %{name}-%{version}.tar.gz
 	%define apache_group www
 	%define apache_service apache2
 Requires: httpd
-# rpm version in SLE 12 does not support suggests
-%if 0%{?sle_version} >= 150000
+# rpm version in SLE 12 does not support suggests, openSUSE Leap 16 has no sle_version
+%if 0%{?suse_version} >= 1500
 Suggests: nginx
 %endif
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
@@ -45,8 +45,9 @@ Recommends: egroupware-collabora-key
 	%define apache_service httpd
     %define apache_extra mod_ssl
 Requires: webserver
-# rpm version in RHEL/CentOS 7 does not support suggests
-%if 0%{?centos_version} >= 800 || 0%{?rhel_version} >= 800
+# prefer Nginx (like for Debian/Ubuntu), unless Apache is already installed or explicitly requested on the command line
+# rpm version in RHEL/CentOS 7 does not support suggests, other RHEL-like distros like Rocky do not define centos_version or rhel_version
+%if 0%{?centos_version} != 700 && 0%{?rhel_version} != 700
 Suggests: nginx
 %endif
 %endif
@@ -63,9 +64,11 @@ Requires: docker-ce >= 1.12
 %endif
 Requires: (docker-compose-plugin or docker-compose >= 1.10.0)
 Requires: patch
+# create-override.sh generates the MariaDB root password with openssl, which is not part of minimal installs
+Requires: openssl
 %if "%{?apache_extra}" != ""
-# require mod_ssl so we can patch include of our proxy into it
-Requires: %{apache_extra}
+# require mod_ssl so we can patch include of our proxy into it, but only if Apache is used (an unconditional Requires would force Apache over Nginx)
+Requires: (%{apache_extra} if httpd)
 %endif
 
 Obsoletes: %{egw_packagename}
@@ -148,6 +151,9 @@ Provides: egw-addressbook %{version}
 
 %post
 %{etc_dir}/create-override.sh
+# prefer the docker compose (v2) plugin, only fall back to the old docker-compose script (does not exist on eg. Rocky 10)
+COMPOSE="docker compose"
+docker help compose >/dev/null 2>&1 || COMPOSE="docker-compose"
 case "$1" in
   1)# This is an initial install.
 	# enable and start docker
@@ -167,13 +173,19 @@ proxy_set_header X-Real-IP \$remote_addr;
 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
 proxy_set_header X-Forwarded-Proto \$scheme;
 EOF
+		# listen on IPv6 too, but only if the kernel supports it (nginx fails to start if it can not bind [::]:80)
+		# RHEL's stock default server listens on [::]:80 and would otherwise answer requests coming in via IPv6, eg. for localhost
+		if [ -e /proc/net/if_inet6 ] && ! grep -q 'listen *\[::\]:80' %{etc_dir}/nginx.conf
+		then
+			sed -i 's|^\([[:space:]]*\)listen 80 default_server;|&\n\1listen [::]:80 default_server;|' %{etc_dir}/nginx.conf
+		fi
 		# enable and (re)start nginx
 		systemctl enable nginx
 		systemctl restart nginx
 	fi
 
 	# set up Apache by patch include /etc/egroupware-docker/apache.conf into all vhosts
-	if [ -d %{apache_vhosts_d} ]
+	if [ -d %{apache_vhosts_d} ] && systemctl cat %{apache_service}.service >/dev/null 2>&1
 	then
 		cd %{apache_vhosts_d}
 		for conf in $(grep -ril '<VirtualHost ' .)
@@ -182,6 +194,9 @@ EOF
 			echo "Include /etc/egroupware-docker/apache.conf added to site $conf"
 		done
 
+		# openSUSE Leap 16.1+: /srv/www/htdocs is a ghost file of the apache2 package, which systemd-tmpfiles only creates at the end of the transaction,
+		# Apache does not start without it, so create it now (mid-transaction, as only at the end of it our restart would be too early)
+		[ -f /usr/lib/tmpfiles.d/apache2.conf ] && systemd-tmpfiles --create /usr/lib/tmpfiles.d/apache2.conf || true
 		systemctl enable %{apache_service}
 		# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
 		[ -x /usr/sbin/a2enmod ] && {
@@ -217,14 +232,17 @@ EOF
 	cd %{etc_dir}
 	test -f docker-compose.override.yml || /bin/bash create-override.sh
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
-	echo "y" | docker-compose up -d egroupware && sleep 5 && \
-	echo "y" | docker-compose up -d || true
+	echo "y" | $COMPOSE up -d egroupware && sleep 5 && \
+	echo "y" | $COMPOSE up -d || true
 	;;
 
   2)# This is an upgrade.
 	# we might not have all required apache modules enabled for openSUSE/SLE, if comming from 17.1
 	if [ -d %{apache_vhosts_d} -a -x /usr/sbin/a2enmod ]
 	then
+		# openSUSE Leap 16.1+: /srv/www/htdocs is a ghost file of the apache2 package, which systemd-tmpfiles only creates at the end of the transaction,
+		# Apache does not start without it, so create it now (mid-transaction, as only at the end of it our restart would be too early)
+		[ -f /usr/lib/tmpfiles.d/apache2.conf ] && systemd-tmpfiles --create /usr/lib/tmpfiles.d/apache2.conf || true
 		a2enmod rewrite
 		a2enmod proxy
 		a2enmod proxy_http
@@ -238,16 +256,19 @@ EOF
 	  # RPM does not pass old version, so we have to try updating unconditionally :(
 	  sed -i docker-compose.override.yml -e 's/^\( *image\):\(.*\):2[13].1$/\1:\2:26/g' || true
 	} || /bin/bash create-override.sh
-	docker-compose pull && \
+	$COMPOSE pull && \
 	# start only egroupware container first, as we need to copy push sources to sources volume before starting push server
-	echo "y" | docker-compose up -d egroupware && sleep 5 && \
-	echo "y" | docker-compose up -d || true
+	echo "y" | $COMPOSE up -d egroupware && sleep 5 && \
+	echo "y" | $COMPOSE up -d || true
 	;;
 esac
 # get our addition to docker unit working in case MariaDB/MySQL runs an update
 systemctl daemon-reload
 
 %preun
+# prefer the docker compose (v2) plugin, only fall back to the old docker-compose script (does not exist on eg. Rocky 10)
+COMPOSE="docker compose"
+docker help compose >/dev/null 2>&1 || COMPOSE="docker-compose"
 case "$1" in
   0)# This is an un-installation.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
@@ -255,7 +276,7 @@ case "$1" in
 		rm -f /etc/nginx/conf.d/egroupware.conf
 		nginx -s reload
 	fi
-    if [ -d %{apache_vhosts_d} ]
+    if [ -d %{apache_vhosts_d} ] && systemctl cat %{apache_service}.service >/dev/null 2>&1
     then
 		cd %{apache_vhosts_d}
 		for conf in $(grep -li 'include /etc/egroupware-docker/apache.conf' *.conf)
@@ -267,7 +288,7 @@ case "$1" in
 		systemctl restart %{apache_service}
 	fi
 	cd %{etc_dir}
-	docker-compose rm -fs
+	$COMPOSE rm -fs
 	;;
 
   1)# This is an upgrade.

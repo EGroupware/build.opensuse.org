@@ -51,20 +51,47 @@ Requires: docker-ce >= 1.12
 #disabled to allow docker-ce too, we still require docker-compose
 #Requires: docker >= 1.12
 %endif
-Requires: docker-compose >= 1.10.0
-Requires: %{apache_package} >= 2.4
+Requires: (docker-compose-plugin or docker-compose >= 1.10.0)
+# prefer Nginx (like for Debian/Ubuntu), unless Apache is already installed or explicitly requested on the command line
+%if 0%{?suse_version}
+Requires: httpd
+# rpm version in SLE 12 does not support suggests, openSUSE Leap 16 has no sle_version
+%if 0%{?suse_version} >= 1500
+Suggests: nginx
+%endif
+%else
+Requires: webserver
+# rpm version in RHEL/CentOS 7 does not support suggests, other RHEL-like distros like Rocky do not define centos_version or rhel_version
+%if 0%{?centos_version} != 700 && 0%{?rhel_version} != 700
+Suggests: nginx
+%endif
+%endif
 %if "%{?apache_extra}" != ""
-# require mod_ssl so we can patch include of Collabora proxy into it
-Requires: %{apache_extra}
+# require mod_ssl, but only if Apache is used (an unconditional Requires would force Apache over Nginx), so we can patch include of Collabora proxy into it
+Requires: (%{apache_extra} if httpd)
 %endif
 
 %post
+# prefer the docker compose (v2) plugin, only fall back to the old docker-compose script (does not exist on eg. Rocky 10)
+COMPOSE="docker compose"
+docker help compose >/dev/null 2>&1 || COMPOSE="docker-compose"
 case "$1" in
   1)# This is an initial install.
 	# enable and start docker
 	systemctl enable docker
 	systemctl is-active --quiet docker || systemctl start docker
 
+	# Set up Nginx: our proxy is included by EGroupware's nginx.conf from /etc/nginx/app.d
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		[ -d /etc/nginx/app.d ] || mkdir /etc/nginx/app.d
+		ln -fs ../../egroupware-collabora-key/nginx.conf /etc/nginx/app.d/egroupware-collabora-key.conf
+		nginx -s reload || true
+	fi
+
+	# Apache is only touched, if its service exists (the package owns %{apache_vhosts_d}, so the directory always exists)
+	if [ -d %{apache_vhosts_d} ] && systemctl cat %{apache_service}.service >/dev/null 2>&1
+	then
 	# patch include /etc/egroupware-collabora-key/apache.conf into all vhosts
 	cd %{apache_vhosts_d}
 	for conf in $(grep -ril '<VirtualHost ' .)
@@ -73,6 +100,9 @@ case "$1" in
 		echo "Include /etc/egroupware-collabora-key/apache.conf added to site $conf"
 	done
 
+	# openSUSE Leap 16.1+: /srv/www/htdocs is a ghost file of the apache2 package, which systemd-tmpfiles only creates at the end of the transaction,
+	# Apache does not start without it, so create it now (mid-transaction, as only at the end of it our restart would be too early)
+	[ -f /usr/lib/tmpfiles.d/apache2.conf ] && systemd-tmpfiles --create /usr/lib/tmpfiles.d/apache2.conf || true
 	systemctl enable %{apache_service}
 	# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
 	[ -x /usr/sbin/a2enmod ] && {
@@ -81,42 +111,66 @@ case "$1" in
 		a2enmod proxy_wstunnel
 	}
 	systemctl restart %{apache_service}
+	fi
 
 	# start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
-	echo "y" | docker-compose up -d || true
+	# collabora-key image is amd64 only: on arm64 ONLY switch to Collabora's CODE image (without support-key)
+	case "$(uname -m)" in
+	aarch64|arm64)
+		sed -i 's|^\( *image: *\)"quay.io/egroupware/collabora-key:stable"|\1"collabora/code:latest"|' docker-compose.yml
+		;;
+	esac
+	echo "y" | $COMPOSE up -d || true
 	;;
 
   2)# This is an upgrade.
 
 	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd %{etc_dir}
-	docker-compose pull && \
-	echo "y" | docker-compose up -d || true
+	# collabora-key image is amd64 only: on arm64 ONLY switch to Collabora's CODE image (without support-key)
+	case "$(uname -m)" in
+	aarch64|arm64)
+		sed -i 's|^\( *image: *\)"quay.io/egroupware/collabora-key:stable"|\1"collabora/code:latest"|' docker-compose.yml
+		;;
+	esac
+	$COMPOSE pull && \
+	echo "y" | $COMPOSE up -d || true
 	;;
 esac
 
 %preun
+# prefer the docker compose (v2) plugin, only fall back to the old docker-compose script (does not exist on eg. Rocky 10)
+COMPOSE="docker compose"
+docker help compose >/dev/null 2>&1 || COMPOSE="docker-compose"
 case "$1" in
   0)# This is an un-installation.
+	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
+	then
+		rm -f /etc/nginx/app.d/egroupware-collabora-key.conf
+		nginx -s reload || true
+	fi
+	if [ -d %{apache_vhosts_d} ] && systemctl cat %{apache_service}.service >/dev/null 2>&1
+	then
 	cd %{apache_vhosts_d}
 	for conf in $(grep -li 'include /etc/egroupware-collabora-key/apache.conf' *.conf)
 	do
 		sed -i 's|\t# Collabora proxy needs to be included inside vhost\n\tinclude /etc/egroupware-collabora-key/apache.conf||g' $conf && \
 			echo "Include /etc/egroupware-collabora-key/apache.conf removed from site $conf"
 	done
-	rm %{apache_conf_d}/egroupware-collabora.conf
+	rm -f %{apache_conf_d}/egroupware-collabora-key.conf
 	systemctl restart %{apache_service}
+	fi
 	cd %{etc_dir}
-	docker-compose rm -fs
+	$COMPOSE rm -fs
 	;;
 
   1)# This is an upgrade.
     # if we have no separate coolwsd.xml created it now, but patch in termination and support_key from loolwsd.xml
     test ! -s /var/lib/egroupware/default/loolwsd/coolwsd.xml -a -f /var/lib/egroupware/default/loolwsd/coolwsd.xml.rpmnew && {
         cd /etc/egroupware-collabora-key
-        docker-compose stop
-        docker-compose rm -f
+        $COMPOSE stop
+        $COMPOSE rm -f
         # if we are not using the current docker-compose.yml, mv it in place, but keep extra_hosts
         test -f docker-compose.yml.rpmnew && {
         (echo; grep -A2 '^ *extra_hosts:' docker-compose.yml | grep -v '^ *#') >> docker-compose.yml.rpmnew

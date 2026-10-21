@@ -114,15 +114,60 @@ $sed_inplace \
   -e "s|#*- Accounts_OAuth_Custom-Egroupware-secret=.*|- Accounts_OAuth_Custom-Egroupware-secret=$SECRET|g" \
   docker-compose.override.yml
 
+# The settings above only configure the custom OAuth service "Egroupware", which does NOT exist in a new database
+# and can only be created by an admin via the REST API or the admin UI.
+# Therefore we create a Rocket.Chat admin with a random password via environment variables (stored in .env)
+RC_ADMIN_USER=rcadmin
+RC_ADMIN_PASS=$(openssl rand -base64 30 | tr -dc 'A-Za-z0-9' | cut -b1-24)
+touch .env && chmod 600 .env
+$sed_inplace -e '/^RC_ADMIN_USER=/d' -e '/^RC_ADMIN_PASS=/d' -e '/^RC_ADMIN_EMAIL=/d' .env
+cat >> .env <<EOF
+RC_ADMIN_USER=$RC_ADMIN_USER
+RC_ADMIN_PASS=$RC_ADMIN_PASS
+RC_ADMIN_EMAIL=$RC_ADMIN_USER@$HTTP_HOST
+EOF
+grep ADMIN_USERNAME docker-compose.override.yml >/dev/null || {
+  cat <<EOF | $sed_inplace '/^    environment:/r /dev/stdin' docker-compose.override.yml
+    # Rocket.Chat admin, created on first start, the credentials are in .env:
+    - ADMIN_USERNAME=\${RC_ADMIN_USER}
+    - ADMIN_PASS=\${RC_ADMIN_PASS}
+    - ADMIN_EMAIL=\${RC_ADMIN_EMAIL}
+EOF
+}
+
 $COMPOSE up -d
 
+# wait for Rocket.Chat, restart it once if it does not come up (it can get stuck, if MongoDB was restarted while it started)
+RC_URL=http://127.0.0.1:3000
+rc_up() { curl -sf $RC_URL/api/info >/dev/null 2>&1; }
+echo "Waiting for Rocket.Chat to start ..."
+for i in $(seq 1 36); do rc_up && break; sleep 5; done
+rc_up || {
+  echo "Rocket.Chat did not start, restarting it ..."
+  $COMPOSE restart rocketchat
+  for i in $(seq 1 60); do rc_up && break; sleep 5; done
+}
+
+# create the custom OAuth service "Egroupware" as admin via the REST API
+OAUTH_CREATED=""
+if rc_up
+then
+  LOGIN=$(curl -s -X POST $RC_URL/api/v1/login -H "Content-Type: application/json" -d "{\"user\":\"$RC_ADMIN_USER\",\"password\":\"$RC_ADMIN_PASS\"}")
+  RC_USER_ID=$(echo "$LOGIN" | sed -n 's/.*"userId":"\([^"]*\)".*/\1/p')
+  RC_TOKEN=$(echo "$LOGIN" | sed -n 's/.*"authToken":"\([^"]*\)".*/\1/p')
+  [ -n "$RC_TOKEN" ] && \
+    curl -s -X POST $RC_URL/api/v1/settings.addCustomOAuth -H "X-User-Id: $RC_USER_ID" -H "X-Auth-Token: $RC_TOKEN" \
+      -H "Content-Type: application/json" -d '{"name":"Egroupware"}' | grep -q '"success":true' && OAUTH_CREATED=1
+fi
+
 echo ""
-echo "Rocket.Chat database and OAuth integration successful"
-echo "Once Rocket.Chat is started again, you can finish the installation via the Wizard under $SITE_URL"
+if [ -n "$OAUTH_CREATED" ]
+then
+  echo "Rocket.Chat database and OAuth integration successful"
+else
+  echo "Rocket.Chat database created and OAuth client added to EGroupware, but creating the OAuth service in Rocket.Chat failed!"
+  echo "Please add it manually in the Rocket.Chat administration under Workspace > Settings > OAuth > Add custom OAuth with name 'Egroupware'."
+fi
+echo "Rocket.Chat is running under $SITE_URL"
+echo "Rocket.Chat admin user: $RC_ADMIN_USER, its random password is RC_ADMIN_PASS in $(pwd)/.env"
 echo ""
-# if running in a terminal, tail the log of starting rocketchat
-[ -t 0 -a -t 1 ] && {
-  echo "Please wait until Rocket.Chat reports: SERVER RUNNING (exit with ^C)"
-  echo ""
-  $COMPOSE logs -f rocketchat
-} || true

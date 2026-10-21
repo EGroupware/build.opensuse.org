@@ -32,9 +32,9 @@ install: build
 	install -m 644 nginx.conf $(DEST_DIR)$(ETC_DIR)
 
 	mkdir -p $(DEST_DIR)$(ETC_LOOLWSD)
-	install -m 644 --owner=www-data --group=www-data loolwsd.xml $(DEST_DIR)/$(ETC_LOOLWSD)
+	install -m 644 --owner=www-data --group=www-data loolwsd.xml $(DEST_DIR)$(ETC_LOOLWSD)
 	install -m 444 loolkitconfig.xcu $(DEST_DIR)$(ETC_LOOLWSD)
-	install -m 644 --owner=www-data --group=www-data coolwsd.xml $(DEST_DIR)/$(ETC_LOOLWSD)
+	install -m 644 --owner=www-data --group=www-data coolwsd.xml $(DEST_DIR)$(ETC_LOOLWSD)
 	install -m 444 coolkitconfig.xcu $(DEST_DIR)$(ETC_LOOLWSD)
 	install -m 444 *.pem $(DEST_DIR)$(ETC_LOOLWSD)
 

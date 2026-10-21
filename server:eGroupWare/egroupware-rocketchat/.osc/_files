@@ -1,14 +1,14 @@
-<directory name="egroupware-rocketchat" rev="55" vrev="7" srcmd5="befcee0edf9e80885d1eb3210cba4c18">
-  <entry name="debian.changes" md5="49158532636c4ca0051fd9f805c1fa80" size="5212" mtime="1787122832" />
+<directory name="egroupware-rocketchat" rev="59" vrev="1" srcmd5="e534627521fe4d3b9369cf68dfeb4c76">
+  <entry name="debian.changes" md5="9818b0db6e346854e5b597286f386ed0" size="6093" mtime="1792520818" />
   <entry name="debian.compat" md5="31d30eea8d0968d6458e0ad0027c9f80" size="3" mtime="1553521611" />
-  <entry name="debian.control" md5="73bdc7cebcfb82bf85881861ea45db19" size="524" mtime="1787122640" />
+  <entry name="debian.control" md5="97f50df3cb0c0bf709586353aa152d73" size="532" mtime="1792520822" />
   <entry name="debian.egroupware-rocketchat.conffiles" md5="02023eca2e844d66ec2c3b87541e3092" size="123" mtime="1562833149" />
-  <entry name="debian.postinst" md5="5d27404c8e687d7dce1bd6b952a38d1e" size="4906" mtime="1782813375" />
+  <entry name="debian.postinst" md5="63937fdcd3c1847738b08082e83111ae" size="4860" mtime="1792520822" />
   <entry name="debian.prerm" md5="6a6fdd4d75a9c93e7ccb5ab95082a9ab" size="1156" mtime="1725787982" />
   <entry name="debian.rules" md5="de57778faa0250078d77c68445619253" size="1844" mtime="1782815535" />
   <entry name="debian.tar.gz" md5="2c4328f6e6a68e37f0f77b95b2d8752c" size="120" mtime="1553521613" />
-  <entry name="egroupware-rocketchat-8.4.20260630.tar.gz" md5="2e0c24166ff6e49fee1f69075d167026" size="7955" mtime="1782826285" />
-  <entry name="egroupware-rocketchat.dsc" md5="f1b467bb23e81560e0377529df8404a3" size="381" mtime="1782813376" />
-  <entry name="egroupware-rocketchat.spec" md5="816be348d7f9d2039e2701cf336da225" size="8434" mtime="1782815591" />
+  <entry name="egroupware-rocketchat-8.9.20261020.tar.gz" md5="5719e4b4585a3621348087a5c0c0e086" size="8629" mtime="1792520825" />
+  <entry name="egroupware-rocketchat.dsc" md5="a5aa73a9841186f63199062460fc1fc2" size="381" mtime="1792520827" />
+  <entry name="egroupware-rocketchat.spec" md5="0510ccf22533109a8717546ba9fb07b4" size="9850" mtime="1792520828" />
 </directory>
 

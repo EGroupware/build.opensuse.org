@@ -22,7 +22,7 @@ if [ "$1" = remove ]; then
 		cd /etc/apache2/sites-available
 		for conf in $(grep -li 'include /etc/egroupware-guacamole/apache.conf' *.conf)
 		do
-			sed -i 's|\t# Guacamole proxy needs to be included inside vhost\n\tinclude /etc/egroupware-guacamole/apache.conf||g' $conf && \
+			sed -i -e '/# Gu\(a\)\{0,1\}camole proxy needs to be included inside vhost/d' -e '\|include /etc/egroupware-guacamole/apache.conf|d' $conf && \
 				echo "Include /etc/egroupware-guacamole/apache.conf removed from site $conf"
 		done
 		webserver_soft_reload apache2

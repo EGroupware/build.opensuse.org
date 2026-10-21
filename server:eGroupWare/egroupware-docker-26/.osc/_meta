@@ -1,6 +1,6 @@
 <package name="egroupware-docker-26" project="server:eGroupWare">
-  <title>EGroupware 23.1</title>
-  <description>Current stable EGroupware release 23.1</description>
+  <title>EGroupware 26.x</title>
+  <description>Current stable EGroupware release 26.x</description>
   <build>
     <disable/>
     <enable arch="x86_64" repository="Debian_11"/>
@@ -31,6 +31,10 @@
     <enable arch="aarch64" repository="Debian_13"/>
     <enable arch="armv7l" repository="Debian_13"/>
     <enable arch="x86_64" repository="Debian_13"/>
+    <enable arch="aarch64" repository="xUbuntu_26.04"/>
+    <enable arch="armv7l" repository="xUbuntu_26.04"/>
+    <enable arch="x86_64" repository="xUbuntu_26.04"/>
+    <enable arch="x86_64" repository="openSUSE_Leap_16.0"/>
   </build>
   <publish>
     <disable arch="i586"/>

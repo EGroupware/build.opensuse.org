@@ -1,5 +1,5 @@
 Name: egroupware-rocketchat
-Version: 8.4.20260630
+Version: 8.9.20261020
 Release:
 Summary: Rocket.Chat container for EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://rocket.chat
 Vendor: EGroupware GmbH, http://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: tar -czvf egroupware-rocketchat-8.4.20260630.tar.gz egroupware-rocketchat
+# create with: tar -czvf egroupware-rocketchat-8.9.20261020.tar.gz egroupware-rocketchat
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -24,7 +24,8 @@ Source: %{name}-%{version}.tar.gz
 Requires: jq
 # disable post build checks: https://en.opensuse.org/openSUSE:Packaging_checks
 BuildRequires:	-post-build-checks
-Requires: net-tools-deprecated
+Requires: iproute2
+Requires: openssl
 %else
 	%define apache_conf_d /etc/httpd/conf.d
 	%define apache_vhosts_d /etc/httpd/conf.d
@@ -33,6 +34,8 @@ Requires: net-tools-deprecated
 	%define apache_service httpd
     %define apache_package httpd
     %define apache_extra mod_ssl
+Requires: iproute
+Requires: openssl
 %endif
 
 Buildarch: noarch
@@ -45,17 +48,33 @@ Requires: docker-ce >= 1.12
 #disabled to allow docker-ce too, we still require docker-compose
 #Requires: docker >= 1.12
 %endif
-Requires: docker-compose >= 1.10.0
-Requires: %{apache_package} >= 2.4
+Requires: (docker-compose-plugin or docker-compose >= 1.10.0)
+# prefer Nginx (like for Debian/Ubuntu), unless Apache is already installed or explicitly requested on the command line
+%if 0%{?suse_version}
+Requires: httpd
+# rpm version in SLE 12 does not support suggests, openSUSE Leap 16 has no sle_version
+%if 0%{?suse_version} >= 1500
+Suggests: nginx
+%endif
+%else
+Requires: webserver
+# rpm version in RHEL/CentOS 7 does not support suggests, other RHEL-like distros like Rocky do not define centos_version or rhel_version
+%if 0%{?centos_version} != 700 && 0%{?rhel_version} != 700
+Suggests: nginx
+%endif
+%endif
 %if "%{?apache_extra}" != ""
-# require mod_ssl so we can patch include of Rocket.Chat proxy into it
-Requires: %{apache_extra}
+# require mod_ssl, but only if Apache is used (an unconditional Requires would force Apache over Nginx), so we can patch include of Rocket.Chat proxy into it
+Requires: (%{apache_extra} if httpd)
 %endif
 
 %post
 # change owner of Rocket.Chat data-directory to 65533 used by container
 chown -R 65533:65533 /var/lib/egroupware/default/rocketchat
 
+# prefer the docker compose (v2) plugin, only fall back to the old docker-compose script (does not exist on eg. Rocky 10)
+COMPOSE="docker compose"
+docker help compose >/dev/null 2>&1 || COMPOSE="docker-compose"
 case "$1" in
   1)# This is an initial install.
 	# enable and start docker
@@ -75,10 +94,10 @@ case "$1" in
     # otherwise use our primary IP (of interface with default route) and leave installation to Rocket.Chat itself
     test -n "$HTTP_HOST" || \
 	sed -i %{etc_dir}/docker-compose.override.yml \
-		-e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet ([0-9.]+).*/\1/p')/#g"
+		-e "s#ROOT_URL=.*#ROOT_URL=http://$(ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.*src \([0-9.]*\).*/\1/p')/#g"
 
 	# start our containers (do NOT fail package installation on error, as this leaves package in a wirded state!)
-	echo "y" | docker-compose up -d || true
+	echo "y" | $COMPOSE up -d || true
 
 	# Set up web server and reload it.
 	if [ -d /etc/nginx -a -x /usr/sbin/nginx ]
@@ -128,7 +147,7 @@ case "$1" in
     # update to MongoDB to 8.0
     ./update-mongodb.sh 8.0 && {
       # first start old "stable" image, otherwise some indexes are missing when 5.4 starts
-      echo "y" | docker-compose up -d || true
+      echo "y" | $COMPOSE up -d || true
       echo "Waiting for old/stable RC to start"
       for i in `seq 1 45`; do echo -n .; sleep 1; done; echo
       docker logs rocketchat
@@ -140,8 +159,8 @@ case "$1" in
       true # do nothing as RC 7.x still supports MongoDB 5.0, it's only deprecated
     }
 	# (re-)start our containers (do NOT fail package installation on error, as this leaves package in a wired state!)
-	docker-compose pull && \
-	echo "y" | docker-compose up -d || true
+	$COMPOSE pull && \
+	echo "y" | $COMPOSE up -d || true
 	;;
 esac
 
@@ -152,6 +171,9 @@ then
 fi
 if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
 then
+	# openSUSE Leap 16.1+: /srv/www/htdocs is a ghost file of the apache2 package, which systemd-tmpfiles only creates at the end of the transaction,
+	# Apache does not start without it, so create it now (mid-transaction, as only at the end of it our restart would be too early)
+	[ -f /usr/lib/tmpfiles.d/apache2.conf ] && systemd-tmpfiles --create /usr/lib/tmpfiles.d/apache2.conf || true
 	systemctl enable %{apache_service}
 	# openSUSE/SLES require proxy modules to be enabled first, RHEL/CentOS does not require nor have a2enmod
 	[ -x /usr/sbin/a2enmod ] && {
@@ -164,6 +186,9 @@ then
 fi
 
 %preun
+# prefer the docker compose (v2) plugin, only fall back to the old docker-compose script (does not exist on eg. Rocky 10)
+COMPOSE="docker compose"
+docker help compose >/dev/null 2>&1 || COMPOSE="docker-compose"
 case "$1" in
   0)# This is an un-installation.
 	if [ -d /etc/apache2 -a -x /usr/sbin/a2enmod ]
@@ -182,7 +207,7 @@ case "$1" in
 		nginx -s reload
 	fi
 	cd %{etc_dir}
-	docker-compose rm -fs
+	$COMPOSE rm -fs
 	;;
 
   1)# This is an upgrade.

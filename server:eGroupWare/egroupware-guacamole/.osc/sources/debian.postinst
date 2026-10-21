@@ -174,7 +174,7 @@ EOF
     }
     # migrate MYSQL_PASSWORD from docker-compose.yaml to docker-compose.override.yml
     password=$(grep "^      MYSQL_PASSWORD" /etc/egroupware-guacamole/docker-compose.yaml | cut -d: -f2 | sed 's/ *//g')
-    sed -i "s/guacamode-user-password/$password/g" /etc/egroupware-guacamole/docker-compose.override.yml
+    sed -i "s/guacamole-user-password/$password/g" /etc/egroupware-guacamole/docker-compose.override.yml
   }
 	# update from pre 1.2.0 with openid config in guacamole-properties
   grep -q "^      OPENID_AUTHORIZATION_ENDPOINT" /etc/egroupware-guacamole/docker-compose.yaml || {
@@ -211,7 +211,7 @@ EOF
 			for conf in $(grep -il '<VirtualHost ' *.conf)
 			do
 				[ -z "$(grep '/etc/egroupware-guacamole/apache.conf' $conf)" ] && \
-					sed -i 's|</VirtualHost>|\t# Gucamole proxy needs to be included inside vhost\n\tinclude /etc/egroupware-guacamole/apache.conf\n\n</VirtualHost>|g' $conf && \
+					sed -i 's|</VirtualHost>|\t# Guacamole proxy needs to be included inside vhost\n\tinclude /etc/egroupware-guacamole/apache.conf\n\n</VirtualHost>|g' $conf && \
 					echo "Include /etc/egroupware-guacamole/apache.conf added to site $conf"
 			done
 		fi

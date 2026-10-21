@@ -1,3 +1,13 @@
+egroupware-rocketchat (8.9.20261020) hardy; urgency=low
+
+  * fix OAuth integration with EGroupware: install-rocketchat.sh now creates the custom OAuth service in Rocket.Chat, which does not exist in a new database,
+    using a temporary admin created with a random password via environment variables, the credentials are stored in /etc/egroupware-rocketchat/.env
+  * fix misspelled OAuth settings token_sent_via and identity_token_sent_via (was ..._send_via), which made fetching the user identity from EGroupware fail with "Unauthorized"
+  * determine ROOT_URL with "ip route" instead of ifconfig/netstat (net-tools), which are not installed eg. on RHEL/Rocky 10, and let Rocket.Chat fail with "Invalid URL"
+  * run the Rocket.Chat container explicitly as linux/amd64, as Rocket.Chat only builds amd64 images
+
+ -- Ralf Becker <rb@egroupware.org>  Tue, 20 Oct 2026 12:00:00 -0000
+
 egroupware-rocketchat (8.4.20260630) hardy; urgency=low
 
   * update Rocket.Chat to 8.4 and MongoDB to 8.0

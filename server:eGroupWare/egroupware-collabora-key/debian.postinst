@@ -53,6 +53,12 @@ then
 
 	# (re-)start our containers (do NOT fail as it leaves package in a wired state)
 	cd /etc/egroupware-collabora-key
+	# collabora-key image is amd64 only: on arm64 ONLY switch to Collabora's CODE image (without support-key)
+	case "$(uname -m)" in
+	aarch64|arm64)
+		sed -i 's|^\( *image: *\)"quay.io/egroupware/collabora-key:stable"|\1"collabora/code:latest"|' docker-compose.yml
+		;;
+	esac
 	$COMPOSE pull && \
 	echo "y" | $COMPOSE up -d || true
 

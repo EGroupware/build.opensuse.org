@@ -43,7 +43,7 @@ then
     # otherwise use our primary IP (of interface with default route) and leave installation to Rocket.Chat itself
     test -n "$HTTP_HOST" || \
     sed -i docker-compose.override.yml \
-        -e "s#ROOT_URL=.*#ROOT_URL=http://$(ifconfig $(netstat -rn|grep ^0.0.0.0|head -1|sed 's/^.* \(.*\)$/\1/g')|grep 'inet '|sed -En 's/.*inet ([0-9.]+).*/\1/p')/#g"
+        -e "s#ROOT_URL=.*#ROOT_URL=http://$(ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.*src \([0-9.]*\).*/\1/p')/#g"
   else # update
 	  # if we dont have it, create docker-compose.override.yml
     test -f docker-compose.override.yml || {

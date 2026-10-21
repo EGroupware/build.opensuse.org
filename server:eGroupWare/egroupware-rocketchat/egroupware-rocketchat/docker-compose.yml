@@ -15,6 +15,8 @@ volumes:
 services:
   rocketchat:
     image: quay.io/egroupware/rocket.chat:stable8
+    # Rocket.Chat only builds amd64 images, on other platforms (eg. arm64) it runs emulated
+    platform: linux/amd64
     command: >
       sh -c
         "while true; do
@@ -35,8 +37,8 @@ services:
       - Accounts_OAuth_Custom-Egroupware=true
       - Accounts_OAuth_Custom-Egroupware-url=https://example.org/egroupware/openid/endpoint.php
       - Accounts_OAuth_Custom-Egroupware-token_path=/access_token
-      - Accounts_OAuth_Custom-Egroupware-token_send_via=Payload
-      - Accounts_OAuth_Custom-Egroupware-identity_token_send_via=Header
+      - Accounts_OAuth_Custom-Egroupware-token_sent_via=payload
+      - Accounts_OAuth_Custom-Egroupware-identity_token_sent_via=header
       - Accounts_OAuth_Custom-Egroupware-identity_path=/userinfo
       - Accounts_OAuth_Custom-Egroupware-authorize_path=/authorize
       - Accounts_OAuth_Custom-Egroupware-scope=openid email profile roles groups
