@@ -93,8 +93,8 @@ then
 	# get our addition to docker unit working in case MariaDB/MySQL runs an update
 	systemctl daemon-reload
 fi
-# make header.inc.php only read- and writable by webserver-user
-chown www-data:www-data /var/lib/egroupware/header.inc.php
+# make header.inc.php only read- and writable by www-data of the container (Alpine: uid/gid 82, NOT the host's www-data 33)
+chown 82:82 /var/lib/egroupware/header.inc.php
 chmod 600 /var/lib/egroupware/header.inc.php
 
 #DEBHELPER#

@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 26.10.20261026
+Version: 26.10.20261028
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: g?tar -czvf egroupware-docker-26.10.20261026.tar.gz egroupware-docker
+# create with: g?tar -czvf egroupware-docker-26.10.20261028.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -209,11 +209,12 @@ EOF
 		systemctl restart %{apache_service}
 	fi
 
-	# fix permissions in data directory: Ubuntu www-data is uid/gid 33/33
+	# www-data in the (Alpine) container is uid/gid 82/82, only chown what we create, NOT recursive, as that takes ages in big installations
     mkdir -p %{egwdatadir}/default/files/sqlfs
     mkdir -p %{egwdatadir}/default/files/smallpart
     mkdir -p %{egwdatadir}/default/backup
-	chown -R 33:33 %{egwdatadir}
+	chown 82:82 %{egwdatadir} %{egwdatadir}/default %{egwdatadir}/default/files %{egwdatadir}/default/files/sqlfs %{egwdatadir}/default/files/smallpart %{egwdatadir}/default/backup
+	[ -f %{egwdatadir}/header.inc.php ] && chown 82:82 %{egwdatadir}/header.inc.php
 
 	# if an old /root/egroupware-epl-install.log exists, move it datadir and symlink it
 	[ -f /root/egroupware-epl-install.log -a ! -L /root/egroupware-epl-install.log ] && {
@@ -346,8 +347,8 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %files
-# Ubuntu www-data is uid/gid 33/33
-%dir %attr(0755,33,33) %{egwdatadir}
+# www-data in the Alpine container is uid/gid 82/82
+%dir %attr(0755,82,82) %{egwdatadir}
 
 %defattr(-,root,root)
 %{etc_dir}

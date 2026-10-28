@@ -1,3 +1,9 @@
+egroupware-docker (26.10.20261028) hardy; urgency=low
+
+  * fixing new installations failing with Alpine based EGroupware image
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 28 Oct 2026 10:00:00 +0100
+
 egroupware-docker (26.10.20261026) hardy; urgency=low
 
   * modified nginx.conf for the Nginx proxy on the host to fix: upstream sent too big header... (this needs to be manually merged!)
