@@ -55,7 +55,8 @@ install: build
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/files/sqlfs
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/files/smallpart
 	mkdir -p $(DEST_DIR)$(DATA_DIR)/default/backup
-	install -m 600 --owner=82 --group=82 header.inc.php $(DEST_DIR)/$(DATA_DIR)
+	install -m 600 header.inc.php $(DEST_DIR)/$(DATA_DIR)
+	# numeric owner: www-data of the container is 82, NOT the one of the build host; install --owner=82 fails with Rust coreutils of Ubuntu 26.04 (invalid user)
 	chown -R 82:82 $(DEST_DIR)$(DATA_DIR)
 
 # Build architecture-independent files here.
