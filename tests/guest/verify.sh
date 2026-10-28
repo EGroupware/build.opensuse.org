@@ -63,6 +63,23 @@ code=$(curl -s -o /dev/null -w '%{http_code}' -u "sysop:wrong-$SYSOP_PW" -H 'Acc
 [ "$code" = 401 ] && ok "REST: wrong password is rejected (401)" || bad "REST: wrong password returned $code, expected 401"
 rm -f /tmp/accounts.json
 
+# --- sessions: a real login (form, not basic auth), then another request reusing the session cookie ---
+# fails, if PHP can not write its session files (eg. /var/lib/php/sessions in the sessions volume not writable for www-data of the container): login works, next request is logged out
+J=/tmp/session-check.cookies; rm -f $J
+SESS_LOGIN=$(curl -s -c $J -b $J -o /dev/null -w '%{http_code} %{redirect_url}' --data-urlencode "login=sysop" --data-urlencode "passwd=$SYSOP_PW" -d "passwd_type=text&account_type=u&submitit=1" $BASE/egroupware/login.php)
+check "session: login.php sets a session cookie (answered: ${SESS_LOGIN% *})" sh -c "grep -vc '^#' $J | grep -qv '^0'"
+# index.php with the cookie: 200 and not redirected (back) to login.php, which is what happens with an unknown / not stored session
+SESS_NEXT=$(curl -s -L -c $J -b $J -o /dev/null -w '%{http_code} %{url_effective}' "$BASE/egroupware/index.php")
+case $SESS_NEXT in
+	"200 "*login.php*) bad "session: next request with the cookie is sent back to the login (session not stored?): $SESS_NEXT" ;;
+	"200 "*) ok "session: next request with the session cookie stays logged in ($SESS_NEXT)" ;;
+	*) bad "session: next request with the session cookie returned $SESS_NEXT" ;;
+esac
+check "session: www-data of the egroupware container can write to /var/lib/php/sessions ($(docker exec egroupware ls -ld /var/lib/php/sessions 2>&1 | awk '{print $1, $3":"$4}'))" \
+	docker exec -u www-data egroupware sh -c 'f=/var/lib/php/sessions/.write-test-$$; touch $f && rm $f'
+check "session: session file owned by www-data of the container" docker exec egroupware sh -c 'find /var/lib/php/sessions -name "sess_*" -user www-data | grep -q .'
+rm -f $J
+
 # the REST calls above went through $BASE, so through the host's webserver (Nginx by default, Apache if installed with apache2),
 # which proxies to the egroupware-nginx container (127.0.0.1:8080), which talks to PHP-FPM in the egroupware container
 WEBLOG=""; for l in /var/log/nginx/access.log /var/log/apache2/access.log /var/log/apache2/access_log /var/log/httpd/ssl_access_log /var/log/httpd/access_log; do [ -s $l ] && WEBLOG=$l && break; done
