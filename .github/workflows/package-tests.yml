@@ -7,6 +7,8 @@
 # Commits to egroupware-rocketchat run the Rocket.Chat tests: install with an own CA and test the OAuth integration with EGroupware.
 # Commits to egroupware-guacamole run the same for Guacamole (OpenID login via EGroupware), commits to egroupware-mail the mail tests
 # (Dovecot and Postfix integrated into EGroupware, Debian and Ubuntu only until the RPM is published). Which jobs: tests/plan.sh.
+# Image-only releases (no commit here, over 90% of the releases) start a manual run at the end of egroupware/doc/docker/fpm/build.sh (gh workflow run),
+# a nightly run of everything on the default distros catches the rest (base images, MariaDB, Nginx, ... changing without any commit).
 name: Package install tests
 
 on:
@@ -21,22 +23,25 @@ on:
       - 'server:eGroupWare/egroupware-guacamole/**'
       - 'server:eGroupWare/egroupware-mail/**'
       - '!**/.osc/**'
+  schedule:
+    # every night, tests what is currently published on the default distros (the same as a manual run with test=all)
+    - cron: '17 2 * * *'
   workflow_dispatch:
     inputs:
       test:
-        description: 'What to test: install (egroupware-docker and Collabora, with Nginx and Apache), rocketchat (with OAuth integration), guacamole (with OpenID login), mail or all'
+        description: 'What to test: install (egroupware-docker and Collabora, with Nginx and Apache), rocketchat (with OAuth integration), guacamole (with OpenID login), mail, smb (SMB/CIFS shares) or all'
         type: choice
         default: install
-        options: [install, rocketchat, guacamole, mail, all]
+        options: [install, rocketchat, guacamole, mail, smb, all]
       distro:
         description: 'Distros to test: default (as on commits), all or a single one. A manual run tests what is currently published'
         type: choice
         default: default
         options: [default, all, rocky-10, rocky-9, ubuntu-26.04, ubuntu-24.04, ubuntu-22.04, debian-13, debian-12, opensuse-16.1, opensuse-16.0]
 
-# a newer commit supersedes the run of an older one, manual runs are independent (they used to cancel each other)
+# a newer commit supersedes the run of an older one, manual and scheduled runs are independent (they used to cancel each other)
 concurrency:
-  group: package-tests-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'push' }}
+  group: package-tests-${{ github.ref }}-${{ github.event_name != 'push' && github.run_id || 'push' }}
   cancel-in-progress: true
 
 permissions:
@@ -59,7 +64,7 @@ jobs:
           BEFORE: ${{ github.event.before }}
           SHA: ${{ github.sha }}
           INPUT_DISTRO: ${{ inputs.distro }}
-          INPUT_TEST: ${{ inputs.test }}
+          INPUT_TEST: ${{ inputs.test || (github.event_name == 'schedule' && 'all') || 'install' }}
           GH_TOKEN: ${{ github.token }}
         run: tests/plan.sh | tee -a "$GITHUB_OUTPUT"
 
@@ -90,6 +95,7 @@ jobs:
           ROCKETCHAT: ${{ matrix.kind == 'rocketchat' && '1' || '' }}
           GUACAMOLE: ${{ matrix.kind == 'guacamole' && '1' || '' }}
           MAIL: ${{ matrix.kind == 'mail' && '1' || '' }}
+          SMB: ${{ matrix.kind == 'smb' && '1' || '' }}
           PLATFORM: linux/amd64
           NO_MIRROR: '1'                    # fresh VM for every job, a registry mirror would not help
           MIN_FREE_GB: '0'                  # fresh VM for every job, no leftovers of earlier tests to guard against

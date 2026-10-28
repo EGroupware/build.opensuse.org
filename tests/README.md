@@ -12,6 +12,7 @@ The package installs Docker itself, exactly as on a fresh server, so the test ma
     GUACAMOLE=1 ./run-test.sh rocky-10               # also egroupware-guacamole with OpenID login via EGroupware (Nginx, own CA like ROCKETCHAT=1)
     MAIL=1 ./run-test.sh ubuntu-24.04                # also egroupware-mail (Dovecot and Postfix), plain http, no own CA needed
     MAIL=1 MAIL_PKG=<file.rpm> ./run-test.sh rocky-10   # install this package file instead of the published one (noarch RPM, tests an unpublished spec)
+    SMB=1 ./run-test.sh debian-13                    # also a Samba server: smb:// from the egroupware container, mounted into the VFS, server names via search domain
 
 Recommends (egroupware-collabora-key) are installed as per wiki, on arm64 it switches to Collabora's CODE image. NO_RECOMMENDS=1 skips it. Rocketchat has no arm64 image and is not tested yet.
 OBS builds egroupware-docker for aarch64 on Ubuntu 22.04/24.04/26.04 and Debian 12/13 only, other distros can only be tested on amd64.
@@ -53,6 +54,7 @@ Source: [Installation using EGroupware docker RPM DEB package](https://github.co
   (`rosetta error: mmap_anonymous_rw mmap failed`), so the IMAP and delivery checks are skipped there and only run on x86_64 (CI).
 
 ## Limits on a Mac (Docker Desktop with Rosetta)
+- SMB (`SMB=1`, ticket #127001): create/write/read/list/delete via `smb://` in the egroupware container, wrong password rejected, share mounted into the VFS with `filemanager/cli.php mount` and listed/read via `vfs://default/smb`, server names resolved via the search domain of the container: FQDNs always, short names and `host.subdomain` depending on `ndots`. The Alpine image (musl) does not fall back to the search domain like glibc did: short names fail with `ndots:0` (Docker Desktop default), `host.subdomain` with `ndots:0` and `1`, those cases are only a WARN until the image is fixed, then turn them into checks (verify-smb.sh). Image-only, so it runs on one distro (debian-13) with every change of egroupware-docker-26.
 - amd64 containers cannot run newer systemd: Rosetta does not implement the `pidfd_open` syscall, which systemd 255 and later needs (Ubuntu 24.04+, Debian 13, Rocky 10, openSUSE Leap 16). Rocky 9, Ubuntu 22.04 and Debian 12 boot.
 - The inner Docker of Debian 12 fails under Rosetta (`runc create failed`), Collabora's LibreOfficeKit fails to install its seccomp filter. Use native arm64 here and amd64 in CI.
 - every test machine has its own docker+containerd volumes with all images (several GB), `run-test.sh` aborts if less than `MIN_FREE_GB` (20) are free on the host disk.

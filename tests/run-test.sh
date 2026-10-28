@@ -49,6 +49,9 @@ if [ -n "$ml" ]; then
 	[ -z "$rc$gc" ] || { echo "MAIL=1 can not be combined with ROCKETCHAT=1 or GUACAMOLE=1" >&2; exit 2; }
 	suffix="$suffix-mail"
 fi
+# SMB=1: also start a Samba server and test SMB access from the egroupware container (smb:// via PHP, mounted into the VFS with filemanager/cli.php, short server names via search domain)
+smb=${SMB:-}
+[ -z "$smb" ] || { [ -z "$rc$gc$ml" ] || { echo "SMB=1 can not be combined with ROCKETCHAT=1, GUACAMOLE=1 or MAIL=1" >&2; exit 2; }; suffix="$suffix-smb"; }
 # MAIL_PKG=file: install this (noarch .rpm) package file instead of the published egroupware-mail
 mail_pkg=${MAIL_PKG:-}
 [ -z "$mail_pkg" ] || [ -n "$ml" ] || { echo "MAIL_PKG needs MAIL=1" >&2; exit 2; }
@@ -84,7 +87,7 @@ docker cp guest $name:/opt/guest
 web_base=http://localhost
 [ $family = rpm -a $web = apache ] && web_base=https://localhost
 [ -z "$rc$gc" ] || web_base=https://egw.test
-env_args=(-e OBS_DIST=$obs -e NO_RECOMMENDS=${NO_RECOMMENDS:-} -e EXTRA_PKGS=${EXTRA_PKGS:-} -e TIMEOUT=${TIMEOUT:-1800} -e WEB_BASE=$web_base -e EXPECT_WEBSERVER=$web -e EXPECT_COLLABORA=$([ -n "${NO_RECOMMENDS:-}" ] && echo 0 || echo 1) -e TLS_HOST=egw.test -e TLS_TRUSTED=$rc$gc -e EXPECT_ROCKETCHAT=$([ -n "$rc" ] && echo 1 || echo 0) -e EXPECT_GUACAMOLE=$([ -n "$gc" ] && echo 1 || echo 0) -e EXPECT_MAIL=$([ -n "$ml" ] && echo 1 || echo 0))
+env_args=(-e OBS_DIST=$obs -e NO_RECOMMENDS=${NO_RECOMMENDS:-} -e EXTRA_PKGS=${EXTRA_PKGS:-} -e TIMEOUT=${TIMEOUT:-1800} -e WEB_BASE=$web_base -e EXPECT_WEBSERVER=$web -e EXPECT_COLLABORA=$([ -n "${NO_RECOMMENDS:-}" ] && echo 0 || echo 1) -e TLS_HOST=egw.test -e TLS_TRUSTED=$rc$gc -e EXPECT_ROCKETCHAT=$([ -n "$rc" ] && echo 1 || echo 0) -e EXPECT_GUACAMOLE=$([ -n "$gc" ] && echo 1 || echo 0) -e EXPECT_MAIL=$([ -n "$ml" ] && echo 1 || echo 0) -e EXPECT_SMB=$([ -n "$smb" ] && echo 1 || echo 0))
 # run a setup step of the guest in its own process group, killed with all its children after SETUP_TIMEOUT seconds (a hanging "docker compose logs -f" would
 # otherwise keep the job running until the CI timeout), diagnostics (containers and their logs) on failure
 guest_step() {   # label script [docker exec options]
@@ -127,5 +130,8 @@ fi
 if [ -n "$ml" ]; then
 	[ -z "$mail_pkg" ] || { docker exec $name mkdir -p /opt/mail-pkg; docker cp "$mail_pkg" $name:/opt/mail-pkg/; }
 	guest_step mail mail.sh
+fi
+if [ -n "$smb" ]; then
+	guest_step SMB smb.sh
 fi
 docker exec "${env_args[@]}" $name bash -c "bash /opt/guest/verify.sh 2>&1 | tee /dev/console; exit \${PIPESTATUS[0]}"

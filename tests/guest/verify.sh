@@ -151,5 +151,8 @@ if [ "${EXPECT_GUACAMOLE:-0}" = 1 ]; then . "$(dirname "$0")/verify-guacamole.sh
 # --- egroupware-mail: Dovecot and Postfix integrated into EGroupware (MAIL=1 of run-test.sh) ---
 if [ "${EXPECT_MAIL:-0}" = 1 ]; then . "$(dirname "$0")/verify-mail.sh"; fi
 
+# --- SMB/CIFS access from the egroupware container (SMB=1 of run-test.sh) ---
+if [ "${EXPECT_SMB:-0}" = 1 ]; then . "$(dirname "$0")/verify-smb.sh"; fi
+
 [ $fail = 0 ] && echo "ALL CRITERIA PASSED" || { echo "SOME CRITERIA FAILED"; bash "$(dirname "$0")/diag.sh"; }
 exit $fail
