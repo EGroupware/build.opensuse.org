@@ -17,7 +17,7 @@ DIR=server:eGroupWare
 # base:        egroupware-docker-26 and Collabora with Nginx and Apache
 # rocketchat:  egroupware-rocketchat with OAuth integration into EGroupware (Nginx, own CA, see guest/tls.sh)
 # guacamole:   egroupware-guacamole with OpenID login via EGroupware (Nginx, own CA)
-# mail:        egroupware-mail (Dovecot and Postfix), only Debian and Ubuntu until the RPM is published
+# mail:        egroupware-mail (Dovecot and Postfix), Debian, Ubuntu and Rocky 10 (no SUSE package yet)
 # smb:         SMB/CIFS access from the egroupware container to a Samba server (smb:// in PHP, mounted into the VFS, short server names), needs the
 #              egroupware image only, not the distro, so it runs on one distro and is run with every change of egroupware-docker-26
 kind_of() {
@@ -47,7 +47,7 @@ applies() {   # kind distro
 	case $1 in
 		base) return 0 ;;
 		rocketchat|guacamole) case $2 in opensuse-*) return 1 ;; *) return 0 ;; esac ;;
-		mail) case $2 in ubuntu-*|debian-*) return 0 ;; *) return 1 ;; esac ;;
+		mail) case $2 in ubuntu-*|debian-*|rocky-10) return 0 ;; *) return 1 ;; esac ;;
 		smb) [ "$2" = debian-13 ] ;;
 	esac
 }
