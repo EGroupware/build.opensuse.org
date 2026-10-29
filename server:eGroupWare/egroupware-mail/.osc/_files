@@ -1,4 +1,4 @@
-<directory name="egroupware-mail" rev="47" vrev="1" srcmd5="b86b7a0ecfd29d535ba882987f5b6094">
+<directory name="egroupware-mail" rev="48" vrev="2" srcmd5="c4c6a5a550e9e508a6f3683fb031e4e0">
   <entry name="debian.changes" md5="cb0fd86aa4b6a2f34d401f1d035e5a31" size="2800" mtime="1793255524" />
   <entry name="debian.compat" md5="31d30eea8d0968d6458e0ad0027c9f80" size="3" mtime="1605101807" />
   <entry name="debian.control" md5="55167a406123e09fb0b32966be5a3c4e" size="618" mtime="1758611432" />
@@ -8,6 +8,6 @@
   <entry name="debian.tar.gz" md5="2c4328f6e6a68e37f0f77b95b2d8752c" size="120" mtime="1605101810" />
   <entry name="egroupware-mail-2.3.20261021.tar.gz" md5="2d557dd370929f51fc02ca380f8a5a52" size="93640" mtime="1793255524" />
   <entry name="egroupware-mail.dsc" md5="62b20bd142237b735596f02e9c9312f1" size="363" mtime="1793255525" />
-  <entry name="egroupware-mail.spec" md5="5521b4ea38729635d222e7b3314cc478" size="11427" mtime="1793255525" />
+  <entry name="egroupware-mail.spec" md5="d108a51b820e1707b2cc2450e9fc0acf" size="11536" mtime="1793262562" />
 </directory>
 
