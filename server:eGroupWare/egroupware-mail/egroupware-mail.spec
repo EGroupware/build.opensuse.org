@@ -10,8 +10,6 @@ Packager: Ralf Becker <rb@egroupware.org>
 
 # create with: gtar -czvf egroupware-mail-2.3.20261021.tar.gz egroupware-mail
 Source: %{name}-%{version}.tar.gz
-# only scripts and configuration, no binaries, so the package installs on any architecture
-BuildArch: noarch
 
 # some defines in case we want to build it for an other distro
 %define etc_dir /etc/egroupware-mail

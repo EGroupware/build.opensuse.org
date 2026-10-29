@@ -15,10 +15,10 @@ if ls /opt/mail-pkg/* >/dev/null 2>&1; then
 	# a not yet published package file (MAIL_PKG of run-test.sh), noarch RPMs install on any architecture
 	$INSTALL /opt/mail-pkg/*
 else
-case "$(uname -m)" in
-	x86_64) $INSTALL egroupware-mail ;;
+# the RPM is noarch, only the Debian package is amd64 and has to be forced onto other architectures
+case "$(uname -m)/$INSTALL" in
+	x86_64/*|*/"dnf -y install"|*/"zypper -n install") $INSTALL egroupware-mail ;;
 	*)
-		[ "$INSTALL" = "apt-get install -y" ] || { echo "forcing the amd64 package onto $(uname -m) is only implemented for Debian/Ubuntu" >&2; exit 1; }
 		# its dependencies, without egroupware-mail itself
 		$INSTALL apache2-utils openssl curl
 		cd /opt && apt-get download egroupware-mail:amd64 2>/dev/null || { dpkg --add-architecture amd64; apt-get update; apt-get download egroupware-mail:amd64; }
