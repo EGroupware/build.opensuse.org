@@ -1,3 +1,11 @@
+egroupware-mail (2.3.20261021) hardy; urgency=low
+
+  * fix Postfix answering "451 4.3.0 Temporary lookup failure" for every mail ("unsupported dictionary type: lmdb"): the image uses lmdb maps, which need
+    the entries in /etc/postfix/dynamicmaps.cf.d, now installed (lmdb, mysql, pcre), and the lmdb database of the aliases file is created
+  * add RPM support (egroupware-mail.spec was a copy of the one of Rocket.Chat), for the distros we have the egroupware-docker package for
+
+ -- Ralf Becker <rb@egroupware.org>  Wed, 21 Oct 2026 14:00 -0000
+
 egroupware-mail (2.3.20260226) hardy; urgency=low
 
   * use mariadb binary when accessing the DB in egroupware-db container, as of 11.8 no more mysql symlink

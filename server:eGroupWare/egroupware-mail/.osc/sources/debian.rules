@@ -89,6 +89,9 @@ install: build
 	install -m 644 postfix/aliases $(DEST_DIR)$(ETC_POSTFIX)
 	install -m 644 postfix/aliases.db $(DEST_DIR)$(ETC_POSTFIX)
 	install -m 644 postfix/dynamicmaps.cf $(DEST_DIR)$(ETC_POSTFIX)
+	# dynamic maps (lmdb, mysql, pcre): /etc/postfix of the image is replaced by this directory, without them Postfix can not use the maps
+	mkdir -p $(DEST_DIR)$(ETC_POSTFIX)/dynamicmaps.cf.d
+	install -m 644 postfix/dynamicmaps.cf.d/* $(DEST_DIR)$(ETC_POSTFIX)/dynamicmaps.cf.d
 	install -m 644 postfix/generic $(DEST_DIR)$(ETC_POSTFIX)
 	install -m 644 postfix/header_checks $(DEST_DIR)$(ETC_POSTFIX)
 	install -m 644 postfix/main.cf.proto $(DEST_DIR)$(ETC_POSTFIX)

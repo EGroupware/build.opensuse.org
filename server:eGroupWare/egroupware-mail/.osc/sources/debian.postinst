@@ -128,6 +128,8 @@ EOF
 
 	# fix postfix can't find it's (already installed) mysql driver
 	docker exec egroupware-smtp sh -c "apk del postfix-mysql; apk --update add postfix-mysql; postfix reload" || true
+# create the lmdb database of the aliases file, the image (Alpine) uses lmdb instead of hash/Berkeley DB maps
+docker exec egroupware-smtp sh -c "postalias lmdb:/etc/postfix/aliases; postfix reload" || true
 
 fi
 

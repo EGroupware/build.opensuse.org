@@ -1,5 +1,5 @@
 Name: egroupware-mail
-Version: 2.3.20260226
+Version: 2.3.20261021
 Release:
 Summary: EGroupware Mail: Dovecot and Postfix in containers, integrated into EGroupware
 Group: Web/Database
@@ -8,7 +8,7 @@ URL: https://github.com/EGroupware/egroupware/wiki/EGroupwareMail
 Vendor: EGroupware GmbH, https://www.egroupware.org/
 Packager: Ralf Becker <rb@egroupware.org>
 
-# create with: gtar -czvf egroupware-mail-2.3.20260226.tar.gz egroupware-mail
+# create with: gtar -czvf egroupware-mail-2.3.20261021.tar.gz egroupware-mail
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -64,6 +64,9 @@ for f in main.cf master.cf sasl_password sql-aliases.cf sql-domains.cf sql-mailb
 	install -m 644 postfix/$f $RPM_BUILD_ROOT%{etc_dir}/postfix/
 done
 install -m 600 postfix/dh.pem $RPM_BUILD_ROOT%{etc_dir}/postfix/
+# dynamic maps (lmdb, mysql, pcre): /etc/postfix of the image is replaced by this directory, without them Postfix can not use the maps
+mkdir -p $RPM_BUILD_ROOT%{etc_dir}/postfix/dynamicmaps.cf.d
+install -m 644 postfix/dynamicmaps.cf.d/* $RPM_BUILD_ROOT%{etc_dir}/postfix/dynamicmaps.cf.d/
 mkdir -p $RPM_BUILD_ROOT%{data_dir}
 # created by %post
 touch $RPM_BUILD_ROOT%{etc_dir}/certificate.pem
@@ -185,6 +188,8 @@ echo "y" | $COMPOSE up -d || true
 
 # fix postfix can't find it's (already installed) mysql driver
 docker exec egroupware-smtp sh -c "apk del postfix-mysql; apk --update add postfix-mysql; postfix reload" || true
+# create the lmdb database of the aliases file, the image (Alpine) uses lmdb instead of hash/Berkeley DB maps
+docker exec egroupware-smtp sh -c "postalias lmdb:/etc/postfix/aliases; postfix reload" || true
 true
 
 %preun
@@ -211,6 +216,7 @@ true
 %dir %{etc_dir}/dovecot
 %dir %{etc_dir}/dovecot/conf.d
 %dir %{etc_dir}/postfix
+%dir %{etc_dir}/postfix/dynamicmaps.cf.d
 %{etc_dir}/latest-docker-compose.override.yml
 %ghost %config(noreplace) %{etc_dir}/docker-compose.override.yml
 %ghost %attr(600,root,root) %{etc_dir}/certificate.key
