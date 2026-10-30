@@ -9,8 +9,8 @@ export COMPOSE_PROGRESS=plain
 if command -v apt-get >/dev/null; then INSTALL="apt-get install -y"
 elif command -v dnf >/dev/null; then INSTALL="dnf -y install"
 else INSTALL="zypper -n install"; fi
-# curl-minimal of the RPM distros does not speak imaps and smtp, which the checks use
-[ "$INSTALL" != "dnf -y install" ] || dnf -y install --allowerasing curl
+# curl-minimal / libcurl-minimal of the RHEL distros do not speak imaps and smtp, which the checks use (libcurl-full replaces libcurl-minimal)
+[ "$INSTALL" != "dnf -y install" ] || dnf -y install --allowerasing curl libcurl-full
 # on a host that can not run the amd64 images natively, they run emulated
 [ "$(uname -m)" = x86_64 ] || export DOCKER_DEFAULT_PLATFORM=linux/amd64
 if ls /opt/mail-pkg/* >/dev/null 2>&1; then
