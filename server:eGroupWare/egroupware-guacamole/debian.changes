@@ -1,3 +1,12 @@
+egroupware-guacamole (1.6.0.20261030) hardy; urgency=low
+
+  * fix installation of the Guacamole app with the Alpine based EGroupware image: php runs inside the egroupware container, no host PHP required any more,
+    and wait until php-fpm is really running, before installing the app
+  * do not fail (blocking dpkg and apt) if EGroupware is not installed yet: install EGroupware first, then the certificate and as last Guacamole:
+    HTTP_HOST=<domain> apt install egroupware-guacamole (or dpkg-reconfigure egroupware-guacamole)
+
+ -- Ralf Becker <rb@egroupware.org>  Fri, 30 Oct 2026 12:00 -0000
+
 egroupware-guacamole (1.6.0.20260601) hardy; urgency=low
 
   * fix SQL error when adding a group to a connection permission

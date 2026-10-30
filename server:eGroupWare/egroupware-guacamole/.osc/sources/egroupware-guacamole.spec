@@ -1,5 +1,5 @@
 Name: egroupware-guacamole
-Version: 1.6.0.20260601
+Version: 1.6.0.20261030
 Release:
 Summary: Apache Guacamole managed by EGroupware
 Group: Web/Database

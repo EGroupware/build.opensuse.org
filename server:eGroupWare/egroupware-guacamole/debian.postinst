@@ -24,9 +24,21 @@ docker help compose >/dev/null || {
 if [ "$1" = configure -o "$1" = upgrade ]
 then
 	# If upgrading, $2 contains the release currently installed, otherwise it's empty
-	if [ -z "$2" ]
+	# (a missing docker-compose.override.yml means the setup below never completed, eg. via "dpkg-reconfigure egroupware-guacamole")
+	if [ -z "$2" -o ! -f /etc/egroupware-guacamole/docker-compose.override.yml ]
 	then
 	  # new install:
+	  # Guacamole needs EGroupware installed first (database in the egroupware-db container or on the host), if not, do NOT fail the package
+	  # installation (dpkg would block all further apt runs), but tell what to do:
+	  # install EGroupware first, then the certificate, and as last Guacamole: HTTP_HOST=<domain> apt install egroupware-guacamole
+	  if ! { test -f /etc/egroupware-docker/.env && grep -q "'db_host' => 'db'" /var/lib/egroupware/header.inc.php 2>/dev/null; } && \
+	    ! command -v mysql >/dev/null 2>&1
+	  then
+	    echo "EGroupware is not (yet) installed, so egroupware-guacamole is NOT set up: install EGroupware (egroupware-docker) first," >&2
+	    echo "then a certificate, and as last run: HTTP_HOST=<your domain> dpkg-reconfigure egroupware-guacamole" >&2
+	    db_stop
+	    exit 0
+	  fi
 	  # create a docker-compose.override.yml file for installation specific changes
     cat <<EOF > /etc/egroupware-guacamole/docker-compose.override.yml
 #########################################################################################
