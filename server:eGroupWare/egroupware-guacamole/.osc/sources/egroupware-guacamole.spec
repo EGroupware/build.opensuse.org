@@ -234,7 +234,7 @@ fi
 # to copy the sources of the app into it, and run the app installation there passing the HTTP_HOST environment variable along
 docker restart egroupware && {
 	echo -n "Waiting for egroupware container to restart ."
-	docker exec egroupware bash -c 'until ps | grep php-fpm >/dev/null; do echo -n "."; sleep 1; done'
+	docker exec egroupware bash -c 'until pgrep -f "[p]hp-fpm: master" >/dev/null; do echo -n "."; sleep 1; done'
 	echo
 	docker exec -e HTTP_HOST="$HTTP_HOST" egroupware php /usr/share/egroupware/doc/rpm-build/post_install.php --start_webserver "" --install-update-app guacamole
 } || echo "Could not restart the egroupware container, the Guacamole app is NOT installed in EGroupware!"
