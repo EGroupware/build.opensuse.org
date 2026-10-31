@@ -1,3 +1,10 @@
+egroupware-docker (26.10.20261031) hardy; urgency=low
+
+  * changing back to www-data:www-data being 33:33 as prior to 26.10.20261021 (the EGroupware image keeps the uid/gid of Debian/Ubuntu, existing installations are NOT
+    changed): header.inc.php and the data directories created by the package are owned by 33:33 again, fixing installations done with 26.10.20261028
+
+ -- Ralf Becker <rb@egroupware.org>  Sat, 31 Oct 2026 12:00:00 +0100
+
 egroupware-docker (26.10.20261028) hardy; urgency=low
 
   * fixing new installations failing with Alpine based EGroupware image

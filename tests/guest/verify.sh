@@ -64,6 +64,14 @@ code=$(curl -s -o /dev/null -w '%{http_code}' -u "sysop:wrong-$SYSOP_PW" -H 'Acc
 rm -f /tmp/accounts.json
 
 # --- sessions: a real login (form, not basic auth), then another request reusing the session cookie ---
+# the package and the image must use the same uid:gid for www-data: fails, if one of them changes it (the Alpine image once had 82, while the packages
+# chowned to 33, so no new installation worked). The entrypoint chowns the data to the uid of the image, so the files on disk can NOT be used to check this,
+# but the uid:gid the package script uses for header.inc.php and the data directory
+IMGIDS=$(docker exec egroupware id -u www-data):$(docker exec egroupware id -g www-data)
+if command -v dpkg >/dev/null; then PKGSCRIPT=$(cat /var/lib/dpkg/info/egroupware-docker.postinst 2>/dev/null)
+else PKGSCRIPT=$(rpm -q --scripts egroupware-docker 2>/dev/null); fi
+PKGIDS=$(echo "$PKGSCRIPT" | grep -oE 'chown [0-9]+:[0-9]+ /var/lib/egroupware[ /]' | awk '{print $2}' | sort -u | tr '\n' ' ' | sed 's/ $//')
+check "uid: package chowns header.inc.php and the data directory to '$PKGIDS', www-data of the egroupware container is $IMGIDS" test "$PKGIDS" = "$IMGIDS"
 # fails, if PHP can not write its session files (eg. /var/lib/php/sessions in the sessions volume not writable for www-data of the container): login works, next request is logged out
 J=/tmp/session-check.cookies; rm -f $J
 SESS_LOGIN=$(curl -s -c $J -b $J -o /dev/null -w '%{http_code} %{redirect_url}' --data-urlencode "login=sysop" --data-urlencode "passwd=$SYSOP_PW" -d "passwd_type=text&account_type=u&submitit=1" $BASE/egroupware/login.php)

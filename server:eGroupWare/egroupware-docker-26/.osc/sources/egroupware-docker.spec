@@ -1,5 +1,5 @@
 Name: egroupware-docker
-Version: 26.10.20261028
+Version: 26.10.20261031
 Release:
 Summary: EGroupware is a web-based groupware suite written in php
 Group: Web/Database
@@ -15,7 +15,7 @@ Packager: Ralf Becker <rb@egroupware.org>
 # old (17.1 and before) package name
 %define old_name egroupware-epl
 
-# create with: g?tar -czvf egroupware-docker-26.10.20261028.tar.gz egroupware-docker
+# create with: g?tar -czvf egroupware-docker-26.10.20261031.tar.gz egroupware-docker
 Source: %{name}-%{version}.tar.gz
 
 # some defines in case we want to build it for an other distro
@@ -209,12 +209,12 @@ EOF
 		systemctl restart %{apache_service}
 	fi
 
-	# www-data in the (Alpine) container is uid/gid 82/82, only chown what we create, NOT recursive, as that takes ages in big installations
+	# www-data in the container is uid/gid 33/33 (like Debian/Ubuntu), only chown what we create, NOT recursive, as that takes ages in big installations
     mkdir -p %{egwdatadir}/default/files/sqlfs
     mkdir -p %{egwdatadir}/default/files/smallpart
     mkdir -p %{egwdatadir}/default/backup
-	chown 82:82 %{egwdatadir} %{egwdatadir}/default %{egwdatadir}/default/files %{egwdatadir}/default/files/sqlfs %{egwdatadir}/default/files/smallpart %{egwdatadir}/default/backup
-	[ -f %{egwdatadir}/header.inc.php ] && chown 82:82 %{egwdatadir}/header.inc.php
+	chown 33:33 %{egwdatadir} %{egwdatadir}/default %{egwdatadir}/default/files %{egwdatadir}/default/files/sqlfs %{egwdatadir}/default/files/smallpart %{egwdatadir}/default/backup
+	[ -f %{egwdatadir}/header.inc.php ] && chown 33:33 %{egwdatadir}/header.inc.php
 
 	# if an old /root/egroupware-epl-install.log exists, move it datadir and symlink it
 	[ -f /root/egroupware-epl-install.log -a ! -L /root/egroupware-epl-install.log ] && {
@@ -347,8 +347,8 @@ install -m 640 header.inc.php $RPM_BUILD_ROOT%{egwdatadir}
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %files
-# www-data in the Alpine container is uid/gid 82/82
-%dir %attr(0755,82,82) %{egwdatadir}
+# www-data in the container is uid/gid 33/33
+%dir %attr(0755,33,33) %{egwdatadir}
 
 %defattr(-,root,root)
 %{etc_dir}
